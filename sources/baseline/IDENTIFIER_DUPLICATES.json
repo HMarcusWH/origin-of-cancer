@@ -1,0 +1,15 @@
+{
+  "distinct_identifier_groups": 68,
+  "groups": [
+    [
+      "W11",
+      "W41"
+    ],
+    [
+      "W19",
+      "W45"
+    ]
+  ],
+  "method": "Exact normalized registered identifier only; not a full study/cohort deduplication.",
+  "source_rows": 70
+}

@@ -1,0 +1,2174 @@
+{
+  "registry_version": "2.7.7",
+  "authority": "Canonical machine-readable physical claim algebra for OoL-MVS v2.7.6. Complete-world truth and experimental evidence evaluation use distinct semantics; certification is a meta-layer and may not feed physical truth.",
+  "truth_values": [
+    "PASS",
+    "FAIL",
+    "NA"
+  ],
+  "scopes": [
+    "physical",
+    "epistemic",
+    "measurement",
+    "theorem"
+  ],
+  "types": {
+    "RouteId": {
+      "fields": {
+        "route_id": "String",
+        "route_spec_digest": "Digest"
+      }
+    },
+    "Boundary": {
+      "fields": {
+        "boundary_id": "String",
+        "route_spec_digest": "Digest",
+        "boundary_spec_digest": "Digest"
+      }
+    },
+    "REWitness": {
+      "fields": {
+        "witness_id": "String",
+        "route_id": "String",
+        "route_spec_digest": "Digest",
+        "boundary_spec_digest": "Digest",
+        "run_or_block_id": "RunBlockId",
+        "condition_id": "ConditionId",
+        "observation_epoch": "Timestamp",
+        "hereditary_core_id": "String"
+      }
+    },
+    "PCSWitness": {
+      "fields": {
+        "witness_id": "String",
+        "route_id": "String",
+        "route_spec_digest": "Digest",
+        "boundary_spec_digest": "Digest",
+        "run_or_block_id": "RunBlockId",
+        "condition_id": "ConditionId",
+        "observation_epoch": "Timestamp",
+        "physical_lineage_id": "String",
+        "hereditary_core_id": "String"
+      }
+    },
+    "InterfaceWitness": {
+      "fields": {
+        "witness_id": "String",
+        "route_id": "String",
+        "route_spec_digest": "Digest",
+        "boundary_spec_digest": "Digest",
+        "run_or_block_id": "RunBlockId",
+        "condition_id": "ConditionId",
+        "observation_epoch": "Timestamp"
+      }
+    },
+    "HandoffWitness": {
+      "fields": {
+        "witness_id": "String",
+        "route_id": "String",
+        "route_spec_digest": "Digest",
+        "boundary_spec_digest": "Digest",
+        "run_or_block_id": "RunBlockId",
+        "condition_id": "ConditionId",
+        "observation_epoch": "Timestamp",
+        "source_arena_id": "String",
+        "target_arena_id": "String",
+        "transferred_batch_id": "String"
+      }
+    },
+    "CarrierWitness": {
+      "fields": {
+        "witness_id": "String",
+        "route_id": "String",
+        "route_spec_digest": "Digest",
+        "boundary_spec_digest": "Digest",
+        "run_or_block_id": "RunBlockId",
+        "condition_id": "ConditionId",
+        "observation_epoch": "Timestamp",
+        "carrier_lineage_id": "String"
+      }
+    },
+    "ProgrammeProof": {
+      "fields": {
+        "proof_id": "String",
+        "route_id": "String",
+        "route_spec_digest": "Digest",
+        "boundary_spec_digest": "Digest",
+        "interface_witness": "InterfaceWitness",
+        "handoff_witness": "HandoffWitness",
+        "pcs_witness": "PCSWitness"
+      }
+    },
+    "RouteProof": {
+      "fields": {
+        "proof_id": "String",
+        "route_id": "String",
+        "route_spec_digest": "Digest",
+        "boundary_spec_digest": "Digest",
+        "re_witness": "REWitness",
+        "pcs_witness": "PCSWitness"
+      }
+    },
+    "NaturalProof": {
+      "fields": {
+        "proof_id": "String",
+        "route_id": "String",
+        "route_spec_digest": "Digest",
+        "lab_proof": "RouteProof",
+        "natural_boundary": "NaturalBoundary",
+        "boundary_realization_witness": "BoundaryRealizationWitness"
+      }
+    },
+    "Operation": {},
+    "NaturalOperation": {},
+    "ForcingLaw": {},
+    "Threshold": {},
+    "EvidenceBundle": {
+      "fields": {
+        "evidence_bundle_id": "String",
+        "claim_id": "String",
+        "physical_witness_ref": "String",
+        "support_receipt_set_digest": "Digest",
+        "raw_evidence_set_digest": "Digest",
+        "registry_hash": "Digest"
+      }
+    },
+    "String": {},
+    "Digest": {},
+    "Timestamp": {},
+    "RunBlockId": {},
+    "ConditionId": {},
+    "NaturalBoundary": {
+      "fields": {
+        "boundary_id": "String",
+        "route_spec_digest": "Digest",
+        "boundary_spec_digest": "Digest"
+      }
+    },
+    "BoundaryRealizationWitness": {
+      "fields": {
+        "witness_id": "String",
+        "route_spec_digest": "Digest",
+        "lab_boundary_spec_digest": "Digest",
+        "natural_boundary_spec_digest": "Digest"
+      }
+    }
+  },
+  "relations": {
+    "CompatibleReplicateFamily": {
+      "args": [
+        "EvidenceBundle",
+        "EvidenceBundle"
+      ],
+      "owner": "experimental_equivalence"
+    },
+    "DescendsCore": {
+      "args": [
+        "REWitness",
+        "PCSWitness"
+      ],
+      "owner": "provenance"
+    },
+    "PCSToCarrier": {
+      "args": [
+        "PCSWitness",
+        "CarrierWitness"
+      ],
+      "owner": "provenance"
+    },
+    "Precedes": {
+      "args": [
+        "EvidenceBundle",
+        "EvidenceBundle"
+      ],
+      "owner": "structural"
+    },
+    "SameTransfer": {
+      "args": [
+        "EvidenceBundle",
+        "EvidenceBundle"
+      ],
+      "owner": "provenance"
+    },
+    "SameConditionClass": {
+      "args": [
+        "EvidenceBundle",
+        "EvidenceBundle"
+      ],
+      "owner": "experimental_equivalence"
+    },
+    "NaturalImplements": {
+      "args": [
+        "Operation",
+        "NaturalOperation"
+      ],
+      "owner": "natural_mapping"
+    },
+    "PolicyMapped": {
+      "args": [
+        "RouteProof",
+        "NaturalProof"
+      ],
+      "owner": "natural_mapping"
+    }
+  },
+  "threshold_contracts": {
+    "reachability_probability": {
+      "domain": "(0,1]",
+      "extra": "positive support under a declared admissible natural forcing law; this is not a plausibility floor",
+      "metric": "probability",
+      "units": "1"
+    },
+    "plausibility_probability_floor": {
+      "domain": "(0,1]",
+      "extra": "preregistered, resolution/relevance justified and model-appropriate",
+      "metric": "probability",
+      "units": "1"
+    },
+    "experimental_probability_floor": {
+      "domain": "(0,1]",
+      "extra": "preregistered and sufficient for the downstream assay/claim at stated resolution",
+      "metric": "probability",
+      "units": "1"
+    },
+    "time_horizon": {
+      "domain": "(0,inf)",
+      "extra": "must meet the minimum generational/relaxation duration declared by the gate",
+      "metric": "elapsed_time",
+      "units": "s"
+    },
+    "bounded_distance_tolerance": {
+      "domain": "[0,d_max)",
+      "extra": "declared metric and units; preregistered assay-resolution/relevance justification",
+      "requires_frozen_metric": true
+    },
+    "unbounded_distance_tolerance": {
+      "domain": "[0,inf)",
+      "extra": "declared metric and units; preregistered assay-resolution/relevance justification",
+      "requires_frozen_metric": true
+    }
+  },
+  "leaf_predicates": {
+    "G_seed": {
+      "args": [
+        "REWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_F": {
+      "args": [
+        "REWitness",
+        "Boundary"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_support_endo": {
+      "args": [
+        "REWitness",
+        "Boundary"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_no_preloaded_solution_RE": {
+      "args": [
+        "REWitness",
+        "Boundary"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_coop_complete": {
+      "args": [
+        "REWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_C_RE": {
+      "args": [
+        "REWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_R_RE": {
+      "args": [
+        "REWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_H_RE": {
+      "args": [
+        "REWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_Arep": {
+      "args": [
+        "REWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_P": {
+      "args": [
+        "PCSWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_C_PCS": {
+      "args": [
+        "PCSWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_R_PCS": {
+      "args": [
+        "PCSWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_H_PCS": {
+      "args": [
+        "PCSWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_V": {
+      "args": [
+        "PCSWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_S": {
+      "args": [
+        "PCSWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_L": {
+      "args": [
+        "PCSWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "NoXFullLengthReplacement": {
+      "args": [
+        "REWitness",
+        "PCSWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "CoreTimeOrder": {
+      "args": [
+        "REWitness",
+        "PCSWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_I1": {
+      "args": [
+        "InterfaceWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_I2": {
+      "args": [
+        "InterfaceWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_I3": {
+      "args": [
+        "InterfaceWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_I4": {
+      "args": [
+        "InterfaceWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_transfer": {
+      "args": [
+        "HandoffWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_complete": {
+      "args": [
+        "HandoffWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_target_establish": {
+      "args": [
+        "HandoffWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_handoff_multivariate": {
+      "args": [
+        "HandoffWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_temporal_overlap": {
+      "args": [
+        "HandoffWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": [
+        "experimental_probability_floor",
+        "time_horizon"
+      ]
+    },
+    "G_currency_native_effect": {
+      "args": [
+        "HandoffWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_currency_depletion_control": {
+      "args": [
+        "HandoffWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_currency_restoration_control": {
+      "args": [
+        "HandoffWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "ProgrammeContinuity": {
+      "args": [
+        "ProgrammeProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_route_path_lab": {
+      "args": [
+        "RouteProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_sourcing": {
+      "args": [
+        "RouteProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_forcing_scope": {
+      "args": [
+        "RouteProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_energy_closure_lab": {
+      "args": [
+        "RouteProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_compatibility": {
+      "args": [
+        "RouteProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_phys": {
+      "args": [
+        "RouteProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_declared_causal_coverage": {
+      "args": [
+        "RouteProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_natural_ops_joint": {
+      "args": [
+        "NaturalProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_natural_reach": {
+      "args": [
+        "NaturalProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": [
+        "reachability_probability"
+      ]
+    },
+    "G_energy_closure_natural": {
+      "args": [
+        "NaturalProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_natural_plaus": {
+      "args": [
+        "NaturalProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": [
+        "plausibility_probability_floor"
+      ]
+    },
+    "NaturalForcingLawAdmissible": {
+      "args": [
+        "NaturalProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "AdaptivePolicyMappedOrIrrelevant": {
+      "args": [
+        "NaturalProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "CarrierCompatible": {
+      "args": [
+        "CarrierWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "CarrierBoundedReproduction": {
+      "args": [
+        "CarrierWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "CarrierNoInvestigatorReplacement": {
+      "args": [
+        "CarrierWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "P_est_mol_positive": {
+      "args": [
+        "PCSWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "P_est_carrier_positive": {
+      "args": [
+        "CarrierWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "EmbeddedMolecularLineagePersists": {
+      "args": [
+        "CarrierWitness"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_boundary_realization": {
+      "args": [
+        "BoundaryRealizationWitness",
+        "Boundary",
+        "NaturalBoundary"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    },
+    "G_sourcing_natural": {
+      "args": [
+        "NaturalProof"
+      ],
+      "scope": "physical",
+      "threshold_contract_refs": []
+    }
+  },
+  "claims": {
+    "RE-BENCH-W-1": {
+      "symbol": "RE_bench(w_RE)",
+      "scope": "physical",
+      "args": [
+        [
+          "w_RE",
+          "REWitness"
+        ]
+      ],
+      "expr": {
+        "and": [
+          {
+            "pred": "G_coop_complete",
+            "args": [
+              "w_RE"
+            ]
+          },
+          {
+            "pred": "G_C_RE",
+            "args": [
+              "w_RE"
+            ]
+          },
+          {
+            "pred": "G_R_RE",
+            "args": [
+              "w_RE"
+            ]
+          },
+          {
+            "pred": "G_H_RE",
+            "args": [
+              "w_RE"
+            ]
+          },
+          {
+            "pred": "G_Arep",
+            "args": [
+              "w_RE"
+            ]
+          }
+        ]
+      },
+      "threshold_contract_refs": []
+    },
+    "RE-ENDO-W-1": {
+      "symbol": "RE_endo(w_RE;B0)",
+      "scope": "physical",
+      "args": [
+        [
+          "w_RE",
+          "REWitness"
+        ],
+        [
+          "B0",
+          "Boundary"
+        ]
+      ],
+      "expr": {
+        "and": [
+          {
+            "pred": "G_seed",
+            "args": [
+              "w_RE"
+            ]
+          },
+          {
+            "pred": "G_F",
+            "args": [
+              "w_RE",
+              "B0"
+            ]
+          },
+          {
+            "pred": "G_support_endo",
+            "args": [
+              "w_RE",
+              "B0"
+            ]
+          },
+          {
+            "pred": "G_no_preloaded_solution_RE",
+            "args": [
+              "w_RE",
+              "B0"
+            ]
+          },
+          {
+            "pred": "G_coop_complete",
+            "args": [
+              "w_RE"
+            ]
+          },
+          {
+            "pred": "G_C_RE",
+            "args": [
+              "w_RE"
+            ]
+          },
+          {
+            "pred": "G_R_RE",
+            "args": [
+              "w_RE"
+            ]
+          },
+          {
+            "pred": "G_H_RE",
+            "args": [
+              "w_RE"
+            ]
+          },
+          {
+            "pred": "G_Arep",
+            "args": [
+              "w_RE"
+            ]
+          }
+        ]
+      },
+      "threshold_contract_refs": []
+    },
+    "PCS-W-1": {
+      "symbol": "PCS(w_PCS)",
+      "scope": "physical",
+      "args": [
+        [
+          "w_PCS",
+          "PCSWitness"
+        ]
+      ],
+      "expr": {
+        "and": [
+          {
+            "pred": "G_P",
+            "args": [
+              "w_PCS"
+            ]
+          },
+          {
+            "pred": "G_C_PCS",
+            "args": [
+              "w_PCS"
+            ]
+          },
+          {
+            "pred": "G_R_PCS",
+            "args": [
+              "w_PCS"
+            ]
+          },
+          {
+            "pred": "G_H_PCS",
+            "args": [
+              "w_PCS"
+            ]
+          },
+          {
+            "pred": "G_V",
+            "args": [
+              "w_PCS"
+            ]
+          },
+          {
+            "pred": "G_S",
+            "args": [
+              "w_PCS"
+            ]
+          }
+        ]
+      },
+      "threshold_contract_refs": []
+    },
+    "RE-PCS-PAIR-1": {
+      "symbol": "RE_PCS_pair(w_RE,w_PCS;B0)",
+      "scope": "physical",
+      "args": [
+        [
+          "w_RE",
+          "REWitness"
+        ],
+        [
+          "w_PCS",
+          "PCSWitness"
+        ],
+        [
+          "B0",
+          "Boundary"
+        ]
+      ],
+      "expr": {
+        "and": [
+          {
+            "claim_ref": "RE-ENDO-W-1",
+            "args": [
+              "w_RE",
+              "B0"
+            ]
+          },
+          {
+            "claim_ref": "PCS-W-1",
+            "args": [
+              "w_PCS"
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_RE",
+                  "route_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "w_PCS",
+                  "route_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_RE",
+                  "boundary_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "w_PCS",
+                  "boundary_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "rel": "DescendsCore",
+            "args": [
+              "w_RE",
+              "w_PCS"
+            ]
+          },
+          {
+            "pred": "NoXFullLengthReplacement",
+            "args": [
+              "w_RE",
+              "w_PCS"
+            ]
+          },
+          {
+            "pred": "CoreTimeOrder",
+            "args": [
+              "w_RE",
+              "w_PCS"
+            ]
+          }
+        ]
+      },
+      "notes": [
+        "Continuity is claim-bearing hereditary-core ancestry, not arbitrary fragment survival or functional similarity alone."
+      ],
+      "threshold_contract_refs": []
+    },
+    "INTERFACE-W-1": {
+      "symbol": "Interface(w_I)",
+      "scope": "physical",
+      "args": [
+        [
+          "w_I",
+          "InterfaceWitness"
+        ]
+      ],
+      "expr": {
+        "and": [
+          {
+            "pred": "G_I1",
+            "args": [
+              "w_I"
+            ]
+          },
+          {
+            "pred": "G_I2",
+            "args": [
+              "w_I"
+            ]
+          },
+          {
+            "pred": "G_I3",
+            "args": [
+              "w_I"
+            ]
+          },
+          {
+            "pred": "G_I4",
+            "args": [
+              "w_I"
+            ]
+          }
+        ]
+      },
+      "threshold_contract_refs": []
+    },
+    "HANDOFF-1": {
+      "symbol": "G_handoff(w_H)",
+      "scope": "physical",
+      "args": [
+        [
+          "w_H",
+          "HandoffWitness"
+        ]
+      ],
+      "expr": {
+        "and": [
+          {
+            "pred": "G_transfer",
+            "args": [
+              "w_H"
+            ]
+          },
+          {
+            "pred": "G_complete",
+            "args": [
+              "w_H"
+            ]
+          },
+          {
+            "pred": "G_target_establish",
+            "args": [
+              "w_H"
+            ]
+          },
+          {
+            "pred": "G_handoff_multivariate",
+            "args": [
+              "w_H"
+            ]
+          },
+          {
+            "pred": "G_temporal_overlap",
+            "args": [
+              "w_H"
+            ]
+          }
+        ]
+      },
+      "threshold_contract_refs": [
+        "experimental_probability_floor",
+        "time_horizon"
+      ]
+    },
+    "BRIDGE-W-1": {
+      "symbol": "Bridge(w_H)",
+      "scope": "physical",
+      "args": [
+        [
+          "w_H",
+          "HandoffWitness"
+        ]
+      ],
+      "expr": {
+        "and": [
+          {
+            "claim_ref": "HANDOFF-1",
+            "args": [
+              "w_H"
+            ]
+          },
+          {
+            "pred": "G_currency_native_effect",
+            "args": [
+              "w_H"
+            ]
+          },
+          {
+            "pred": "G_currency_depletion_control",
+            "args": [
+              "w_H"
+            ]
+          },
+          {
+            "pred": "G_currency_restoration_control",
+            "args": [
+              "w_H"
+            ]
+          }
+        ]
+      },
+      "threshold_contract_refs": []
+    },
+    "RE-BENCH-1": {
+      "symbol": "G_RE^bench",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_RE",
+          "type": "REWitness",
+          "body": {
+            "claim_ref": "RE-BENCH-W-1",
+            "args": [
+              "w_RE"
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    },
+    "RE-ENDO-1": {
+      "symbol": "G_RE^endo",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ],
+        [
+          "B0",
+          "Boundary"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_RE",
+          "type": "REWitness",
+          "body": {
+            "claim_ref": "RE-ENDO-W-1",
+            "args": [
+              "w_RE",
+              "B0"
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    },
+    "PCS-LOCAL-1": {
+      "symbol": "D_PCS^local",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_PCS",
+          "type": "PCSWitness",
+          "body": {
+            "claim_ref": "PCS-W-1",
+            "args": [
+              "w_PCS"
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    },
+    "PCS-LINKED-1": {
+      "symbol": "D_linked",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_PCS",
+          "type": "PCSWitness",
+          "body": {
+            "and": [
+              {
+                "claim_ref": "PCS-W-1",
+                "args": [
+                  "w_PCS"
+                ]
+              },
+              {
+                "pred": "G_L",
+                "args": [
+                  "w_PCS"
+                ]
+              }
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    },
+    "RE-PCS-CONT-1": {
+      "symbol": "G_RE->PCS",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ],
+        [
+          "B0",
+          "Boundary"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_RE",
+          "type": "REWitness",
+          "body": {
+            "exists": {
+              "var": "w_PCS",
+              "type": "PCSWitness",
+              "body": {
+                "claim_ref": "RE-PCS-PAIR-1",
+                "args": [
+                  "w_RE",
+                  "w_PCS",
+                  "B0"
+                ]
+              },
+              "domain": "route:r"
+            }
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    },
+    "INTERFACE-1": {
+      "symbol": "G_Interface",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_I",
+          "type": "InterfaceWitness",
+          "body": {
+            "claim_ref": "INTERFACE-W-1",
+            "args": [
+              "w_I"
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    },
+    "BRIDGE-1": {
+      "symbol": "G_bridge",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_H",
+          "type": "HandoffWitness",
+          "body": {
+            "claim_ref": "BRIDGE-W-1",
+            "args": [
+              "w_H"
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    },
+    "PROGRAMME-CURRENT-1": {
+      "symbol": "C_programme^current",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_prog",
+          "type": "ProgrammeProof",
+          "body": {
+            "and": [
+              {
+                "eq": [
+                  {
+                    "field": [
+                      "w_prog",
+                      "route_spec_digest"
+                    ]
+                  },
+                  {
+                    "field": [
+                      "w_prog",
+                      "interface_witness",
+                      "route_spec_digest"
+                    ]
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "field": [
+                      "w_prog",
+                      "route_spec_digest"
+                    ]
+                  },
+                  {
+                    "field": [
+                      "w_prog",
+                      "handoff_witness",
+                      "route_spec_digest"
+                    ]
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "field": [
+                      "w_prog",
+                      "route_spec_digest"
+                    ]
+                  },
+                  {
+                    "field": [
+                      "w_prog",
+                      "pcs_witness",
+                      "route_spec_digest"
+                    ]
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "field": [
+                      "w_prog",
+                      "boundary_spec_digest"
+                    ]
+                  },
+                  {
+                    "field": [
+                      "w_prog",
+                      "interface_witness",
+                      "boundary_spec_digest"
+                    ]
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "field": [
+                      "w_prog",
+                      "boundary_spec_digest"
+                    ]
+                  },
+                  {
+                    "field": [
+                      "w_prog",
+                      "handoff_witness",
+                      "boundary_spec_digest"
+                    ]
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "field": [
+                      "w_prog",
+                      "boundary_spec_digest"
+                    ]
+                  },
+                  {
+                    "field": [
+                      "w_prog",
+                      "pcs_witness",
+                      "boundary_spec_digest"
+                    ]
+                  }
+                ]
+              },
+              {
+                "claim_ref": "INTERFACE-W-1",
+                "args": [
+                  {
+                    "field": [
+                      "w_prog",
+                      "interface_witness"
+                    ]
+                  }
+                ]
+              },
+              {
+                "claim_ref": "BRIDGE-W-1",
+                "args": [
+                  {
+                    "field": [
+                      "w_prog",
+                      "handoff_witness"
+                    ]
+                  }
+                ]
+              },
+              {
+                "claim_ref": "PCS-W-1",
+                "args": [
+                  {
+                    "field": [
+                      "w_prog",
+                      "pcs_witness"
+                    ]
+                  }
+                ]
+              },
+              {
+                "pred": "ProgrammeContinuity",
+                "args": [
+                  "w_prog"
+                ]
+              }
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "notes": [
+        "A causal proof bundle may contain compatible replicate families and destructive assays; it need not correspond to a single physical run."
+      ],
+      "threshold_contract_refs": []
+    },
+    "LAB-CLOSURE-W-1": {
+      "symbol": "LabClosure(w_route;B0)",
+      "scope": "physical",
+      "args": [
+        [
+          "w_route",
+          "RouteProof"
+        ],
+        [
+          "B0",
+          "Boundary"
+        ]
+      ],
+      "expr": {
+        "and": [
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_route",
+                  "route_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "w_route",
+                  "re_witness",
+                  "route_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_route",
+                  "route_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "w_route",
+                  "pcs_witness",
+                  "route_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_route",
+                  "route_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "B0",
+                  "route_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_route",
+                  "boundary_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "w_route",
+                  "re_witness",
+                  "boundary_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_route",
+                  "boundary_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "w_route",
+                  "pcs_witness",
+                  "boundary_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_route",
+                  "boundary_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "B0",
+                  "boundary_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "claim_ref": "RE-ENDO-W-1",
+            "args": [
+              {
+                "field": [
+                  "w_route",
+                  "re_witness"
+                ]
+              },
+              "B0"
+            ]
+          },
+          {
+            "claim_ref": "PCS-W-1",
+            "args": [
+              {
+                "field": [
+                  "w_route",
+                  "pcs_witness"
+                ]
+              }
+            ]
+          },
+          {
+            "claim_ref": "RE-PCS-PAIR-1",
+            "args": [
+              {
+                "field": [
+                  "w_route",
+                  "re_witness"
+                ]
+              },
+              {
+                "field": [
+                  "w_route",
+                  "pcs_witness"
+                ]
+              },
+              "B0"
+            ]
+          },
+          {
+            "pred": "G_route_path_lab",
+            "args": [
+              "w_route"
+            ]
+          },
+          {
+            "pred": "G_sourcing",
+            "args": [
+              "w_route"
+            ]
+          },
+          {
+            "pred": "G_forcing_scope",
+            "args": [
+              "w_route"
+            ]
+          },
+          {
+            "pred": "G_energy_closure_lab",
+            "args": [
+              "w_route"
+            ]
+          },
+          {
+            "pred": "G_compatibility",
+            "args": [
+              "w_route"
+            ]
+          },
+          {
+            "pred": "G_phys",
+            "args": [
+              "w_route"
+            ]
+          },
+          {
+            "pred": "G_declared_causal_coverage",
+            "args": [
+              "w_route"
+            ]
+          }
+        ]
+      },
+      "notes": [
+        "Declared causal coverage is a frozen, audited experimental contract; it does not assert that unknown physical causes are impossible."
+      ],
+      "threshold_contract_refs": []
+    },
+    "LAB-CLOSURE-1": {
+      "symbol": "C_closed^lab",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ],
+        [
+          "B0",
+          "Boundary"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_route",
+          "type": "RouteProof",
+          "body": {
+            "claim_ref": "LAB-CLOSURE-W-1",
+            "args": [
+              "w_route",
+              "B0"
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    },
+    "NAT-REACH-W-1": {
+      "symbol": "NaturalReachClosure(w_nat;B0)",
+      "scope": "physical",
+      "args": [
+        [
+          "w_nat",
+          "NaturalProof"
+        ],
+        [
+          "B0",
+          "Boundary"
+        ]
+      ],
+      "expr": {
+        "and": [
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_nat",
+                  "boundary_realization_witness",
+                  "route_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "w_nat",
+                  "route_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_nat",
+                  "boundary_realization_witness",
+                  "lab_boundary_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "B0",
+                  "boundary_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_nat",
+                  "boundary_realization_witness",
+                  "natural_boundary_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "w_nat",
+                  "natural_boundary",
+                  "boundary_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_nat",
+                  "route_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "w_nat",
+                  "lab_proof",
+                  "route_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "field": [
+                  "w_nat",
+                  "route_spec_digest"
+                ]
+              },
+              {
+                "field": [
+                  "w_nat",
+                  "natural_boundary",
+                  "route_spec_digest"
+                ]
+              }
+            ]
+          },
+          {
+            "pred": "G_boundary_realization",
+            "args": [
+              {
+                "field": [
+                  "w_nat",
+                  "boundary_realization_witness"
+                ]
+              },
+              "B0",
+              {
+                "field": [
+                  "w_nat",
+                  "natural_boundary"
+                ]
+              }
+            ]
+          },
+          {
+            "pred": "G_sourcing_natural",
+            "args": [
+              "w_nat"
+            ]
+          },
+          {
+            "claim_ref": "LAB-CLOSURE-W-1",
+            "args": [
+              {
+                "field": [
+                  "w_nat",
+                  "lab_proof"
+                ]
+              },
+              "B0"
+            ]
+          },
+          {
+            "pred": "G_natural_ops_joint",
+            "args": [
+              "w_nat"
+            ]
+          },
+          {
+            "pred": "G_natural_reach",
+            "args": [
+              "w_nat"
+            ]
+          },
+          {
+            "pred": "G_energy_closure_natural",
+            "args": [
+              "w_nat"
+            ]
+          },
+          {
+            "pred": "NaturalForcingLawAdmissible",
+            "args": [
+              "w_nat"
+            ]
+          },
+          {
+            "pred": "AdaptivePolicyMappedOrIrrelevant",
+            "args": [
+              "w_nat"
+            ]
+          }
+        ]
+      },
+      "notes": [
+        "The natural witness is a forcing-law/operator ensemble with positive support for the ordered route, rather than a single selected trajectory."
+      ],
+      "threshold_contract_refs": [
+        "reachability_probability"
+      ]
+    },
+    "NAT-REACH-1": {
+      "symbol": "C_closed^natural-reachable",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ],
+        [
+          "B0",
+          "Boundary"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_nat",
+          "type": "NaturalProof",
+          "body": {
+            "claim_ref": "NAT-REACH-W-1",
+            "args": [
+              "w_nat",
+              "B0"
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": [
+        "reachability_probability"
+      ]
+    },
+    "NAT-PLAUS-1": {
+      "symbol": "C_closed^natural-plausible",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ],
+        [
+          "B0",
+          "Boundary"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_nat",
+          "type": "NaturalProof",
+          "body": {
+            "and": [
+              {
+                "claim_ref": "NAT-REACH-W-1",
+                "args": [
+                  "w_nat",
+                  "B0"
+                ]
+              },
+              {
+                "pred": "G_natural_plaus",
+                "args": [
+                  "w_nat"
+                ]
+              }
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": [
+        "reachability_probability",
+        "plausibility_probability_floor"
+      ]
+    },
+    "CARRIER-1": {
+      "symbol": "D_carrier",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_PCS",
+          "type": "PCSWitness",
+          "body": {
+            "exists": {
+              "var": "w_car",
+              "type": "CarrierWitness",
+              "body": {
+                "and": [
+                  {
+                    "claim_ref": "PCS-W-1",
+                    "args": [
+                      "w_PCS"
+                    ]
+                  },
+                  {
+                    "pred": "CarrierCompatible",
+                    "args": [
+                      "w_car"
+                    ]
+                  },
+                  {
+                    "rel": "PCSToCarrier",
+                    "args": [
+                      "w_PCS",
+                      "w_car"
+                    ]
+                  },
+                  {
+                    "pred": "CarrierNoInvestigatorReplacement",
+                    "args": [
+                      "w_car"
+                    ]
+                  }
+                ]
+              },
+              "domain": "route:r"
+            }
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    },
+    "INDIVIDUATED-1": {
+      "symbol": "D_individuated",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_PCS",
+          "type": "PCSWitness",
+          "body": {
+            "exists": {
+              "var": "w_car",
+              "type": "CarrierWitness",
+              "body": {
+                "and": [
+                  {
+                    "claim_ref": "PCS-W-1",
+                    "args": [
+                      "w_PCS"
+                    ]
+                  },
+                  {
+                    "pred": "CarrierCompatible",
+                    "args": [
+                      "w_car"
+                    ]
+                  },
+                  {
+                    "pred": "CarrierBoundedReproduction",
+                    "args": [
+                      "w_car"
+                    ]
+                  },
+                  {
+                    "pred": "CarrierNoInvestigatorReplacement",
+                    "args": [
+                      "w_car"
+                    ]
+                  },
+                  {
+                    "rel": "PCSToCarrier",
+                    "args": [
+                      "w_PCS",
+                      "w_car"
+                    ]
+                  }
+                ]
+              },
+              "domain": "route:r"
+            }
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    },
+    "EST-MOL-1": {
+      "symbol": "D_established",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_PCS",
+          "type": "PCSWitness",
+          "body": {
+            "and": [
+              {
+                "claim_ref": "PCS-W-1",
+                "args": [
+                  "w_PCS"
+                ]
+              },
+              {
+                "pred": "P_est_mol_positive",
+                "args": [
+                  "w_PCS"
+                ]
+              }
+            ]
+          },
+          "domain": "route:r"
+        }
+      },
+      "notes": [
+        "The establishment initial condition may be a multitype descendant distribution nu_0(w_PCS), not necessarily a scalar i0."
+      ],
+      "threshold_contract_refs": []
+    },
+    "EST-CARRIER-1": {
+      "symbol": "D_individuated_established",
+      "scope": "physical",
+      "args": [
+        [
+          "r",
+          "RouteId"
+        ]
+      ],
+      "expr": {
+        "exists": {
+          "var": "w_PCS",
+          "type": "PCSWitness",
+          "body": {
+            "exists": {
+              "var": "w_car",
+              "type": "CarrierWitness",
+              "body": {
+                "and": [
+                  {
+                    "claim_ref": "PCS-W-1",
+                    "args": [
+                      "w_PCS"
+                    ]
+                  },
+                  {
+                    "pred": "CarrierCompatible",
+                    "args": [
+                      "w_car"
+                    ]
+                  },
+                  {
+                    "pred": "CarrierBoundedReproduction",
+                    "args": [
+                      "w_car"
+                    ]
+                  },
+                  {
+                    "pred": "CarrierNoInvestigatorReplacement",
+                    "args": [
+                      "w_car"
+                    ]
+                  },
+                  {
+                    "rel": "PCSToCarrier",
+                    "args": [
+                      "w_PCS",
+                      "w_car"
+                    ]
+                  },
+                  {
+                    "pred": "P_est_carrier_positive",
+                    "args": [
+                      "w_car"
+                    ]
+                  },
+                  {
+                    "pred": "EmbeddedMolecularLineagePersists",
+                    "args": [
+                      "w_car"
+                    ]
+                  }
+                ]
+              },
+              "domain": "route:r"
+            }
+          },
+          "domain": "route:r"
+        }
+      },
+      "threshold_contract_refs": []
+    }
+  },
+  "world_truth_values": [
+    "TRUE",
+    "FALSE"
+  ],
+  "evaluation_modes": {
+    "FORMAL_COMPLETE_WORLD": {
+      "semantics": "two-valued",
+      "missing_inputs": "ERROR",
+      "scientific_certificate": false
+    },
+    "EXPERIMENTAL_EVIDENCE": {
+      "semantics": "strong-kleene PASS/FAIL/NA",
+      "missing_inputs": "NA",
+      "scientific_certificate": true
+    },
+    "TEST_FIXTURE_UNSAFE": {
+      "semantics": "test-only direct leaf injection",
+      "missing_inputs": "ERROR",
+      "scientific_certificate": false
+    }
+  },
+  "certification_contract": {
+    "claim_result_values": [
+      "PASS",
+      "FAIL",
+      "NA"
+    ],
+    "certificate_status_values": [
+      "VALID",
+      "INCOMPLETE",
+      "INVALID"
+    ],
+    "binding_fields": [
+      "claim_id",
+      "physical_witness_ref",
+      "evidence_bundle_id",
+      "support_receipt_digests",
+      "raw_evidence_receipt_refs",
+      "registry_hash",
+      "evaluation_mode"
+    ],
+    "components": [
+      "E_applicability",
+      "E_approximation",
+      "E_identifiability",
+      "E_uncertainty",
+      "E_measurement",
+      "E_theorem",
+      "E_causal_adequacy"
+    ],
+    "law": "Certification evaluates support for a specific claim result and physical witness; the evidence bundle must cover the exact support receipts consumed by the evaluation and reference extant raw evidence. Certificate integrity is distinct from whether the physical claim result is PASS or FAIL."
+  },
+  "scope_dependency_laws": {
+    "physical_may_reference_scopes": [
+      "physical"
+    ],
+    "epistemic_may_reference_scopes": [
+      "physical",
+      "epistemic",
+      "measurement",
+      "theorem"
+    ]
+  },
+  "domain_constructors": {
+    "route": {
+      "parameter_type": "RouteId",
+      "member_field": "route_spec_digest",
+      "parameter_field": "route_spec_digest",
+      "complete_world_requires_complete_domain": true
+    }
+  },
+  "ast_operators": [
+    "and",
+    "or",
+    "not",
+    "pred",
+    "rel",
+    "exists",
+    "forall",
+    "claim_ref",
+    "eq"
+  ],
+  "empty_boolean_nodes_allowed": false
+}

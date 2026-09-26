@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "Cite the exact release or commit; this is a pre-formalization research programme."
+title: "Origin of Cancer: research, evidence graph, and mathematical modeling baseline"
+authors:
+  - family-names: Hermansson
+    given-names: Marcus
+version: 0.1.0
+date-released: 2026-09-26
+repository-code: "https://github.com/HMarcusWH/origin-of-cancer"
+type: software
