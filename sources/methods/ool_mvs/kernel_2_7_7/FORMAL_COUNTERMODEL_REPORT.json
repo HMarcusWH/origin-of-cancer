@@ -1,0 +1,109 @@
+{
+  "version": "2.7.7",
+  "scope_note": "Finite countermodel resistance is reported only for the declared domains; it is not a proof of global logical completeness or empirical abiogenesis.",
+  "identity_ancestry_worlds_checked": 256,
+  "known_countermodels": [
+    {
+      "id": "CM-01",
+      "countermodel": "RE/PCS Frankenstein",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "single RouteProof + bound RE-PCS pair"
+    },
+    {
+      "id": "CM-02",
+      "countermodel": "wrong-lineage establishment",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "PCS witness bound to P_est_mol_positive"
+    },
+    {
+      "id": "CM-03",
+      "countermodel": "preloaded target capability",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "G_no_preloaded_solution_RE"
+    },
+    {
+      "id": "CM-04",
+      "countermodel": "omitted claim-bearing operation",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "G_declared_causal_coverage"
+    },
+    {
+      "id": "CM-05",
+      "countermodel": "carrier mismatch",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "PCSToCarrier"
+    },
+    {
+      "id": "CM-06",
+      "countermodel": "vacuous thresholds",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "typed threshold receipts"
+    },
+    {
+      "id": "CM-07",
+      "countermodel": "incompatible natural operations",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "G_natural_ops_joint"
+    },
+    {
+      "id": "CM-08",
+      "countermodel": "detached route physics",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "single RouteProof"
+    },
+    {
+      "id": "CM-09",
+      "countermodel": "cooperative role recreation",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "G_coop_complete / provenance"
+    },
+    {
+      "id": "CM-10",
+      "countermodel": "temporal handoff failure",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "G_temporal_overlap"
+    },
+    {
+      "id": "CM-11",
+      "countermodel": "unsupported lucky natural trajectory",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "G_natural_reach under admissible forcing"
+    },
+    {
+      "id": "CM-12",
+      "countermodel": "unmapped adaptive policy",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "AdaptivePolicyMappedOrIrrelevant"
+    },
+    {
+      "id": "CM-13",
+      "countermodel": "missing-as-false",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "experimental NA semantics"
+    },
+    {
+      "id": "CM-14",
+      "countermodel": "unknown provenance as endogenous",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "positive provenance closure"
+    },
+    {
+      "id": "CM-15",
+      "countermodel": "natural B0 laundering",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "G_boundary_realization + G_sourcing_natural"
+    },
+    {
+      "id": "CM-16",
+      "countermodel": "route-label laundering",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "route_spec_digest structural equality"
+    },
+    {
+      "id": "CM-17",
+      "countermodel": "unbound certification",
+      "v2_7_7_status": "BLOCKED",
+      "blocking_rule": "certificate claim/witness/evidence binding"
+    }
+  ]
+}

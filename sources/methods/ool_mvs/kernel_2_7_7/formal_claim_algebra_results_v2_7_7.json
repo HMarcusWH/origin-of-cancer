@@ -1,0 +1,269 @@
+{
+  "suite": "formal_claim_algebra_v2.7.7",
+  "passed": 50,
+  "total": 50,
+  "all_pass": true,
+  "finite_worlds_checked": 256,
+  "tests": {
+    "001_registry_compiler_accepts_frozen_registry": {
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "error_count": 0,
+        "errors": [],
+        "warnings": [],
+        "claim_count": 24,
+        "registry_hash": "e043d62d11311d7e054735ee3f1b5bf5ce3854ded92dd10fe651ee5fb169872e"
+      }
+    },
+    "002_illegal_scope_rejected": {
+      "pass": true,
+      "detail": [
+        "illegal_claim_scope:RE-ENDO-1:banana",
+        "nonphysical_claim_in_physical_registry:RE-ENDO-1:banana"
+      ]
+    },
+    "003_truth_lattice_corruption_rejected": {
+      "pass": true,
+      "detail": [
+        "truth_lattice_integrity_failure"
+      ]
+    },
+    "004_world_truth_lattice_corruption_rejected": {
+      "pass": true,
+      "detail": [
+        "world_truth_lattice_integrity_failure"
+      ]
+    },
+    "005_claim_reference_cycle_rejected": {
+      "pass": true,
+      "detail": [
+        "claim_reference_cycle:RE-BENCH-W-1"
+      ]
+    },
+    "006_empty_AND_rejected": {
+      "pass": true,
+      "detail": [
+        "RE-BENCH-W-1:empty_or_invalid_and"
+      ]
+    },
+    "007_empty_OR_rejected": {
+      "pass": true,
+      "detail": [
+        "RE-BENCH-W-1:empty_or_invalid_or"
+      ]
+    },
+    "008_multi_operator_AST_node_rejected": {
+      "pass": true,
+      "detail": [
+        "RE-BENCH-W-1:AST_node_must_have_exactly_one_operator:['and', 'pred']"
+      ]
+    },
+    "009_free_variable_without_w_prefix_rejected": {
+      "pass": true,
+      "detail": [
+        "RE-BENCH-W-1:free_variable:typo"
+      ]
+    },
+    "010_quantifier_shadowing_rejected": {
+      "pass": true,
+      "detail": [
+        "RE-BENCH-1:quantifier_shadowing:r"
+      ]
+    },
+    "011_duplicate_claim_arguments_rejected": {
+      "pass": true,
+      "detail": [
+        "duplicate_claim_arguments:RE-ENDO-W-1",
+        "RE-ENDO-W-1:leaf_type_mismatch:G_seed:REWitness:Boundary",
+        "RE-ENDO-W-1:leaf_type_mismatch:G_F:REWitness:Boundary",
+        "RE-ENDO-W-1:free_variable:B0",
+        "RE-ENDO-W-1:leaf_type_mismatch:G_support_endo:REWitness:Boundary"
+      ]
+    },
+    "012_unknown_domain_constructor_rejected": {
+      "pass": true,
+      "detail": [
+        "RE-BENCH-1:unknown_domain_constructor:banana"
+      ]
+    },
+    "013_unbound_domain_parameter_rejected": {
+      "pass": true,
+      "detail": [
+        "RE-BENCH-1:unbound_domain_parameter:w_RE"
+      ]
+    },
+    "014_recursive_type_reference_integrity_enforced": {
+      "pass": true,
+      "detail": [
+        "unknown_field_type:REWitness.route_id:BananaType"
+      ]
+    },
+    "015_unknown_threshold_contract_link_rejected": {
+      "pass": true,
+      "detail": [
+        "unknown_threshold_contract_ref:G_temporal_overlap:not-a-contract",
+        "HANDOFF-1:declared_threshold_not_consumed:experimental_probability_floor",
+        "HANDOFF-1:declared_threshold_not_consumed:time_horizon"
+      ]
+    },
+    "016_invalid_threshold_contract_domain_rejected": {
+      "pass": true,
+      "detail": [
+        "invalid_threshold_contract_domain:time_horizon:banana"
+      ]
+    },
+    "017_invalid_domain_constructor_field_rejected": {
+      "pass": true,
+      "detail": [
+        "RE-BENCH-1:domain_member_field_missing:REWitness.banana",
+        "RE-ENDO-1:domain_member_field_missing:REWitness.banana",
+        "PCS-LOCAL-1:domain_member_field_missing:PCSWitness.banana",
+        "PCS-LINKED-1:domain_member_field_missing:PCSWitness.banana",
+        "RE-PCS-CONT-1:domain_member_field_missing:REWitness.banana"
+      ]
+    },
+    "018_runtime_mode_contract_corruption_rejected": {
+      "pass": true,
+      "detail": [
+        "formal_world_mode_semantics_failure"
+      ]
+    },
+    "019_declared_but_unconsumed_threshold_rejected": {
+      "pass": true,
+      "detail": [
+        "HANDOFF-1:declared_threshold_not_consumed:reachability_probability"
+      ]
+    },
+    "020_complete_world_baseline_lab_closure": {
+      "pass": true,
+      "detail": null
+    },
+    "021_complete_world_missing_leaf_is_error_not_false": {
+      "pass": true,
+      "detail": null
+    },
+    "022_complete_world_incomplete_quantifier_domain_is_error": {
+      "pass": true,
+      "detail": null
+    },
+    "023_cross_route_witness_laundering_blocked_structurally": {
+      "pass": true,
+      "detail": null
+    },
+    "024_cross_boundary_witness_laundering_blocked_structurally": {
+      "pass": true,
+      "detail": null
+    },
+    "025_identity_ancestry_finite_countermodel_search_no_false_positive": {
+      "pass": true,
+      "detail": {
+        "worlds_checked": 256,
+        "false_positive_count": 0
+      }
+    },
+    "026_preloaded_recursive_solution_blocks_endogenous_RE": {
+      "pass": true,
+      "detail": null
+    },
+    "027_no_hereditary_core_descendance_blocks_RE_to_PCS": {
+      "pass": true,
+      "detail": null
+    },
+    "028_natural_boundary_unrealized_blocks_natural_closure": {
+      "pass": true,
+      "detail": null
+    },
+    "029_natural_starting_material_sourcing_required": {
+      "pass": true,
+      "detail": null
+    },
+    "030_natural_boundary_realization_not_literal_reagent_identity": {
+      "pass": true,
+      "detail": null
+    },
+    "031_complete_evidence_collapses_to_boolean_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "032_missing_claim_bearing_leaf_is_NA": {
+      "pass": true,
+      "detail": [
+        "incomplete_existential_domain:RouteProof",
+        "missing_leaf_receipt:G_energy_closure_lab"
+      ]
+    },
+    "033_partial_empty_existential_domain_is_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "034_complete_empty_existential_domain_is_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "035_missing_required_threshold_receipt_yields_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "036_invalid_threshold_value_yields_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "037_well_supported_FAIL_can_have_VALID_certificate": {
+      "pass": true,
+      "detail": null
+    },
+    "038_NA_claim_has_INCOMPLETE_certificate": {
+      "pass": true,
+      "detail": null
+    },
+    "039_unknown_provenance_not_endogenous": {
+      "pass": true,
+      "detail": "incomplete_or_unknown_provenance"
+    },
+    "040_external_provenance_is_FAIL": {
+      "pass": true,
+      "detail": "external_ancestry"
+    },
+    "041_positive_provenance_closure_can_PASS": {
+      "pass": true,
+      "detail": "provenance_closed_to_admitted_roots"
+    },
+    "042_absence_from_incomplete_search_is_NA": {
+      "pass": true,
+      "detail": "absence_domain_incomplete"
+    },
+    "043_absence_from_complete_search_can_PASS": {
+      "pass": true,
+      "detail": "certified_absence_over_complete_domain"
+    },
+    "044_no_carrier_evidence_does_not_invent_carrier": {
+      "pass": true,
+      "detail": null
+    },
+    "045_carrier_establishment_cannot_pass_without_carrier_capability": {
+      "pass": true,
+      "detail": null
+    },
+    "046_programme_modules_cannot_frankenstein_without_continuity": {
+      "pass": true,
+      "detail": null
+    },
+    "047_strong_kleene_de_morgan": {
+      "pass": true,
+      "detail": null
+    },
+    "048_boolean_collapse_AND_OR_NOT": {
+      "pass": true,
+      "detail": null
+    },
+    "049_no_epistemic_claims_inside_physical_registry": {
+      "pass": true,
+      "detail": null
+    },
+    "050_certification_meta_layer_is_outside_physical_claim_AST": {
+      "pass": true,
+      "detail": null
+    }
+  }
+}

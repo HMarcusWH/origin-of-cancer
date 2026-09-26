@@ -1,0 +1,914 @@
+[
+  {
+    "legacy_id": "RG-001",
+    "question": "What is the strongest operational definition of malignant onset that is not circular?",
+    "rationale": "Defines target state.",
+    "kernel_object": "C, psi",
+    "priority": "CRITICAL",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-002",
+    "question": "Is precancer one regime class or a family of pathology-, risk-, and dynamics-specific states?",
+    "rationale": "Controls intermediate state semantics.",
+    "kernel_object": "Basin / intermediate regimes",
+    "priority": "CRITICAL",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-003",
+    "question": "How should first malignant entry differ from establishment?",
+    "rationale": "Prevents transient excursions from being called cancer.",
+    "kernel_object": "tau_entry, tau_est",
+    "priority": "CRITICAL",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-004",
+    "question": "Should invasive cancer be part of the onset definition or a later state?",
+    "rationale": "Avoids pathology-stage conflation.",
+    "kernel_object": "Regime descriptor",
+    "priority": "CRITICAL",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-005",
+    "question": "How should boundary depth be represented?",
+    "rationale": "Prevents a shallow boundary from claiming deep origin closure.",
+    "kernel_object": "B0 / closure axis",
+    "priority": "CRITICAL",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-006",
+    "question": "What biological facts qualify as \"tissue governance\"?",
+    "rationale": "Prevents metaphorical overreach.",
+    "kernel_object": "Restoring-force set",
+    "priority": "CRITICAL",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-007",
+    "question": "What is the correct abstraction for tumour promotion?",
+    "rationale": "Links selection and context to route dynamics.",
+    "kernel_object": "Generator / transition rates",
+    "priority": "HIGH",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-008",
+    "question": "Can malignant establishment be defined independently of eventual clinical detection?",
+    "rationale": "Needed for early biology.",
+    "kernel_object": "psi / observation",
+    "priority": "HIGH",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-009",
+    "question": "How should regression/reversion be incorporated?",
+    "rationale": "Prevents false irreversibility assumption.",
+    "kernel_object": "Regime classes",
+    "priority": "HIGH",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-010",
+    "question": "What aspects of MVCL are active before versus after establishment?",
+    "rationale": "Prevents full-loop closure from defining onset.",
+    "kernel_object": "MVCL/OoC interface",
+    "priority": "CRITICAL",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-011",
+    "question": "What are the dominant restoring mechanisms across tissues, and which are tissue- specific?",
+    "rationale": "Needed for cross-tissue state design.",
+    "kernel_object": "X / governance",
+    "priority": "CRITICAL",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-012",
+    "question": "How often do driver-mutant normal clones progress, stall, regress or protect tissue?",
+    "rationale": "Calibrates precursor interpretation.",
+    "kernel_object": "Transition hazards",
+    "priority": "HIGH",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-013",
+    "question": "Mutation versus selection: which is rate-limiting by tissue and stage?",
+    "rationale": "Determines generator decomposition.",
+    "kernel_object": "K",
+    "priority": "HIGH",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-014",
+    "question": "Neutral drift versus selection in early lesions.",
+    "rationale": "Competing route models.",
+    "kernel_object": "Nulls / K",
+    "priority": "HIGH",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-015",
+    "question": "How common are polyclonal or cooperative tumour origins?",
+    "rationale": "Founder ontology.",
+    "kernel_object": "Founder ensemble / ancestry",
+    "priority": "CRITICAL",
+    "source_pages": [
+      15
+    ]
+  },
+  {
+    "legacy_id": "RG-016",
+    "question": "Can stroma or immune cells be constitutive components of establishment?",
+    "rationale": "Multicellular regime definition.",
+    "kernel_object": "C / J",
+    "priority": "CRITICAL",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-017",
+    "question": "When is niche remodelling cause, consequence, or reciprocal feedback?",
+    "rationale": "Avoids directionality errors.",
+    "kernel_object": "Route edges",
+    "priority": "CRITICAL",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-018",
+    "question": "What constitutes cell-of-origin in developmental cancers?",
+    "rationale": "Cross-age universality.",
+    "kernel_object": "B0 / ancestry",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-019",
+    "question": "How should viral persistence/integration enter origin routes?",
+    "rationale": "External causal object.",
+    "kernel_object": "Route ontology",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-020",
+    "question": "How should germline predisposition alter the starting boundary?",
+    "rationale": "Inherited state before somatic route.",
+    "kernel_object": "B0 / host state",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-021",
+    "question": "How should CHIP/CCUS and haematologic precursors map without epithelial architecture?",
+    "rationale": "Tests governance generality.",
+    "kernel_object": "Adapter ontology",
+    "priority": "CRITICAL",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-022",
+    "question": "What role do telomere crisis and escape play in establishment versus progression?",
+    "rationale": "Stage placement.",
+    "kernel_object": "Route edges",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-023",
+    "question": "When are CIN/WGD/ecDNA initiating versus accelerating mechanisms?",
+    "rationale": "Avoids late-process leakage into origin.",
+    "kernel_object": "Route edges",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-024",
+    "question": "When is epigenetic/plastic state change initiating rather than selected after mutation?",
+    "rationale": "Non-genetic origin routes.",
+    "kernel_object": "X / K",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-025",
+    "question": "Is immune escape necessary for establishment in immunogenic tissues?",
+    "rationale": "Descriptor/mechanism necessity.",
+    "kernel_object": "C / J",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-026",
+    "question": "Can altered metabolism be constitutive for early persistence?",
+    "rationale": "Sink-before-establishment question.",
+    "kernel_object": "C / route",
+    "priority": "MEDIUM",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-027",
+    "question": "What are the roles of fibrosis, mechanics and ECM in first passage?",
+    "rationale": "Spatial/restoring constraints.",
+    "kernel_object": "X / K",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-028",
+    "question": "How does ageing alter the fitness landscape and route probability?",
+    "rationale": "Host-state dependence.",
+    "kernel_object": "K / host",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-029",
+    "question": "How do chronic inflammation and regenerative cycling change route structure?",
+    "rationale": "Promotion/context.",
+    "kernel_object": "K",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-030",
+    "question": "When does microbiome influence belong inside versus outside the state?",
+    "rationale": "Boundary/state choice.",
+    "kernel_object": "X / exogenous inputs",
+    "priority": "MEDIUM",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-031",
+    "question": "How strongly does germline genetic background change early trajectory?",
+    "rationale": "Adapter transfer limits.",
+    "kernel_object": "Hierarchical parameters",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-032",
+    "question": "How should sex/hormonal context enter the origin model?",
+    "rationale": "Known context dependence.",
+    "kernel_object": "Host state",
+    "priority": "MEDIUM",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-033",
+    "question": "How should field cancerization be represented without colliding with FFBBP field terminology?",
+    "rationale": "Terminology and spatial ontology.",
+    "kernel_object": "Spatial state",
+    "priority": "HIGH",
+    "source_pages": [
+      16
+    ]
+  },
+  {
+    "legacy_id": "RG-034",
+    "question": "What defines the lesion/ecosystem unit when multiple nearby clones interact?",
+    "rationale": "Spatial boundary problem.",
+    "kernel_object": "Founder/lesion object",
+    "priority": "CRITICAL",
+    "source_pages": [
+      16,
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-035",
+    "question": "What is the minimal sufficient multiscale state?",
+    "rationale": "Kernel cannot be chosen before state sufficiency.",
+    "kernel_object": "X",
+    "priority": "CRITICAL",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-036",
+    "question": "At what spatial scale is the state defined: cell, clone, patch, lesion, tissue, host?",
+    "rationale": "Controls Markovity and observability.",
+    "kernel_object": "X",
+    "priority": "CRITICAL",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-037",
+    "question": "Can state augmentation justify a Markov kernel, or is explicit history needed?",
+    "rationale": "Avoids Markov laundering.",
+    "kernel_object": "K",
+    "priority": "CRITICAL",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-038",
+    "question": "Should time be continuous, discrete, event-based, or adapter-specific?",
+    "rationale": "Process semantics.",
+    "kernel_object": "K",
+    "priority": "HIGH",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-039",
+    "question": "Are branching-process survival criteria adequate for early establishment?",
+    "rationale": "Candidate persistence formalism.",
+    "kernel_object": "rho",
+    "priority": "CRITICAL",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-040",
+    "question": "When are Moran/Wright- Fisher models appropriate?",
+    "rationale": "Population-size/competition assumptions.",
+    "kernel_object": "K adapter",
+    "priority": "MEDIUM",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-041",
+    "question": "Is a stochastic hybrid system needed for continuous ecology + discrete genomic events?",
+    "rationale": "Mixed dynamics.",
+    "kernel_object": "K",
+    "priority": "HIGH",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-042",
+    "question": "When are PDE/SPDE models necessary for spatial niches?",
+    "rationale": "Continuum microenvironment.",
+    "kernel_object": "K adapter",
+    "priority": "MEDIUM",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-043",
+    "question": "When are interacting particle systems / ABMs required?",
+    "rationale": "Cell-level local interactions.",
+    "kernel_object": "K adapter",
+    "priority": "MEDIUM",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-044",
+    "question": "How should metastability and quasi-stationarity define precancer?",
+    "rationale": "Long-lived non-absorbing states.",
+    "kernel_object": "rho / basin",
+    "priority": "CRITICAL",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-045",
+    "question": "Which stochastic persistence notion maps best to malignant establishment?",
+    "rationale": "Central regime definition.",
+    "kernel_object": "rho",
+    "priority": "CRITICAL",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-046",
+    "question": "How should re-entry and escape from the malignant region be handled?",
+    "rationale": "Regression/hysteresis.",
+    "kernel_object": "C / rho",
+    "priority": "HIGH",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-047",
+    "question": "Can transition-path theory / large deviations identify dominant routes without overclaiming biology?",
+    "rationale": "Rare-event route analysis.",
+    "kernel_object": "R",
+    "priority": "HIGH",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-048",
+    "question": "What constitutes route equivalence?",
+    "rationale": "Needed for clustering histories.",
+    "kernel_object": "R equivalence",
+    "priority": "HIGH",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-049",
+    "question": "How should competing causal pathways be represented when ordering is partially known?",
+    "rationale": "Partial route ordering.",
+    "kernel_object": "R",
+    "priority": "HIGH",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-050",
+    "question": "Can one shared kernel interface support multiple adapter dynamics without becoming vacuous?",
+    "rationale": "Pan-cancer formal value test.",
+    "kernel_object": "Kernel contract",
+    "priority": "CRITICAL",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-051",
+    "question": "Which quantities need existence/uniqueness or measurability proofs?",
+    "rationale": "Formal correctness target.",
+    "kernel_object": "Kernel theorem surface",
+    "priority": "HIGH",
+    "source_pages": [
+      17
+    ]
+  },
+  {
+    "legacy_id": "RG-052",
+    "question": "How should model uncertainty over process families be represented?",
+    "rationale": "Avoids premature model selection.",
+    "kernel_object": "K ensemble",
+    "priority": "HIGH",
+    "source_pages": [
+      17,
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-053",
+    "question": "How should continuous and discrete descriptors be compared under interventions?",
+    "rationale": "Permansson transfer.",
+    "kernel_object": "psi / dpsi",
+    "priority": "MEDIUM",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-054",
+    "question": "What is the correct initial-state set for constitutive claims?",
+    "rationale": "Prevents one-state triviality.",
+    "kernel_object": "B1",
+    "priority": "HIGH",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-055",
+    "question": "Which latent state variables are observable in humans at all?",
+    "rationale": "Blocks impossible kernel variables.",
+    "kernel_object": "O",
+    "priority": "CRITICAL",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-056",
+    "question": "What can cross-sectional tissue identify about temporal order?",
+    "rationale": "Limits retrospective route claims.",
+    "kernel_object": "O / R",
+    "priority": "CRITICAL",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-057",
+    "question": "What can tumour phylogenetics identify reliably with SNV/CNA/SV mixtures?",
+    "rationale": "Ancestry limits.",
+    "kernel_object": "A",
+    "priority": "CRITICAL",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-058",
+    "question": "How should polyclonal origins be detected and scored?",
+    "rationale": "Founder inference.",
+    "kernel_object": "A / O",
+    "priority": "HIGH",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-059",
+    "question": "How should spatial geography be fused with phylogeny?",
+    "rationale": "Lesion/route structure.",
+    "kernel_object": "O / A",
+    "priority": "HIGH",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-060",
+    "question": "What are the failure modes of pseudotime, RNA velocity and optimal transport for origin inference?",
+    "rationale": "State-transition overclaim control.",
+    "kernel_object": "O",
+    "priority": "HIGH",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-061",
+    "question": "Which multi-omic shadows are sufficiently independent to add identifiability?",
+    "rationale": "FFBBP multi-shadow condition.",
+    "kernel_object": "O",
+    "priority": "HIGH",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-062",
+    "question": "How should destructive sampling and batch effects enter the observation model?",
+    "rationale": "Real data limitation.",
+    "kernel_object": "O",
+    "priority": "HIGH",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-063",
+    "question": "How should ctDNA be corrected for CHIP and non- tumour sources?",
+    "rationale": "Liquid-biopsy confounding.",
+    "kernel_object": "O",
+    "priority": "HIGH",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-064",
+    "question": "What is the right formalism for unknown/missing route segments?",
+    "rationale": "Unknown != false.",
+    "kernel_object": "Evidence / partial ID",
+    "priority": "CRITICAL",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-065",
+    "question": "When are two distinct routes observationally equivalent?",
+    "rationale": "Limits route closure.",
+    "kernel_object": "Identifiability",
+    "priority": "CRITICAL",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-066",
+    "question": "How should retrospective ascertainment and survivorship bias be modelled?",
+    "rationale": "Progressor-only bias.",
+    "kernel_object": "Observation/sampling",
+    "priority": "CRITICAL",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-067",
+    "question": "How should positive and negative precancer outcomes be sampled?",
+    "rationale": "Persistence estimation.",
+    "kernel_object": "Validation design",
+    "priority": "CRITICAL",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-068",
+    "question": "How should platform/domain shifts revoke previous inference qualification?",
+    "rationale": "Material-change rule.",
+    "kernel_object": "Adapter qualification",
+    "priority": "HIGH",
+    "source_pages": [
+      18
+    ]
+  },
+  {
+    "legacy_id": "RG-069",
+    "question": "What makes a biological intervention empirically admissible while holding other mechanisms fixed?",
+    "rationale": "Permansson empirical- admissibility transfer.",
+    "kernel_object": "J",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-070",
+    "question": "How should redundancy and compensation affect constitutive labels?",
+    "rationale": "Biological robustness.",
+    "kernel_object": "J / psi",
+    "priority": "HIGH",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-071",
+    "question": "How do we distinguish entry- constitutive, establishment- constitutive, maintenance and progression mechanisms?",
+    "rationale": "Prevents stage leakage.",
+    "kernel_object": "J classes",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-072",
+    "question": "Which strong null models must every adapter beat?",
+    "rationale": "Anti-narrative requirement.",
+    "kernel_object": "Validation",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-073",
+    "question": "What counts as candidate- aligned ablation in each domain?",
+    "rationale": "Mechanism-specific falsification.",
+    "kernel_object": "Validation",
+    "priority": "HIGH",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-074",
+    "question": "How should evidence classes map to PASS/FAIL/NA without collapsing uncertainty?",
+    "rationale": "Certificate semantics.",
+    "kernel_object": "E",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-075",
+    "question": "What makes a route certificate valid versus scientifically true?",
+    "rationale": "Formal/empirical separation.",
+    "kernel_object": "E",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-076",
+    "question": "How should prospective first- break predictions be scored?",
+    "rationale": "MCM-HMWH empirical test.",
+    "kernel_object": "Validation",
+    "priority": "HIGH",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-077",
+    "question": "What prediction/discrimination gain must OoC add over static biomarkers, pathology stage or existing risk models?",
+    "rationale": "Justifies framework utility.",
+    "kernel_object": "Programme falsifier",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-078",
+    "question": "How much cross-tissue transfer is required before \"pan-cancer\" is allowed?",
+    "rationale": "Claim cap.",
+    "kernel_object": "Adapter programme",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-079",
+    "question": "What failures force framework contraction versus local adapter revision?",
+    "rationale": "Prevents unfalsifiable context- dependence.",
+    "kernel_object": "Governance",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-080",
+    "question": "Which human origin claims are fundamentally unidentifiable even with ideal current data?",
+    "rationale": "Sets honest ceiling.",
+    "kernel_object": "Claim cap",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-081",
+    "question": "Which multistate natural- history structure best represents normal -> precursor -> malignant trajectories, including regression and recurrent transitions?",
+    "rationale": "Discrete clinical/pathology stages are not automatically Markov states.",
+    "kernel_object": "K / natural-history layer",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-082",
+    "question": "How should competing risks and non-cancer exits be represented when estimating progression hazards?",
+    "rationale": "Death, competing diagnoses and alternative transitions distort naive progression estimates.",
+    "kernel_object": "K / validation",
+    "priority": "HIGH",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-083",
+    "question": "How should informative surveillance, interval censoring and state- dependent observation schedules enter inference?",
+    "rationale": "Observation can depend on detected precursor state and bias sojourn/progression estimates.",
+    "kernel_object": "O / sampling / K",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-084",
+    "question": "Which predeclared metrics evaluate OoC predictions: calibration, discrimination, proper scores and horizon- specific error?",
+    "rationale": "Prevents metric shopping and AUC-only promotion.",
+    "kernel_object": "Validation",
+    "priority": "CRITICAL",
+    "source_pages": [
+      19
+    ]
+  },
+  {
+    "legacy_id": "RG-085",
+    "question": "How are multiplicity, hyperparameter search, route-family search and benchmark selection accounted for?",
+    "rationale": "A flexible origin framework can manufacture winners without target leakage.",
+    "kernel_object": "Validation / governance",
+    "priority": "CRITICAL",
+    "source_pages": [
+      20
+    ]
+  },
+  {
+    "legacy_id": "RG-086",
+    "question": "What sample size, event count and external- validation design are required for each adapter claim?",
+    "rationale": "Avoids apparently strong results from underpowered or internally recycled cohorts.",
+    "kernel_object": "Validation",
+    "priority": "HIGH",
+    "source_pages": [
+      20
+    ]
+  },
+  {
+    "legacy_id": "RG-087",
+    "question": "Under what conditions can cell/clone states be coarse- grained to lesion/tissue states without changing relevant dynamics?",
+    "rationale": "The kernel is explicitly multiscale; unjustified aggregation can create false regimes.",
+    "kernel_object": "X / K projection",
+    "priority": "CRITICAL",
+    "source_pages": [
+      20
+    ]
+  },
+  {
+    "legacy_id": "RG-088",
+    "question": "Does the chosen projection preserve first-passage probabilities, persistence classifications and intervention conclusions?",
+    "rationale": "A reduced state can be predictive yet destroy the claim-bearing quantities.",
+    "kernel_object": "X / K / tau / rho / J",
+    "priority": "CRITICAL",
+    "source_pages": [
+      20
+    ]
+  },
+  {
+    "legacy_id": "RG-089",
+    "question": "How do current WHO/pathology categories map across benign, precursor, in-situ, invasive and malignant states by adapter?",
+    "rationale": "Needed to compare OoC against real diagnostic ontology.",
+    "kernel_object": "B0 / C / adapter",
+    "priority": "HIGH",
+    "source_pages": [
+      20
+    ]
+  },
+  {
+    "legacy_id": "RG-090",
+    "question": "Can the malignant-regime definition remain non- circular when pathology labels are used for training or validation?",
+    "rationale": "Prevents importing the endpoint label into the state definition.",
+    "kernel_object": "C / O / validation",
+    "priority": "CRITICAL",
+    "source_pages": [
+      20
+    ]
+  },
+  {
+    "legacy_id": "RG-091",
+    "question": "What exact artifact, source and configuration lineage is required to reproduce every imported formal claim and validation result?",
+    "rationale": "Prevents silent version drift across OoL, Permansson, FFBBP, MCM and MVCL.",
+    "kernel_object": "E / provenance",
+    "priority": "HIGH",
+    "source_pages": [
+      20
+    ]
+  }
+]

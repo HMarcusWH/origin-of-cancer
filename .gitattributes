@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+*.zip binary
+# Frozen upstream material is byte-exact, including original line endings.
+sources/** -text

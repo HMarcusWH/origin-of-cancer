@@ -1,0 +1,1146 @@
+{
+  "overall_pass": true,
+  "test_count": 233,
+  "tests": {
+    "jacobian_not_universal_autocatalysis_gate": {
+      "assertion": true,
+      "x": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "dxdt": [
+        0.09000000000000001,
+        0.25,
+        0.08999999999999998
+      ],
+      "J": [
+        0.8,
+        0.0,
+        -0.8
+      ],
+      "old_qA": [
+        2.225540928492468,
+        1.0,
+        0.44932896411722156
+      ]
+    },
+    "committor_first_passage": {
+      "assertion": true,
+      "exact": [
+        0.5375000000000001,
+        0.6750000000000002
+      ],
+      "monte_carlo": [
+        0.537436,
+        0.6739
+      ],
+      "max_error": 0.001100000000000101
+    },
+    "mean_fpt_not_general_hazard": {
+      "assertion": true,
+      "hazards": [
+        0.01003717472118959,
+        0.09310344827586207,
+        0.15882352941176467,
+        0.216,
+        0.2541176470588235
+      ],
+      "inverse_mean": 0.1
+    },
+    "route_union_dependence": {
+      "assertion": true,
+      "overlap": 0.2,
+      "independent": 0.36,
+      "disjoint": 0.4
+    },
+    "spatial_dependence": {
+      "assertion": true,
+      "independent": 0.6321205588285577,
+      "perfectly_correlated": 0.009950166250831893
+    },
+    "gate_dependence": {
+      "assertion": true,
+      "true_joint": 0.5,
+      "naive_product": 0.25
+    },
+    "capability_lattice_vs_strict_ladder": {
+      "assertion": true,
+      "strict_accept": [
+        true,
+        false,
+        false
+      ]
+    },
+    "thermodynamic_cycle_consistency_toy": {
+      "assertion": true,
+      "consistent_product": 1,
+      "inconsistent_product": 100
+    },
+    "compatibility_and_transfer_map": {
+      "assertion": true,
+      "direct": false,
+      "conditioned": true
+    },
+    "physical_sequence_selection_not_darwinian": {
+      "assertion": true,
+      "S_phys": true,
+      "Copy": false,
+      "Variation": false,
+      "Select": true,
+      "D_PCS": false
+    },
+    "memory_hysteresis": {
+      "assertion": true,
+      "up": [
+        0,
+        0,
+        0,
+        1,
+        1
+      ],
+      "down": [
+        1,
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    "spatial_structure_can_change_outcome_toy": {
+      "assertion": true,
+      "patchA": 0.9999999999999944,
+      "patchB": 6.716554362730759e-23,
+      "well_mixed": 0.9999999999999944
+    },
+    "alphabet_not_hard_coded": {
+      "assertion": true
+    },
+    "electrochemical_faradaic_charge_budget_toy": {
+      "assertion": true,
+      "total_mol_e_upper": 1.0364269656617728e-05,
+      "faradaic_mol_e": 2.0728539313235458e-06,
+      "eta_F": 0.2
+    },
+    "claim_tiers": {
+      "assertion": true
+    },
+    "kosc_PAC_witness": {
+      "assertion": true,
+      "M": [
+        [
+          -1.0,
+          0.0,
+          2.0
+        ],
+        [
+          1.0,
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          -1.0
+        ]
+      ],
+      "v": [
+        5.0,
+        4.0,
+        3.0
+      ],
+      "Mv": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "kosc_multiPAC_opposite_direction_incompatibility": {
+      "assertion": true
+    },
+    "ledoux_equal_weight_stirring_threshold": {
+      "assertion": true,
+      "s_equal": 0.9090909090909091,
+      "old_coeff": 0.09090909090909094,
+      "mean_coeff": 0.09090909090909091
+    },
+    "ledoux_memory_contraction": {
+      "assertion": true,
+      "s": [
+        0,
+        0.25,
+        0.5,
+        0.9,
+        1.0
+      ],
+      "inherited_deviation": [
+        8.0,
+        6.0,
+        4.0,
+        0.7999999999999998,
+        0.0
+      ]
+    },
+    "ledoux_linearized_instability_threshold": {
+      "assertion": true,
+      "d": 10,
+      "threshold_K": 27.339585997657345,
+      "approx_e_d": 27.18281828459045
+    },
+    "pinero_cross_entropy_decomposition": {
+      "assertion": true,
+      "H": 0.6931471805599453,
+      "I": 0.10019386311247083,
+      "KL": 0.018352654980304653,
+      "C": 0.6113059724277791
+    },
+    "pinero_optimal_strategy": {
+      "assertion": true,
+      "C_opt": 0.5929533174474745,
+      "C_bad": 0.6243558540362768,
+      "KL_opt": 0.0
+    },
+    "pinero_side_information_benefit": {
+      "assertion": true,
+      "Omega": 0.7,
+      "mutual_information": 0.10019386311247083,
+      "DeltaP": 0.07013570417872958
+    },
+    "haugerud_effective_sequence_space_90": {
+      "assertion": true,
+      "distribution": [
+        0.5,
+        0.25,
+        0.12,
+        0.08,
+        0.05
+      ],
+      "number_90": 4,
+      "cumulative": [
+        0.5,
+        0.75,
+        0.87,
+        0.95,
+        1.0
+      ]
+    },
+    "haugerud_sequence_information_definition": {
+      "assertion": true,
+      "homopolymer_bits": 1.0,
+      "p014_bits": 6.158429362604483
+    },
+    "information_types_not_conflated": {
+      "assertion": true,
+      "I_structural": 1.0,
+      "I_functional_sideinfo_zero": 0.0
+    },
+    "plum_occupancy_local_diversity": {
+      "assertion": true,
+      "occupancy": [
+        1.0,
+        0.0,
+        -1.0,
+        1.0
+      ],
+      "Hloc": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    "plum_neighborhood_heterogeneity": {
+      "assertion": true,
+      "Hnei": 0.5
+    },
+    "kosc_multiPAC_common_flow_witness_example": {
+      "assertion": true,
+      "flows": [
+        1.5,
+        1.2,
+        1.0,
+        1.8
+      ]
+    },
+    "memory_not_universally_beneficial": {
+      "assertion": true,
+      "pinero_correlated": "finite optimum memory possible",
+      "pinero_uncorrelated": "long relaxation/no memory optimum in model",
+      "ledoux": "mixing can improve replicase survival"
+    },
+    "sole_frank_symmetry_breaking_stability": {
+      "assertion": true,
+      "eigenvalues": [
+        -2.0,
+        1.0,
+        -2.0
+      ]
+    },
+    "sole_single_peak_error_threshold": {
+      "assertion": true,
+      "fm": 0.3,
+      "f": 0.2,
+      "mu_c": 0.33333333333333326,
+      "x_below": 0.030000000000000027,
+      "x_above": -0.030000000000000027
+    },
+    "sole_cooperation_bifurcation": {
+      "assertion": true,
+      "Gamma_c": 0.09999999999999998,
+      "Gamma_low": 0.05,
+      "Gamma_high": 0.2,
+      "interior_high": 0.7499999999999999
+    },
+    "chen_dual_threshold_hysteresis_band": {
+      "assertion": true,
+      "phi_bulk": 0.009,
+      "phi_droplet": 0.53,
+      "mu_feast": 5.265992941195479,
+      "mu_starvation": 1.7851246766272484,
+      "hysteresis_width": 3.4808682645682305
+    },
+    "chen_history_dependence_same_control": {
+      "assertion": true,
+      "mu_mid": 3.5255588089113634,
+      "homogeneous_persists": true,
+      "droplet_persists": true
+    },
+    "voros_transfer_establishment_bottleneck": {
+      "assertion": true,
+      "p_complete": 0.299,
+      "p_long_term_spread": 0.06,
+      "conditional_fraction_of_complete_that_spread": 0.20066889632107024
+    },
+    "voros_reported_A7_anchor": {
+      "assertion": true,
+      "A": 7,
+      "S_pass": 90,
+      "N_pass": 1000,
+      "S_fail": 80,
+      "N_fail": 500
+    },
+    "eleveld_niche_partition_rule": {
+      "assertion": true,
+      "same_niche": "exclusion",
+      "partitioned": "coexistence"
+    },
+    "eleveld_selection_operator_dependence": {
+      "assertion": true,
+      "serial_transfer_outcome": "coexistence",
+      "redox_infusion_outcome": "hexamer_dominated"
+    },
+    "hysteresis_dwell_time_matters": {
+      "assertion": true,
+      "tau_diss": 10.0,
+      "short_excursion": 3.0,
+      "long_excursion": 15.0
+    },
+    "growth_order_guard_on_exclusion": {
+      "assertion": true,
+      "exponential_like_same_niche": true,
+      "subexponential_guard": false
+    },
+    "reversible_parabolic_coexistence_guard": {
+      "assertion": true,
+      "interpretation": "sub-exponential/parabolic growth does not trigger universal exclusion"
+    },
+    "lambert_effective_support_uniform": {
+      "assertion": true,
+      "H": 1.3862943611198906,
+      "Omega_eff": 4.0
+    },
+    "neutral_support_not_raw_cardinality": {
+      "assertion": true,
+      "raw_states": 4,
+      "Omega_eff": 1.1825824177485913
+    },
+    "ghosh_accuracy_ratio_error_mapping": {
+      "assertion": true,
+      "eta": 9999.0,
+      "error_fraction": 0.0001
+    },
+    "speed_accuracy_interior_optimum_guard": {
+      "assertion": true,
+      "optimum_drive": 2.0015015015015014
+    },
+    "locked_PCS_gate_mirror_lab_protocol": {
+      "assertion": true,
+      "missing": [],
+      "forbidden_found": []
+    },
+    "locked_interface_gate_mirror": {
+      "assertion": true,
+      "missing": []
+    },
+    "dark_deoxy_gate_mirror": {
+      "assertion": true,
+      "missing": []
+    },
+    "markdown_N90_heading_hygiene": {
+      "assertion": true
+    },
+    "source_id_definitions_complete": {
+      "assertion": true,
+      "undefined": [],
+      "used": [
+        "A25",
+        "ATPT22",
+        "B26",
+        "C25",
+        "CHEM25",
+        "CSH25",
+        "DEF23",
+        "E25",
+        "ED15",
+        "FT20",
+        "G26",
+        "GHS95",
+        "GR24",
+        "H26",
+        "I26",
+        "ID26",
+        "K25",
+        "KZ24",
+        "L26",
+        "LD18",
+        "Lam25",
+        "M24",
+        "MB25",
+        "MET26",
+        "MIS26",
+        "MIZ23",
+        "MRA25",
+        "MS25",
+        "P25",
+        "R25",
+        "S24",
+        "SD25",
+        "SER24",
+        "SF08",
+        "TPT09",
+        "V25",
+        "Z22"
+      ],
+      "defined": [
+        "A25",
+        "ATPT22",
+        "B26",
+        "C25",
+        "CHEM25",
+        "CSH25",
+        "DEF23",
+        "E25",
+        "ED15",
+        "FT20",
+        "G26",
+        "GHS95",
+        "GR24",
+        "H26",
+        "I26",
+        "ID26",
+        "K25",
+        "KZ24",
+        "L26",
+        "LD18",
+        "Lam25",
+        "M24",
+        "MB25",
+        "MET26",
+        "MIS26",
+        "MIZ23",
+        "MRA25",
+        "MS25",
+        "P25",
+        "R25",
+        "S24",
+        "SD25",
+        "SER24",
+        "SF08",
+        "TPT09",
+        "V25",
+        "Z22"
+      ]
+    },
+    "editorial_consistency": {
+      "assertion": true,
+      "bad": []
+    },
+    "remlein_single_timescale_discrete_scope": {
+      "assertion": true
+    },
+    "remlein_continuous_reaction_scope": {
+      "assertion": true
+    },
+    "growth_CSTR_mass_bounded": {
+      "assertion": true,
+      "asymptote": 7.5,
+      "final": 7.499999984541348
+    },
+    "growth_flux_control_linear_mass": {
+      "assertion": true
+    },
+    "deficiency_zero_source_example": {
+      "assertion": true,
+      "null_stoich": 1,
+      "null_incidence": 1
+    },
+    "positive_deficiency_source_example": {
+      "assertion": true,
+      "null_stoich": 1,
+      "null_incidence": 0
+    },
+    "tpt_reactive_current_conservation": {
+      "assertion": true,
+      "conservation": [
+        -5.551115123125783e-17,
+        -1.3877787807814457e-16
+      ],
+      "qplus": [
+        0.0,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "qminus": [
+        1.0,
+        0.7000000000000002,
+        0.6400000000000001,
+        0.0
+      ]
+    },
+    "tpt_path_capacity_bottleneck": {
+      "assertion": true,
+      "capacities": [
+        0.12,
+        0.08,
+        0.05
+      ]
+    },
+    "finite_time_tpt_horizon_dependence": {
+      "assertion": true,
+      "q_horizon2": 0.0,
+      "q_horizon6": 0.8125
+    },
+    "augmented_tpt_ordered_event_filter": {
+      "assertion": true
+    },
+    "reachability_not_probability": {
+      "assertion": true
+    },
+    "large_deviation_zero_on_deterministic_flux": {
+      "assertion": true
+    },
+    "large_deviation_positive_off_deterministic_flux": {
+      "assertion": true
+    },
+    "multiscale_k_unary_hierarchy": {
+      "assertion": true,
+      "state_k2": 1000.0,
+      "state_k3": 99.99999999999997,
+      "tau_k2": 0.001,
+      "tau_k3": 9.99999999999999e-05
+    },
+    "faul_SDE_source_identifiability": {
+      "assertion": true
+    },
+    "faul_SDE_nonidentifiable_duplicate": {
+      "assertion": true
+    },
+    "moment_bound_contains_true_parameter": {
+      "assertion": true,
+      "bounds": [
+        5.6,
+        6.4
+      ],
+      "true": 6.0
+    },
+    "fisher_design_rank_improvement": {
+      "assertion": true,
+      "det_s": 0.0,
+      "det_full": 4.0
+    },
+    "branching_continuous_discrete_supercritical_equivalence": {
+      "assertion": true,
+      "Lambda_est": 0.21583123951777003,
+      "rho": 1.5398153074953933
+    },
+    "grey_compartment_size_viability_nonmonotonic": {
+      "assertion": true,
+      "table": {
+        "5": -0.92,
+        "6": 3.48,
+        "8": 5.64,
+        "10": 6.83,
+        "13": 5.03,
+        "17": 1.135,
+        "18": 0.052,
+        "19": -1.05
+      }
+    },
+    "handoff_kernel_composition": {
+      "assertion": true,
+      "result": [
+        0.6399999999999999,
+        0.36
+      ]
+    },
+    "uncertainty_propagates_to_route_probability": {
+      "assertion": true,
+      "q_interval": [
+        0.04000000000000001,
+        0.36
+      ]
+    },
+    "v26_unification_objects_present": {
+      "assertion": true,
+      "missing": []
+    },
+    "physical_vs_analysis_state_separation": {
+      "assertion": true,
+      "physical_state": "Y_t, alpha_t, n_t, y_t, m_t",
+      "augmented_state": "Xi_t^phys, ell_t"
+    },
+    "no_stale_Zt_master_state": {
+      "assertion": true
+    },
+    "no_literal_escape_artifacts_in_kernel": {
+      "assertion": true
+    },
+    "reachability_quasipotential_notation_separated": {
+      "assertion": true
+    },
+    "quasipotential_global_symbol_consistency": {
+      "assertion": true
+    },
+    "atlas_reachability_symbol_consistency": {
+      "assertion": true
+    },
+    "HJ_feedback_agency_scope_guard": {
+      "assertion": true
+    },
+    "branching_accessible_class_guard": {
+      "assertion": true,
+      "global_lambda": 0.25,
+      "founder_reachable_lambda": -0.1
+    },
+    "branching_periodic_floquet_criterion": {
+      "assertion": true,
+      "monodromy_rho": 1.2214027581601699,
+      "floquet_exponent": 0.1
+    },
+    "nonidentifiable_parameters_can_have_identifiable_prediction": {
+      "assertion": true,
+      "observable": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pred_ident": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pred_nonident": [
+        0.2,
+        0.4,
+        0.7
+      ]
+    },
+    "mass_action_scope_guard_present": {
+      "assertion": true
+    },
+    "tpt_conditioning_scope_guard": {
+      "assertion": true
+    },
+    "validation_scripts_are_path_relative": {
+      "assertion": true,
+      "hardcoded": []
+    },
+    "predictive_identifiability_executive_consistency": {
+      "assertion": true
+    },
+    "reachability_set_value_function_separation": {
+      "assertion": true
+    },
+    "cac_reference_measure_guard": {
+      "assertion": true
+    },
+    "periodic_branching_first_moment_scope_guard": {
+      "assertion": true
+    },
+    "total_charge_is_only_upper_bound_when_eta_unknown": {
+      "assertion": true,
+      "total_e": 1.0364269656617729e-06,
+      "faradaic_e": 1.0364269656617732e-07
+    },
+    "faradaic_scope_guard_present": {
+      "assertion": true
+    },
+    "natural_reachability_subset_of_control_envelope_toy": {
+      "assertion": true
+    },
+    "natural_vs_control_reachability_guard_present": {
+      "assertion": true
+    },
+    "interface_engine_not_autocatalysis_without_feedback": {
+      "assertion": true
+    },
+    "error_spectrum_not_heredity": {
+      "assertion": true
+    },
+    "ancestral_template_survival_blocks_false_heredity": {
+      "assertion": true
+    },
+    "generation_resolved_inheritance_shuffle_toy": {
+      "assertion": true,
+      "observed": 0.8,
+      "p": 0.000999000999000999
+    },
+    "selection_requires_ci_and_practical_effect": {
+      "assertion": true
+    },
+    "odds_escape_hatch_blocked": {
+      "assertion": true,
+      "odds_ratio": 2.020408163265306,
+      "absolute_change": 0.01
+    },
+    "package_gate_no_fitness_double_count": {
+      "assertion": true
+    },
+    "replicative_self_propagation_separate_from_chemical_autocatalysis": {
+      "assertion": true
+    },
+    "experimental_unit_guard_present": {
+      "assertion": true
+    },
+    "source_metadata_status_repairs_present": {
+      "assertion": true
+    },
+    "cac_measure_operationalization_present": {
+      "assertion": true
+    },
+    "kernel_release_identifier_guard": {
+      "assertion": true
+    },
+    "no_deprecated_test_counts": {
+      "assertion": true
+    },
+    "species_resolved_heat_model_present": {
+      "assertion": true
+    },
+    "C1_dominated_heat_budget_requires_total_chemical_prediction": {
+      "assertion": true
+    },
+    "founder_template_only_guard_present": {
+      "assertion": true
+    },
+    "copy_release_retemplate_gate_present": {
+      "assertion": true
+    },
+    "manual_reencapsulation_cannot_count_as_descent": {
+      "assertion": true
+    },
+    "multivariate_handoff_operator_present": {
+      "assertion": true
+    },
+    "currency_bridge_not_route_closure": {
+      "assertion": true
+    },
+    "npdna_reference_and_extension_separated": {
+      "assertion": true
+    },
+    "takeoff_model_family_not_logistic_only": {
+      "assertion": true
+    },
+    "heat_lag_resolution_guard": {
+      "assertion": true
+    },
+    "same_population_sequence_age_ancestry_guard": {
+      "assertion": true
+    },
+    "supplied_feed_does_not_license_autonomy_guard": {
+      "assertion": true
+    },
+    "membrane_exchange_background_guard": {
+      "assertion": true
+    },
+    "sham_depletion_processing_control_guard": {
+      "assertion": true
+    },
+    "dark_deoxy_cleanup_matrix_guard": {
+      "assertion": true
+    },
+    "generated_variant_from_founder_required_for_full_PCS": {
+      "assertion": true
+    },
+    "intervesicle_sequence_exchange_and_same_variant_selection_guard": {
+      "assertion": true
+    },
+    "compartment_normalized_selection_guard": {
+      "assertion": true
+    },
+    "recurrent_mutation_selection_null_guard": {
+      "assertion": true
+    },
+    "generated_polymer_distribution_not_uniform_by_default": {
+      "assertion": true,
+      "js_vs_uniform": 0.13778848027838078,
+      "mu_gen": [
+        0.7,
+        0.2,
+        0.08,
+        0.02
+      ]
+    },
+    "ensemble_convergence_not_exact_genotype_determinism": {
+      "assertion": true,
+      "js_replicates": 0.0005805150157913177,
+      "exact_genotype_identity": false
+    },
+    "functional_overlap_not_recursive_heredity": {
+      "assertion": true,
+      "eta_func": 0.8999999999999999
+    },
+    "founder_provenance_G_T_vs_X": {
+      "assertion": true
+    },
+    "recursive_next_generation_spectral_radius_toy": {
+      "assertion": true,
+      "rho_super": 1.0613406011768427,
+      "rho_sub": 0.4780776406404415
+    },
+    "periodic_recursion_uses_monodromy_not_frozen_operator": {
+      "assertion": true,
+      "rho_monodromy": 1.26
+    },
+    "R_rec_distinct_from_post_PCS_establishment": {
+      "assertion": true,
+      "R_rec": 1.08,
+      "Lambda_est": -0.03
+    },
+    "replicator_emergence_gate_logic": {
+      "assertion": true
+    },
+    "stationary_nonzero_current_is_NESS_not_equilibrium": {
+      "assertion": true,
+      "stationary": true,
+      "cycle_current": 0.23333333333333334
+    },
+    "dynamic_chemical_attractor_requires_distributional_convergence": {
+      "assertion": true,
+      "endpoint_A": [
+        0.4444444444444452,
+        0.5555555555555564
+      ],
+      "endpoint_B": [
+        0.4444444444444454,
+        0.5555555555555568
+      ]
+    },
+    "local_functional_neutral_connectivity_toy": {
+      "assertion": true,
+      "active": [
+        "000",
+        "001",
+        "011",
+        "111"
+      ],
+      "edges": [
+        [
+          "000",
+          "001"
+        ],
+        [
+          "001",
+          "011"
+        ],
+        [
+          "011",
+          "111"
+        ]
+      ]
+    },
+    "generated_polymer_measure_and_RE_objects_present": {
+      "assertion": true
+    },
+    "nonequilibrium_attractor_terminology_guard_present": {
+      "assertion": true
+    },
+    "route_closure_requires_replicator_emergence": {
+      "assertion": true
+    },
+    "pac_signed_net_flow_semantics_present": {
+      "assertion": true
+    },
+    "pac_minimal_structural_condition_restored": {
+      "assertion": true
+    },
+    "cac_hypergraph_typed_nodes_edges": {
+      "assertion": true
+    },
+    "continuous_discrete_spatial_state_not_conflated": {
+      "assertion": true
+    },
+    "empty_site_convention_present": {
+      "assertion": true
+    },
+    "ensemble_distance_normalized_unit_interval": {
+      "assertion": true
+    },
+    "functional_graph_uses_actual_transition_kernel": {
+      "assertion": true
+    },
+    "transitive_provenance_no_laundering": {
+      "assertion": true
+    },
+    "replicator_support_set_provenance_present": {
+      "assertion": true
+    },
+    "benchmark_vs_endogenous_RE_separated": {
+      "assertion": true
+    },
+    "joint_RST_or_conditional_chain_present": {
+      "assertion": true
+    },
+    "linear_Rrec_scope_guard": {
+      "assertion": true
+    },
+    "nonlinear_recursion_fallback_present": {
+      "assertion": true
+    },
+    "periodic_invariant_transport_condition_present": {
+      "assertion": true
+    },
+    "periodic_TPT_dynamic_probability_law_present": {
+      "assertion": true
+    },
+    "calorimetry_sign_convention_frozen": {
+      "assertion": true
+    },
+    "Arep_requires_heredity_and_amplification": {
+      "assertion": true
+    },
+    "local_PCS_scope_explicit": {
+      "assertion": true
+    },
+    "lab_and_natural_closure_separated": {
+      "assertion": true
+    },
+    "historical_occurrence_not_implied_by_natural_closure": {
+      "assertion": true
+    },
+    "explicit_interface_bridge_gate_definitions": {
+      "assertion": true
+    },
+    "route_object_contains_new_v271_modules": {
+      "assertion": true
+    },
+    "route_modules_have_applicability_flags": {
+      "assertion": true
+    },
+    "establishment_probability_fundamental": {
+      "assertion": true
+    },
+    "critical_branching_degenerate_exception_present": {
+      "assertion": true
+    },
+    "planetary_opportunity_units_and_notation_hardened": {
+      "assertion": true
+    },
+    "poisson_opportunity_conversion_conditional": {
+      "assertion": true
+    },
+    "selection_causality_not_overclaimed": {
+      "assertion": true
+    },
+    "no_stale_generic_C_closed_definition": {
+      "assertion": true
+    },
+    "no_stale_generic_DPCS_definition": {
+      "assertion": true
+    },
+    "common_witness_rule_explicit": {
+      "assertion": true
+    },
+    "interface_common_witness_binding": {
+      "assertion": true
+    },
+    "PCS_common_witness_binding": {
+      "assertion": true
+    },
+    "RE_common_witness_binding": {
+      "assertion": true
+    },
+    "RE_to_PCS_continuity_gate_present": {
+      "assertion": true
+    },
+    "frozen_start_boundary_present": {
+      "assertion": true
+    },
+    "whole_route_sourcing_not_claim_subset": {
+      "assertion": true
+    },
+    "material_sourcing_and_forcing_are_type_separated": {
+      "assertion": true
+    },
+    "forcing_scope_gate_explicit": {
+      "assertion": true
+    },
+    "sufficient_support_family_closes_redundant_X_loophole": {
+      "assertion": true
+    },
+    "seed_basin_gate_present": {
+      "assertion": true
+    },
+    "cooperative_joint_generated_measure_present": {
+      "assertion": true
+    },
+    "nonlinear_transient_only_burst_rejected": {
+      "assertion": true
+    },
+    "natural_operator_mapping_quantified": {
+      "assertion": true
+    },
+    "adaptive_search_is_explicit_operation": {
+      "assertion": true
+    },
+    "natural_reachable_vs_plausible_split": {
+      "assertion": true
+    },
+    "selection_gate_is_causal_not_association_only": {
+      "assertion": true
+    },
+    "G_L_stronger_mechanistic_mediation": {
+      "assertion": true
+    },
+    "branching_critical_exception_repeated_consistently": {
+      "assertion": true
+    },
+    "functional_access_graph_not_misnamed_neutral": {
+      "assertion": true
+    },
+    "current_programme_not_generic_closure": {
+      "assertion": true
+    },
+    "generic_lab_closure_not_hardwired_to_interface": {
+      "assertion": true
+    },
+    "interface_absolute_model_adequacy_present": {
+      "assertion": true
+    },
+    "interface_effect_size_not_pvalue_only": {
+      "assertion": true
+    },
+    "route_object_contains_seed_joint_witness_ops": {
+      "assertion": true
+    },
+    "search_operation_falsifier_present": {
+      "assertion": true
+    },
+    "common_witness_falsifier_present": {
+      "assertion": true
+    },
+    "no_stale_C_programme_generic_formula": {
+      "assertion": true
+    },
+    "no_stale_unbound_D_PCS_formula": {
+      "assertion": true
+    },
+    "no_stale_unbound_G_RE_endo_formula": {
+      "assertion": true
+    },
+    "physical_vs_evidence_semantics_are_separate": {
+      "assertion": true
+    },
+    "strong_kleene_evidence_semantics_declared": {
+      "assertion": true
+    },
+    "certificate_result_axes_separated": {
+      "assertion": true
+    },
+    "canonical_registry_v275_named": {
+      "assertion": true
+    },
+    "canonical_registry_physical_only": {
+      "assertion": true
+    },
+    "runtime_authority_modes_declared": {
+      "assertion": true
+    },
+    "complete_evidence_conservative_extension_present": {
+      "assertion": true
+    },
+    "structural_route_digest_identity_present": {
+      "assertion": true
+    },
+    "positive_provenance_not_unknown": {
+      "assertion": true
+    },
+    "hereditary_core_has_no_weak_fallback": {
+      "assertion": true
+    },
+    "natural_boundary_realization_present": {
+      "assertion": true
+    },
+    "natural_boundary_not_literal_reagent_identity": {
+      "assertion": true
+    },
+    "threshold_contracts_linked_in_registry": {
+      "assertion": true
+    },
+    "open_world_quantifiers_declared": {
+      "assertion": true
+    },
+    "absence_claims_require_domain_closure": {
+      "assertion": true
+    },
+    "evidence_receipt_pipeline_declared": {
+      "assertion": true
+    },
+    "certificate_binding_fields_declared": {
+      "assertion": true
+    },
+    "duplicate_composition_engine_falsifier_present": {
+      "assertion": true
+    },
+    "missing_as_false_falsifier_present": {
+      "assertion": true
+    },
+    "natural_boundary_falsifier_present": {
+      "assertion": true
+    },
+    "threshold_binding_falsifier_present": {
+      "assertion": true
+    },
+    "registry_compiler_QA_declared": {
+      "assertion": true
+    },
+    "one_composition_engine_QA_declared": {
+      "assertion": true
+    },
+    "numerical_backward_compatibility_declared": {
+      "assertion": true
+    },
+    "physical_vs_epistemic_model_certificate_preserved": {
+      "assertion": true
+    },
+    "cooperative_recursive_completeness_preserved": {
+      "assertion": true
+    },
+    "generic_carrier_not_membrane_universal": {
+      "assertion": true
+    },
+    "ADE_and_augTPT_certificates_preserved": {
+      "assertion": true
+    },
+    "route_graph_with_side_objects_preserved": {
+      "assertion": true
+    },
+    "catalytic_autonomy_preserved": {
+      "assertion": true
+    },
+    "closure_energy_physical_no_cert_claim": {
+      "assertion": true
+    }
+  }
+}

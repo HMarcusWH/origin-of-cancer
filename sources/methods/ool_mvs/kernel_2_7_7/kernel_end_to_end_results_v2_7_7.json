@@ -1,0 +1,863 @@
+{
+  "suite": "kernel_end_to_end_v2.7.7",
+  "passed": 95,
+  "total": 95,
+  "all_pass": true,
+  "composition_engine": "claim_registry_runtime_v2_7_7.py only",
+  "tests": {
+    "001_benchmark_RE": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-BENCH-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "002_endogenous_RE": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "003_PCS": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LOCAL-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "004_linked_PCS": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LINKED-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "005_RE_to_PCS": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-PCS-CONT-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "006_Interface": {
+      "pass": true,
+      "detail": {
+        "claim": "INTERFACE-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "007_bridge": {
+      "pass": true,
+      "detail": {
+        "claim": "BRIDGE-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "008_current_programme": {
+      "pass": true,
+      "detail": {
+        "claim": "PROGRAMME-CURRENT-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "009_lab_closure": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "010_natural_reachable": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "011_natural_plausible": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-PLAUS-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "012_carrier": {
+      "pass": true,
+      "detail": {
+        "claim": "CARRIER-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "013_individuated": {
+      "pass": true,
+      "detail": {
+        "claim": "INDIVIDUATED-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "014_molecular_establishment": {
+      "pass": true,
+      "detail": {
+        "claim": "EST-MOL-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "015_carrier_establishment": {
+      "pass": true,
+      "detail": {
+        "claim": "EST-CARRIER-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "016_endogenous_RE_requires_G_seed": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "017_endogenous_RE_requires_G_F": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "018_endogenous_RE_requires_G_support_endo": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "019_endogenous_RE_requires_G_no_preloaded_solution_RE": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "020_endogenous_RE_requires_G_coop_complete": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "021_endogenous_RE_requires_G_C_RE": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "022_endogenous_RE_requires_G_R_RE": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "023_endogenous_RE_requires_G_H_RE": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "024_endogenous_RE_requires_G_Arep": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "025_seed_not_required_for_benchmark_RE": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-BENCH-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "026_preloading_blocks_endogenous": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-ENDO-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "027_preloading_does_not_erase_benchmark": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-BENCH-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "028_PCS_requires_G_P": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LOCAL-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "029_PCS_requires_G_C_PCS": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LOCAL-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "030_PCS_requires_G_R_PCS": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LOCAL-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "031_PCS_requires_G_H_PCS": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LOCAL-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "032_PCS_requires_G_V": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LOCAL-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "033_PCS_requires_G_S": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LOCAL-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "034_linked_mechanistic_mediation_stronger_than_local_PCS": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LOCAL-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "035_linked_PCS_requires_G_L": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LINKED-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "036_core_ancestry_failure_blocks_continuity": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-PCS-CONT-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "037_unknown_core_ancestry_is_NA": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-PCS-CONT-1",
+        "got": "NA",
+        "expected": "NA",
+        "unresolved": [
+          "incomplete_existential_domain:PCSWitness",
+          "incomplete_existential_domain:REWitness",
+          "missing_relation_receipt:DescendsCore"
+        ]
+      }
+    },
+    "038_full_length_external_replacement_blocks_continuity": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-PCS-CONT-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "039_backwards_time_order_blocks_continuity": {
+      "pass": true,
+      "detail": {
+        "claim": "RE-PCS-CONT-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "040_Interface_requires_G_I1": {
+      "pass": true,
+      "detail": {
+        "claim": "INTERFACE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "041_Interface_requires_G_I2": {
+      "pass": true,
+      "detail": {
+        "claim": "INTERFACE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "042_Interface_requires_G_I3": {
+      "pass": true,
+      "detail": {
+        "claim": "INTERFACE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "043_Interface_requires_G_I4": {
+      "pass": true,
+      "detail": {
+        "claim": "INTERFACE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "044_bridge_requires_G_transfer": {
+      "pass": true,
+      "detail": {
+        "claim": "BRIDGE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "045_bridge_requires_G_complete": {
+      "pass": true,
+      "detail": {
+        "claim": "BRIDGE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "046_bridge_requires_G_target_establish": {
+      "pass": true,
+      "detail": {
+        "claim": "BRIDGE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "047_bridge_requires_G_handoff_multivariate": {
+      "pass": true,
+      "detail": {
+        "claim": "BRIDGE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "048_bridge_requires_G_temporal_overlap": {
+      "pass": true,
+      "detail": {
+        "claim": "BRIDGE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "049_bridge_requires_G_currency_native_effect": {
+      "pass": true,
+      "detail": {
+        "claim": "BRIDGE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "050_bridge_requires_G_currency_depletion_control": {
+      "pass": true,
+      "detail": {
+        "claim": "BRIDGE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "051_bridge_requires_G_currency_restoration_control": {
+      "pass": true,
+      "detail": {
+        "claim": "BRIDGE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "052_handoff_unresolved_threshold_NA": {
+      "pass": true,
+      "detail": {
+        "claim": "HANDOFF-1",
+        "got": "NA",
+        "expected": "NA",
+        "unresolved": [
+          "missing_threshold_receipt:time_horizon"
+        ]
+      }
+    },
+    "053_programme_continuity_required": {
+      "pass": true,
+      "detail": {
+        "claim": "PROGRAMME-CURRENT-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "054_programme_missing_continuity_NA": {
+      "pass": true,
+      "detail": {
+        "claim": "PROGRAMME-CURRENT-1",
+        "got": "NA",
+        "expected": "NA",
+        "unresolved": [
+          "incomplete_existential_domain:ProgrammeProof",
+          "missing_leaf_receipt:ProgrammeContinuity"
+        ]
+      }
+    },
+    "055_lab_closure_requires_G_route_path_lab": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "056_lab_closure_requires_G_sourcing": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "057_lab_closure_requires_G_forcing_scope": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "058_lab_closure_requires_G_energy_closure_lab": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "059_lab_closure_requires_G_compatibility": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "060_lab_closure_requires_G_phys": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "061_lab_closure_requires_G_declared_causal_coverage": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "062_missing_G_sourcing_is_NA_not_PASS": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "NA",
+        "expected": "NA",
+        "unresolved": [
+          "incomplete_existential_domain:RouteProof",
+          "missing_leaf_receipt:G_sourcing"
+        ]
+      }
+    },
+    "063_missing_G_forcing_scope_is_NA_not_PASS": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "NA",
+        "expected": "NA",
+        "unresolved": [
+          "incomplete_existential_domain:RouteProof",
+          "missing_leaf_receipt:G_forcing_scope"
+        ]
+      }
+    },
+    "064_missing_G_energy_closure_lab_is_NA_not_PASS": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "NA",
+        "expected": "NA",
+        "unresolved": [
+          "incomplete_existential_domain:RouteProof",
+          "missing_leaf_receipt:G_energy_closure_lab"
+        ]
+      }
+    },
+    "065_missing_G_declared_causal_coverage_is_NA_not_PASS": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "NA",
+        "expected": "NA",
+        "unresolved": [
+          "incomplete_existential_domain:RouteProof",
+          "missing_leaf_receipt:G_declared_causal_coverage"
+        ]
+      }
+    },
+    "066_natural_reach_requires_G_boundary_realization": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "067_natural_reach_requires_G_sourcing_natural": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "068_natural_reach_requires_G_natural_ops_joint": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "069_natural_reach_requires_G_natural_reach": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "070_natural_reach_requires_G_energy_closure_natural": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "071_natural_reach_requires_NaturalForcingLawAdmissible": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "072_natural_reach_requires_AdaptivePolicyMappedOrIrrelevant": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "073_natural_reachable_can_pass_when_plausibility_fails": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "074_natural_plausibility_is_stronger": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-PLAUS-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "075_missing_natural_boundary_realization_is_NA": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "NA",
+        "expected": "NA",
+        "unresolved": [
+          "incomplete_existential_domain:NaturalProof",
+          "missing_leaf_receipt:G_boundary_realization"
+        ]
+      }
+    },
+    "076_carrier_compatibility_required": {
+      "pass": true,
+      "detail": {
+        "claim": "CARRIER-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "077_carrier_establishment_requires_carrier_compatibility": {
+      "pass": true,
+      "detail": {
+        "claim": "EST-CARRIER-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "078_bounded_reproduction_required_only_for_individuation": {
+      "pass": true,
+      "detail": {
+        "claim": "CARRIER-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "079_individuation_requires_bounded_reproduction": {
+      "pass": true,
+      "detail": {
+        "claim": "INDIVIDUATED-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "080_PCS_does_not_imply_establishment": {
+      "pass": true,
+      "detail": {
+        "claim": "PCS-LOCAL-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "081_molecular_establishment_requires_positive_probability": {
+      "pass": true,
+      "detail": {
+        "claim": "EST-MOL-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "082_carrier_capability_does_not_imply_carrier_establishment": {
+      "pass": true,
+      "detail": {
+        "claim": "CARRIER-1",
+        "got": "PASS",
+        "expected": "PASS",
+        "unresolved": []
+      }
+    },
+    "083_carrier_establishment_requires_positive_probability": {
+      "pass": true,
+      "detail": {
+        "claim": "EST-CARRIER-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "084_carrier_establishment_requires_embedded_molecular_persistence": {
+      "pass": true,
+      "detail": {
+        "claim": "EST-CARRIER-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "085_cross_route_structural_mismatch_blocks_lab_closure": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "086_cross_boundary_structural_mismatch_blocks_lab_closure": {
+      "pass": true,
+      "detail": {
+        "claim": "LAB-CLOSURE-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "087_natural_proof_route_mismatch_blocks_natural_closure": {
+      "pass": true,
+      "detail": {
+        "claim": "NAT-REACH-1",
+        "got": "FAIL",
+        "expected": "FAIL",
+        "unresolved": []
+      }
+    },
+    "088_synthetic_lab_claim_gets_VALID_TEST_certificate": {
+      "pass": true,
+      "detail": null
+    },
+    "089_failed_lab_claim_can_get_VALID_failure_certificate": {
+      "pass": true,
+      "detail": null
+    },
+    "090_unresolved_lab_claim_gets_INCOMPLETE_certificate": {
+      "pass": true,
+      "detail": null
+    },
+    "091_end_to_end_boolean_collapse_LAB-CLOSURE-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "092_end_to_end_boolean_collapse_NAT-REACH-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "093_end_to_end_boolean_collapse_NAT-PLAUS-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "094_end_to_end_boolean_collapse_EST-MOL-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "095_end_to_end_boolean_collapse_EST-CARRIER-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    }
+  }
+}
