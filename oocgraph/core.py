@@ -43,7 +43,7 @@ def safe_path(root: Path, name: str) -> Path:
     if not isinstance(name, str) or not name or "\\" in name or "\x00" in name:
         raise IntegrityError(f"Invalid repository path: {name!r}")
     p = PurePosixPath(name)
-    if p.is_absolute() or ".." in p.parts or ":" in p.parts[0]:
+    if not p.parts or p.is_absolute() or ".." in p.parts or ":" in p.parts[0]:
         raise IntegrityError(f"Unsafe repository path: {name!r}")
     path = root.joinpath(*p.parts)
     if not path.resolve().is_relative_to(root.resolve()):
@@ -117,11 +117,17 @@ REF_TYPES = {
     "applicability_ref": {"MethodApplicability"}, "software_ref": {"Software"},
     "execution_ref": {"Execution"}, "test_ref": {"Test"}, "gate_ref": {"Gate"},
     "gap_ref": {"ResearchGap"}, "estimand_ref": {"Estimand"}, "provenance_ref": {"ParameterProvenance"},
-    "decision_ref": {"Decision"}, "completion_decision_ref": {"Decision"}, "transfer_decision_ref": {"Decision"}, "assessment_ref": {"EvidenceAssessment"}, "same_identifier_as": {"LiteratureSource"},
+    "decision_ref": {"Decision"}, "completion_decision_ref": {"Decision"}, "transfer_decision_ref": {"Decision"},
+    "assessment_ref": {"EvidenceAssessment"}, "same_identifier_as": {"LiteratureSource"},
     "process_ref": {"ObservationProcess"}, "observation_operator_ref": {"ObservationOperator"},
+    "classification_source_ref": {"LiteratureSource"}, "source_ref": {"LiteratureSource"},
+    "target_claim_ref": {"Claim"}, "target_estimand_ref": {"Estimand"}, "history_ref": {"Route"},
+    "property_ref": {"Estimand", "PersistenceCriterion", "Claim"},
 }
 REF_LIST_TYPES = {
-    "evidence_refs": {"EvidenceObject"}, "bridge_evidence_refs": {"EvidenceObject"}, "satisfaction_evidence_refs": {"EvidenceObject"}, "independence_evidence_refs": {"EvidenceObject"}, "source_locator_refs": {"SourceLocator"}, "transition_refs": {"Transition"},
+    "evidence_refs": {"EvidenceObject"}, "bridge_evidence_refs": {"EvidenceObject"},
+    "satisfaction_evidence_refs": {"EvidenceObject"}, "independence_evidence_refs": {"EvidenceObject"},
+    "source_locator_refs": {"SourceLocator"}, "transition_refs": {"Transition"},
     "mechanism_refs": {"Mechanism"}, "assumption_refs": {"Assumption"}, "estimand_refs": {"Estimand"},
     "parameter_refs": {"Parameter"}, "equation_refs": {"Equation"}, "result_refs": {"Result"},
     "assessment_refs": {"EvidenceAssessment"}, "evidence_assessment_refs": {"EvidenceAssessment"},
@@ -129,7 +135,41 @@ REF_LIST_TYPES = {
     "data_use_refs": {"DataUse"}, "intervention_operator_refs": {"InterventionOperator"},
     "state_variable_refs": {"StateVariable"}, "variable_refs": {"StateVariable"},
     "source_variables_refs": {"StateVariable"}, "target_variables_refs": {"StateVariable"},
+    "state_refs": {"BiologicalState"}, "required_gate_refs": {"Gate"}, "null_refs": {"NullModel"},
 }
+COMMON_SUBJECT_TYPES = {
+    "Programme", "Theory", "Adapter", "Claim", "Boundary", "BiologicalState", "FounderEnsemble",
+    "Mechanism", "Transition", "Route", "Estimand", "ModelClass", "ModelInstance",
+    "PersistenceCriterion", "ResearchGap", "Workstream", "PathologyEntity", "NullModel",
+    "Falsifier", "EvidenceObject", "EvidenceAssessment", "Requirement", "Protocol", "Test",
+    "Result", "MethodApplicability", "Intervention", "Observation",
+}
+OWNER_REF_TYPES = {
+    ("Intervention", "operator_ref"): {"InterventionOperator"},
+    ("Observation", "operator_ref"): {"ObservationOperator"},
+    ("Decision", "subject_ref"): COMMON_SUBJECT_TYPES,
+    ("Requirement", "subject_ref"): COMMON_SUBJECT_TYPES,
+    ("Test", "subject_ref"): COMMON_SUBJECT_TYPES,
+    ("Verdict", "subject_ref"): COMMON_SUBJECT_TYPES,
+    ("EvidenceAssessment", "target_ref"): COMMON_SUBJECT_TYPES,
+    ("Falsifier", "target_ref"): COMMON_SUBJECT_TYPES,
+}
+OWNER_REF_LIST_TYPES = {
+    ("Authority", "subject_refs"): COMMON_SUBJECT_TYPES,
+    ("Execution", "input_refs"): COMMON_SUBJECT_TYPES | {"Dataset", "DataUse", "Parameter", "SourceArtifact"},
+    ("Protocol", "target_refs"): COMMON_SUBJECT_TYPES,
+    ("Decision", "preserves_refs"): COMMON_SUBJECT_TYPES | {"SourceVerification"},
+    ("CandidateSet", "member_refs"): {"ModelInstance", "ModelClass", "Route", "Transition", "Theory", "Claim", "BiologicalState", "Mechanism", "FounderEnsemble", "Estimand"},
+    ("FounderEnsemble", "member_refs"): {"BiologicalState", "FounderEnsemble", "PathologyEntity"},
+}
+def _allowed_ref_types(record_type: str, key: str, list_field: bool = False):
+    if key == "revision_of_ref":
+        return {record_type}
+    owner = OWNER_REF_LIST_TYPES if list_field else OWNER_REF_TYPES
+    if (record_type, key) in owner:
+        return owner[(record_type, key)]
+    return (REF_LIST_TYPES if list_field else REF_TYPES).get(key)
+
 SCIENTIFIC_POSITIVE = {"SUPPORTED_SCOPED", "MATHEMATICALLY_VERIFIED_SCOPED"}
 
 def validate_records(records: list[dict], root: Path | None = None) -> list[str]:
@@ -143,6 +183,14 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
         schema = loads((root / "schema/graph-record.schema.json").read_text())
         vocab = loads((root / "schema/vocab.json").read_text())
         validators = {t: Draft202012Validator(s) for t, s in schema["$defs"].items()}
+        for schema_type, definition in schema["$defs"].items():
+            for key in definition.get("properties", {}):
+                if key.endswith("_ref") or key == "same_identifier_as":
+                    if _allowed_ref_types(schema_type, key, False) is None:
+                        errors.append(f"UNDECLARED_REF_TYPE:{schema_type}:{key}")
+                elif key.endswith("_refs"):
+                    if _allowed_ref_types(schema_type, key, True) is None:
+                        errors.append(f"UNDECLARED_REF_TYPE:{schema_type}:{key}")
         for r in records:
             validator = validators.get(r.get("type"))
             if validator is None: errors.append(f"UNKNOWN_TYPE:{r.get('id')}"); continue
@@ -156,10 +204,15 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
         typ = r.get("type")
         for key, value in r.items():
             if key.endswith("_ref") or key == "same_identifier_as":
-                check_ref(r, key, value, REF_TYPES.get(key))
+                allowed = _allowed_ref_types(typ, key, False)
+                if allowed is None: error("UNDECLARED_REF_TYPE:"+key, r)
+                else: check_ref(r, key, value, allowed)
             elif key.endswith("_refs"):
                 if not isinstance(value, list): error("INVALID_REFS:"+key, r); continue
-                for ref in value: check_ref(r, key, ref, REF_LIST_TYPES.get(key))
+                allowed = _allowed_ref_types(typ, key, True)
+                if allowed is None: error("UNDECLARED_REF_TYPE:"+key, r)
+                else:
+                    for ref in value: check_ref(r, key, ref, allowed)
         if r.get("provenance_class") == "TEXTUAL_HINT" and (
             r.get("decision") in SCIENTIFIC_POSITIVE or r.get("status") in {"ADMITTED", "CLOSED"}):
             error("TEXT_HINT_PROMOTION", r)
@@ -214,10 +267,21 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 except IntegrityError: error("INCOMPLETE_MODEL_IDENTITY",r)
             if app.get("model_class_ref") != r.get("model_class_ref"): error("APPLICABILITY_MODEL_MISMATCH",r)
             if app.get("scope") != r.get("scope"): error("APPLICABILITY_SCOPE_MISMATCH",r)
+            if set(app.get("assumption_refs", [])) != set(r.get("assumption_refs", [])):
+                error("APPLICABILITY_ASSUMPTION_MISMATCH", r)
+            for ar in r.get("assumption_refs", []):
+                assumption = index.get(ar, {})
+                if assumption.get("required", True) and assumption.get("assessment") != "PASS":
+                    error("FAILED_OR_UNKNOWN_MODEL_ASSUMPTION", r)
         if typ == "Route" and r.get("status") == "CLOSED":
             if r.get("unresolved_segments"): error("ROUTE_HAS_DEBT", r)
             if not r.get("transition_refs"): error("EMPTY_CLOSED_ROUTE", r)
             if not r.get("founder_ref"): error("MISSING_ROUTE_ANCESTRY", r)
+            wb = index.get(r.get("witness_bundle_ref"), {})
+            mode = wb.get("mode")
+            if mode not in {"SAME_SYSTEM", "VALIDATED_BRIDGE"}: error("COMPOSITED_ROUTE", r)
+            if wb.get("context_ref") != r.get("context_ref"): error("WITNESS_CONTEXT_MISMATCH", r)
+            witness_evidence = set(wb.get("evidence_refs", [])) | set(wb.get("bridge_evidence_refs", []))
             previous = None
             for tr in r.get("transition_refs", []):
                 t = index.get(tr, {})
@@ -226,11 +290,29 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 if previous is not None and previous != t.get("source_state_ref"):
                     error("BROKEN_ROUTE_HANDOFF", r)
                 previous = t.get("target_state_ref")
-                if not t.get("evidence_assessment_refs"): error("UNSUPPORTED_ROUTE_SEGMENT", r)
-            wb = index.get(r.get("witness_bundle_ref"), {})
-            mode = wb.get("mode")
-            if mode not in {"SAME_SYSTEM", "VALIDATED_BRIDGE"}: error("COMPOSITED_ROUTE", r)
-            if wb.get("context_ref") != r.get("context_ref"): error("WITNESS_CONTEXT_MISMATCH", r)
+                supporting = 0
+                refs = t.get("evidence_assessment_refs", [])
+                if not refs: error("UNSUPPORTED_ROUTE_SEGMENT", r)
+                for ar in refs:
+                    a = index.get(ar, {})
+                    e = index.get(a.get("evidence_ref"), {})
+                    valid = True
+                    if a.get("status") != "ADJUDICATED":
+                        error("UNADJUDICATED_ROUTE_ASSESSMENT", r); valid = False
+                    if a.get("target_ref") != tr:
+                        error("ROUTE_ASSESSMENT_TARGET_MISMATCH", r); valid = False
+                    if a.get("effect") != "SUPPORTS":
+                        error("NON_SUPPORTING_ROUTE_ASSESSMENT", r); valid = False
+                    if e.get("status") != "RECORDED":
+                        error("INACTIVE_ROUTE_EVIDENCE", r); valid = False
+                    if e.get("context_ref") != r.get("context_ref"):
+                        error("ROUTE_EVIDENCE_CONTEXT_MISMATCH", r); valid = False
+                    if e.get("id") not in witness_evidence:
+                        error("ROUTE_EVIDENCE_OUTSIDE_WITNESS", r); valid = False
+                    if "scope" in r and canonical(a.get("scope")) != canonical(r.get("scope")):
+                        error("ROUTE_ASSESSMENT_SCOPE_MISMATCH", r); valid = False
+                    if valid: supporting += 1
+                if not supporting: error("UNSUPPORTED_ROUTE_SEGMENT", r)
             if mode == "SAME_SYSTEM":
                 groups = [set(index.get(x, {}).get("witness_ids", [])) for x in wb.get("evidence_refs", [])]
                 common = set.intersection(*groups) if groups else set()
@@ -253,7 +335,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 admissible = []
                 for a in assessments:
                     e = index.get(a.get("evidence_ref"), {})
-                    if (a.get("target_ref") == r.get("subject_ref") and a.get("effect") == "SUPPORTS"
+                    if (a.get("status") == "ADJUDICATED" and e.get("status") == "RECORDED"
+                        and a.get("target_ref") == r.get("subject_ref") and a.get("effect") == "SUPPORTS"
                         and canonical(a.get("scope")) == canonical(r.get("scope"))
                         and e.get("evidence_class") in {"PRIMARY_HUMAN_LONGITUDINAL", "PRIMARY_HUMAN_CROSS_SECTIONAL", "PRIMARY_ANIMAL", "PRIMARY_ORGANOID", "PRIMARY_IN_VITRO", "HUMAN_CAUSAL"}):
                         admissible.append(a)
@@ -273,18 +356,30 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 error("GOVERNANCE_AS_SCIENTIFIC_SUPPORT", r)
         if typ == "Programme":
             if r.get("clinical_use"): error("CLINICAL_USE_OUT_OF_SCOPE", r)
+            requirements = [x for x in records if x.get("type") == "Requirement" and x.get("subject_ref") == r["id"]]
+            critical = [x for x in records if x.get("type") == "ResearchGap" and x.get("priority") == "CRITICAL"]
+            for gap in critical:
+                if not any(q.get("gap_ref") == gap.get("id") for q in requirements):
+                    error("MISSING_CRITICAL_PROGRAMME_REQUIREMENT", gap)
             if r.get("kernel_frozen"):
-                requirements = [x for x in records if x.get("type") == "Requirement" and x.get("subject_ref") == r["id"]]
                 if not requirements: error("NO_FREEZE_REQUIREMENTS", r)
                 for q in requirements:
                     if q.get("status") not in {"SATISFIED", "BOUNDED"} or not q.get("decision_ref"):
                         error("OPEN_FREEZE_REQUIREMENT", r)
                     if q.get("status") == "BOUNDED" and not q.get("bound_scope"): error("UNSCOPED_REQUIREMENT_BOUND", q)
+                    decision = index.get(q.get("decision_ref"), {})
+                    authority = index.get(decision.get("authority_ref"), {})
+                    if (decision.get("type") != "Decision" or decision.get("status") != "RECORDED"
+                        or decision.get("subject_ref") not in {q.get("id"), q.get("gap_ref")}
+                        or not decision.get("evidence_refs") or "RESEARCH_POLICY" not in authority.get("axes", [])):
+                        error("INVALID_FREEZE_DECISION", q)
+                    gap = index.get(q.get("gap_ref"), {})
+                    if gap.get("priority") == "CRITICAL" and gap.get("status") not in {"RESOLVED", "BOUNDED", "SUPERSEDED"}:
+                        error("OPEN_CRITICAL_GAP_ON_FREEZE", q)
     uses = [r for r in records if r.get("type") == "DataUse"]
     for i, a in enumerate(uses):
         for b in uses[i+1:]:
             if a.get("model_instance_ref") != b.get("model_instance_ref"): continue
-            if a.get("protocol_ref") != b.get("protocol_ref"): continue
             roles = {a.get("role"), b.get("role")}
             if "CONFIRM" not in roles or not roles.intersection({"TRAIN", "SELECT", "CALIBRATION"}): continue
             da, db = index.get(a.get("dataset_ref"), {}), index.get(b.get("dataset_ref"), {})
@@ -352,9 +447,10 @@ def validate_repository(root: Path) -> list[str]:
     if project.get('clinical_use_authorized'): errors.append('CLINICAL_CONFIG_OUT_OF_SCOPE')
     gaps = {r.get("legacy_id") for r in records if r["type"] == "ResearchGap"}
     if not {f"RG-{i:03}" for i in range(1, 92)}.issubset(gaps): errors.append("LOST_RESEARCH_GAP")
-    req = {r.get("gap_ref") for r in records if r["type"] == "Requirement"}
+    programme_id = programmes[0]["id"] if len(programmes) == 1 else None
+    req = {(r.get("gap_ref"), r.get("subject_ref")) for r in records if r["type"] == "Requirement"}
     for gid in project["critical_gap_ids"]:
-        if "ooc:gap:"+gid not in req: errors.append("LOST_CRITICAL_REQUIREMENT:"+gid)
+        if ("ooc:gap:"+gid, programme_id) not in req: errors.append("LOST_CRITICAL_REQUIREMENT:"+gid)
     for p in loads((root / "config/documentation_contract.json").read_text())["required_documents"]:
         if not safe_path(root, p).is_file(): errors.append("MISSING_DOCUMENT:"+p)
     for p, expected in loads((root / "config/source_locks.json").read_text())["sha256"].items():
@@ -385,7 +481,11 @@ def history_violations(before: list[dict], after: list[dict]) -> list[str]:
     failures = []
     immutable = {'Result', 'Execution', 'Verdict', 'Decision', 'EvidenceObject', 'SourceVerification'}
     for old in before:
-        locked = old.get('type') in immutable or (old.get('type') == 'ModelInstance' and old.get('status') in {'FROZEN','ADMITTED','RETIRED'})
+        locked = (old.get('type') in immutable
+                  or (old.get('type') == 'ModelInstance' and old.get('status') in {'FROZEN','ADMITTED','RETIRED'})
+                  or (old.get('type') == 'Protocol' and old.get('frozen') is True)
+                  or (old.get('type') == 'EvidenceAssessment' and old.get('status') == 'ADJUDICATED')
+                  or (old.get('type') == 'DataUse' and old.get('status') == 'ADMITTED'))
         if not locked: continue
         if old['id'] not in new:
             failures.append('DELETED_IMMUTABLE:'+old['id'])
@@ -401,7 +501,9 @@ def model_identity_digest(records: list[dict], model: dict) -> str:
     Cyclic reference graphs are traversed once per object, not recursively hashed.
     """
     index={r['id']:r for r in records}
-    pending=[model['id']];visited=set();content=[]
+    bound_uses = sorted(r['id'] for r in records
+                        if r.get('type') == 'DataUse' and r.get('model_instance_ref') == model['id'])
+    pending=[model['id'], *bound_uses];visited=set();content=[]
     ignored={'frozen_digest','status','label','notes','doc_path'}
     while pending:
         rid=pending.pop()

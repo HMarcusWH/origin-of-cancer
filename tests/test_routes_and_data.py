@@ -4,16 +4,18 @@ from tests.test_integrity import node
 from oocgraph.core import validate_records
 
 def route_fixture(mode='SAME_SYSTEM'):
+    scope={'adapter':'synthetic'}
     rs=[node('Adapter','a'),node('Context','c'),node('Boundary','b'),node('FounderEnsemble','f'),
         node('BiologicalState','s1'),node('BiologicalState','s2'),node('BiologicalState','s3'),
         node('SourceLocator','l',selector={'figure':'fixture'}),
-        node('EvidenceObject','e1',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l']),
-        node('EvidenceObject','e2',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l']),
-        node('EvidenceAssessment','a1'),node('EvidenceAssessment','a2')]
+        node('EvidenceObject','e1',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l'],context_ref='ooc:fixture:c',status='RECORDED'),
+        node('EvidenceObject','e2',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l'],context_ref='ooc:fixture:c',status='RECORDED'),
+        node('EvidenceAssessment','a1',evidence_ref='ooc:fixture:e1',target_ref='ooc:fixture:t1',effect='SUPPORTS',scope=scope,status='ADJUDICATED'),
+        node('EvidenceAssessment','a2',evidence_ref='ooc:fixture:e2',target_ref='ooc:fixture:t2',effect='SUPPORTS',scope=scope,status='ADJUDICATED')]
     for i in (1,2):
         rs.append(node('Transition','t'+str(i),source_state_ref=f'ooc:fixture:s{i}',target_state_ref=f'ooc:fixture:s{i+1}',context_ref='ooc:fixture:c',adapter_ref='ooc:fixture:a',evidence_assessment_refs=[f'ooc:fixture:a{i}']))
     rs.append(node('WitnessBundle','w',mode=mode,context_ref='ooc:fixture:c',evidence_refs=['ooc:fixture:e1','ooc:fixture:e2'],common_witness_ids=['system1']))
-    rr=node('Route','r',context_ref='ooc:fixture:c',adapter_ref='ooc:fixture:a',boundary_ref='ooc:fixture:b',founder_ref='ooc:fixture:f',transition_refs=['ooc:fixture:t1','ooc:fixture:t2'],witness_bundle_ref='ooc:fixture:w',unresolved_segments=[]);rr['status']='CLOSED';rs.append(rr)
+    rr=node('Route','r',context_ref='ooc:fixture:c',adapter_ref='ooc:fixture:a',boundary_ref='ooc:fixture:b',founder_ref='ooc:fixture:f',transition_refs=['ooc:fixture:t1','ooc:fixture:t2'],witness_bundle_ref='ooc:fixture:w',unresolved_segments=[],scope=scope,status='CLOSED');rs.append(rr)
     return rs
 
 def data_fixture():
@@ -42,6 +44,16 @@ class RouteTests(unittest.TestCase):
         r=route_fixture();get(r,'t2')['source_state_ref']='ooc:fixture:s1';self.has(r,'BROKEN_ROUTE_HANDOFF')
     def test_segment_support_required(self):
         r=route_fixture();get(r,'t1')['evidence_assessment_refs']=[];self.has(r,'UNSUPPORTED_ROUTE_SEGMENT')
+    def test_route_assessment_must_be_adjudicated(self):
+        r=route_fixture();get(r,'a1')['status']='IN_REVIEW';self.has(r,'UNADJUDICATED_ROUTE_ASSESSMENT')
+    def test_route_assessment_must_target_segment(self):
+        r=route_fixture();get(r,'a1')['target_ref']='ooc:fixture:t2';self.has(r,'ROUTE_ASSESSMENT_TARGET_MISMATCH')
+    def test_route_assessment_must_support(self):
+        r=route_fixture();get(r,'a1')['effect']='CONTRADICTS';self.has(r,'NON_SUPPORTING_ROUTE_ASSESSMENT')
+    def test_route_evidence_must_be_active(self):
+        r=route_fixture();get(r,'e1')['status']='WITHDRAWN';self.has(r,'INACTIVE_ROUTE_EVIDENCE')
+    def test_route_evidence_must_be_in_witness_bundle(self):
+        r=route_fixture();get(r,'w')['evidence_refs']=['ooc:fixture:e2'];self.has(r,'ROUTE_EVIDENCE_OUTSIDE_WITNESS')
     def test_empty_common_witness_ids(self):
         r=route_fixture();get(r,'w')['common_witness_ids']=[];self.has(r,'MISSING_COMMON_WITNESS')
     def test_witness_context_mismatch(self):
@@ -59,6 +71,9 @@ class DataUseTests(unittest.TestCase):
         r=data_fixture();get(r,'u1')['role']='CALIBRATION';get(r,'u2')['unit_keys']=['A'];self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
     def test_selection_counts_as_construction(self):
         r=data_fixture();get(r,'u1')['role']='SELECT';get(r,'u2')['unit_keys']=['A'];self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
+    def test_protocol_change_does_not_reset_data_independence(self):
+        r=data_fixture();r.append(node('Protocol','p2'));get(r,'u2')['protocol_ref']='ooc:fixture:p2';get(r,'u2')['unit_keys']=['A']
+        self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
     def test_different_candidate_reuse_explicit(self):
         r=data_fixture();r.append(node('ModelInstance','other'));get(r,'u2')['model_instance_ref']='ooc:fixture:other';get(r,'u2')['unit_keys']=['A'];self.assertEqual(validate_records(r),[])
 
