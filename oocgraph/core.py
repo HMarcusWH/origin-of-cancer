@@ -277,6 +277,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             if r.get("unresolved_segments"): error("ROUTE_HAS_DEBT", r)
             if not r.get("transition_refs"): error("EMPTY_CLOSED_ROUTE", r)
             if not r.get("founder_ref"): error("MISSING_ROUTE_ANCESTRY", r)
+            if not isinstance(r.get("scope"), dict) or not r.get("scope"): error("MISSING_ROUTE_SCOPE", r)
             wb = index.get(r.get("witness_bundle_ref"), {})
             mode = wb.get("mode")
             if mode not in {"SAME_SYSTEM", "VALIDATED_BRIDGE"}: error("COMPOSITED_ROUTE", r)
@@ -309,7 +310,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("ROUTE_EVIDENCE_CONTEXT_MISMATCH", r); valid = False
                     if e.get("id") not in witness_evidence:
                         error("ROUTE_EVIDENCE_OUTSIDE_WITNESS", r); valid = False
-                    if "scope" in r and canonical(a.get("scope")) != canonical(r.get("scope")):
+                    if canonical(a.get("scope")) != canonical(r.get("scope")):
                         error("ROUTE_ASSESSMENT_SCOPE_MISMATCH", r); valid = False
                     if valid: supporting += 1
                 if not supporting: error("UNSUPPORTED_ROUTE_SEGMENT", r)
@@ -369,9 +370,12 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     if q.get("status") == "BOUNDED" and not q.get("bound_scope"): error("UNSCOPED_REQUIREMENT_BOUND", q)
                     decision = index.get(q.get("decision_ref"), {})
                     authority = index.get(decision.get("authority_ref"), {})
+                    decision_evidence = [index.get(e, {}) for e in decision.get("evidence_refs", [])]
                     if (decision.get("type") != "Decision" or decision.get("status") != "RECORDED"
                         or decision.get("subject_ref") not in {q.get("id"), q.get("gap_ref")}
-                        or not decision.get("evidence_refs") or "RESEARCH_POLICY" not in authority.get("axes", [])):
+                        or not decision_evidence or any(e.get("status") != "RECORDED" for e in decision_evidence)
+                        or "RESEARCH_POLICY" not in authority.get("axes", [])
+                        or authority.get("scope", {}).get("domain") != "PROGRAMME_GOVERNANCE"):
                         error("INVALID_FREEZE_DECISION", q)
                     gap = index.get(q.get("gap_ref"), {})
                     if gap.get("priority") == "CRITICAL" and gap.get("status") not in {"RESOLVED", "BOUNDED", "SUPERSEDED"}:

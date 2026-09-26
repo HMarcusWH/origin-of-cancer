@@ -38,6 +38,10 @@ class RouteTests(unittest.TestCase):
         r=route_fixture();get(r,'r')['transition_refs']=[];self.has(r,'EMPTY_CLOSED_ROUTE')
     def test_missing_founder_fails(self):
         r=route_fixture();del get(r,'r')['founder_ref'];self.has(r,'MISSING_ROUTE_ANCESTRY')
+    def test_closed_route_requires_explicit_scope(self):
+        r=route_fixture();del get(r,'r')['scope'];self.has(r,'MISSING_ROUTE_SCOPE')
+    def test_route_assessment_scope_must_match(self):
+        r=route_fixture();get(r,'a1')['scope']={'adapter':'other'};self.has(r,'ROUTE_ASSESSMENT_SCOPE_MISMATCH')
     def test_context_mismatch(self):
         r=route_fixture();get(r,'t1')['context_ref']='ooc:fixture:different';self.has(r,'ROUTE_CONTEXT_MISMATCH')
     def test_broken_handoff(self):

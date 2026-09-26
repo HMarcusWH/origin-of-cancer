@@ -216,8 +216,6 @@ class HistoryTests(unittest.TestCase):
     def test_append_only_evidence_allowed(self):
         a=node('EvidenceObject','a');b=node('EvidenceObject','b');self.assertEqual(history_violations([a],[a,b]),[])
 
-if __name__=='__main__':unittest.main()
-
 class ModelIdentityTests(unittest.TestCase):
     def test_parameter_change_changes_identity(self):
         from oocgraph.core import model_identity_digest
@@ -256,3 +254,6 @@ class QueryToolTests(unittest.TestCase):
         e=node('Relation','qe',source=a['id'],target=b['id'],kind='REQUIRES')
         got=expand_neighbors([a,b,e],[e])
         self.assertEqual({r['id'] for r in got},{a['id'],b['id'],e['id']})
+
+if __name__=='__main__':
+    unittest.main()
