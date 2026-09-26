@@ -1,0 +1,25 @@
+{
+  "release_name": "OoL_MVS_Clean_Submission_and_Laboratory_Release",
+  "release_date": "2026-09-25",
+  "versions": {
+    "kernel": "2.7.7",
+    "manuscript": "3.2.0",
+    "supplement": "3.2.0",
+    "laboratory_protocol": "1.1.0"
+  },
+  "status": "FROZEN_DOCUMENT_SOFTWARE_RELEASE",
+  "supersedes": "2026-08-20 / 2.7.6-r1",
+  "prior_release_sha256": "55dbff0c970447e0066f769f43b8f4dabd6426ae778d413c1109b962362de1a8",
+  "kernel_archive_sha256": "bdf87d4c8b511f51be381ec4dd9f3cef78276acdd724213f30177ddfb622f251",
+  "current_test_count": 1710,
+  "current_passed": 1710,
+  "baseline_replayed": 530,
+  "canonical_physical_claims": 24,
+  "runtime_integration": "NONE",
+  "laboratory_qualification": "NOT_ESTABLISHED_BY_THIS_BUILD",
+  "scientific_experiments_executed": 0,
+  "checksum_scope": "All files except root SHA256SUMS.txt itself",
+  "signature": "UNSIGNED; checksum does not authenticate publisher",
+  "packaging_tool": "tools/repack_release.py",
+  "test_report": "formal/OoL_MVS_Kernel_v2.7.7/TEST_REPORT.json"
+}

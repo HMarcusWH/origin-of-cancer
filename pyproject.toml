@@ -1,0 +1,7 @@
+[project]
+name = "ooc-research-graph"
+version = "0.1.0"
+description = "Pre-formalization research graph; not a clinical system"
+requires-python = ">=3.11"
+[tool.pytest.ini_options]
+testpaths = ["tests"]

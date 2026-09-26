@@ -1,0 +1,485 @@
+{
+  "snapshot_date": "2026-09-26",
+  "records": [
+    {
+      "id": "artifact:sources_baseline_foundations_master_map_md",
+      "source_name": "OoC Theory Foundations — Master Map & Reading Architecture.md",
+      "source_identity": "drive:1O7uMdDZkYSqPbTNxizOeABtxmc--jXhKj0QH2xJc5p8",
+      "source_sha256": "d711bdf6e63e89c5a9fc6954c21f278454f90337ee3d59264d678d6a68a0cce9",
+      "path": "sources/baseline/foundations_master_map.md",
+      "representation": "NATIVE_MARKDOWN_EXPORT",
+      "role": "FROZEN_BASELINE",
+      "derivative_sha256": "d711bdf6e63e89c5a9fc6954c21f278454f90337ee3d59264d678d6a68a0cce9"
+    },
+    {
+      "id": "artifact:sources_baseline_foundations_completeness_audit_md",
+      "source_name": "OoC Theory Foundations — Completeness Audit & Pass 0 Gate.md",
+      "source_identity": "drive:1l0ZQ3WCpvVnOoLyCVehtxDtPhzQljJynET_ukQ0w8hs",
+      "source_sha256": "98cb968fd826e8f222864e92c36e6d4deb0e1314c48bb6771481dac2cdb4312f",
+      "path": "sources/baseline/foundations_completeness_audit.md",
+      "representation": "NATIVE_MARKDOWN_EXPORT",
+      "role": "FROZEN_BASELINE",
+      "derivative_sha256": "98cb968fd826e8f222864e92c36e6d4deb0e1314c48bb6771481dac2cdb4312f"
+    },
+    {
+      "id": "artifact:sources_baseline_foundation_card_template_md",
+      "source_name": "OoC Theory Foundation Card — Template.md",
+      "source_identity": "drive:1DjjUTmyJxswpLHjLI84Kgo7zARSyx8Qjy19z5lLlTAw",
+      "source_sha256": "42a2d1de42b7eeb10557c59d6f1587671a958e308d53b8309c17e248690d022f",
+      "path": "sources/baseline/foundation_card_template.md",
+      "representation": "NATIVE_MARKDOWN_EXPORT",
+      "role": "FROZEN_BASELINE",
+      "derivative_sha256": "42a2d1de42b7eeb10557c59d6f1587671a958e308d53b8309c17e248690d022f"
+    },
+    {
+      "id": "artifact:foundation_registry",
+      "source_name": "OoC Theory Foundations — Source Registry.xlsx",
+      "source_identity": "drive:10Og8Hn7u3otBp-QC8yghxtXjln-Oj4eT585rc0n-aFE",
+      "source_sha256": "3d1e5aa76c63d82b17592ab61c7467a7e96832c3b6643e11ef492b4f5cf4484c",
+      "source_bytes": 51848,
+      "path": "sources/baseline/registry/anchor_sources.json",
+      "representation": "CELL_VALUES_EXPORT",
+      "role": "FROZEN_BASELINE",
+      "sheet_counts": {
+        "Anchor Sources": 70,
+        "Theory Queue": 37,
+        "Paper Packets": 0,
+        "Workstream Crosswalk": 86,
+        "Theory Comparison": 37,
+        "Adapter Matrix": 6,
+        "Foundation Coverage": 14,
+        "Critical RG Gate": 43
+      }
+    },
+    {
+      "id": "artifact:mvcl_v1_3_master",
+      "source_name": "MVCL_v1_3_Master_Single_Source_of_Truth_PROOFREAD",
+      "source_identity": "drive:1CR-L-T_uD7zgv-efFdLxq3RhVaNLSf8RrXZNrqXpieA",
+      "source_sha256": "613bf14509ded4c67276d220ccd44f718ef60f879bf7496aa52467b634d3f3cf",
+      "source_bytes": 242403,
+      "path": "sources/baseline/mvcl_v1_3_master.md",
+      "representation": "DOCX_TO_GFM_PANDOC",
+      "role": "CANONICAL_MVCL_IMPORT_SNAPSHOT",
+      "derivative_sha256": "bb523466e5ab2d31bf395a5dc26bfb2dcc657f3110628fa4487a442cfb97fdbe"
+    },
+    {
+      "id": "artifact:mvcl_v1_3_evidence_patch",
+      "source_name": "MVCL_v1_3_Evidence_Patch_Updated_Package_PROOFREAD",
+      "source_identity": "drive:13xRDkFSHKhg05dtb1pDnJRBZMZWFbEYwRIKYN8QqN6k",
+      "source_sha256": "b60369a867e172f62b46ace33914df69d89f95227616066b728c63877d8ae7c1",
+      "source_bytes": 355543,
+      "path": "sources/baseline/mvcl_v1_3_evidence_patch.md",
+      "representation": "DOCX_TO_GFM_PANDOC",
+      "role": "CANONICAL_MVCL_IMPORT_SNAPSHOT",
+      "derivative_sha256": "ef141f14dbefba5342fcd8ade82537de9aa8c20320d2d44bf0391a7ec3ac4a0d"
+    },
+    {
+      "id": "artifact:sources_methods_loop_of_loops_v3_1_1_md",
+      "source_name": "ApplyingLoopOfLoops3 (1).pdf",
+      "source_identity": "provided-project-file:ApplyingLoopOfLoops3 (1).pdf",
+      "source_sha256": "8c753f3e8a81e0115552a01094ce3c1d8bfa4bae69a12b356bb505bef3a7824b",
+      "source_bytes": 1343506,
+      "pages": 148,
+      "path": "sources/methods/loop_of_loops_v3_1_1.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "METHOD_SOURCE_NOT_CANCER_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "9c161f3070106d5775bc985c902795e94436220fd97b5febebe5f477f4e7e5d7"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_sheet_template_silo_md",
+      "source_name": "Backbone Sheet Template — Silo.pdf",
+      "source_identity": "provided-project-file:Backbone Sheet Template — Silo.pdf",
+      "source_sha256": "0f757f72f15ddad3ea40a48f7df7f08e6cf77312291ef4799a0f647936db6341",
+      "source_bytes": 29837,
+      "pages": 3,
+      "path": "sources/historical/backbone_sheet_template_silo.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "5868cfb553e0a7845256035540f7776b98140b8f05f076deefeb520ef66c3235"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_sheets_all_silos_master_v0_md",
+      "source_name": "Backbone Sheets — All Silos (master V0.pdf",
+      "source_identity": "provided-project-file:Backbone Sheets — All Silos (master V0.pdf",
+      "source_sha256": "07d51952be90a717432403bfaba65e8ea1cbebe34d877ef5fc496618dc32c90a",
+      "source_bytes": 36395,
+      "pages": 8,
+      "path": "sources/historical/backbone_sheets_all_silos_master_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "f8080146ead180e9caddbd7ec075ec1706f2194aa22f20959f7a0c9c640a100b"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_cell_death_senescence_v0_md",
+      "source_name": "Backbone — Cell Death & Senescence (v0.pdf",
+      "source_identity": "provided-project-file:Backbone — Cell Death & Senescence (v0.pdf",
+      "source_sha256": "037b351f5be8f7b08951d78cb59c69306492822b4dd7770e465514e3df3cb66a",
+      "source_bytes": 36797,
+      "pages": 4,
+      "path": "sources/historical/backbone_cell_death_senescence_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "977318025404a33c62bea7266794db9cce7f1f7250cf0007c4e73982439fda98"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_cin_aneuploidy_wgd_chromothripsis_v0_md",
+      "source_name": "Backbone — Cin, Aneuploidy, Wgd & Chromothripsis (v0.pdf",
+      "source_identity": "provided-project-file:Backbone — Cin, Aneuploidy, Wgd & Chromothripsis (v0.pdf",
+      "source_sha256": "7f8152c790ff2cbb75a799b46cc389218e44c2da817addac146d9b31fa0ed5c1",
+      "source_bytes": 36029,
+      "pages": 4,
+      "path": "sources/historical/backbone_cin_aneuploidy_wgd_chromothripsis_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "710080899c5b082b90de137e6b7d0e8c8956d85f47401274308469d657fd4a40"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_ddr_replication_stress_v0_1_md",
+      "source_name": "Backbone — Ddr _ Replication Stress (v0 (1).pdf",
+      "source_identity": "provided-project-file:Backbone — Ddr _ Replication Stress (v0 (1).pdf",
+      "source_sha256": "017fa93ef76a148397f97ed357c27e29d6e486c387ccdcc0c0663a6c09a07866",
+      "source_bytes": 39236,
+      "pages": 5,
+      "path": "sources/historical/backbone_ddr_replication_stress_v0_1.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "7527317a7c883883082d19d5769fe4f3a47f401407af268715ad01f61e70841c"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_epigenetic_reprogramming_lineage_plasticity_v0_md",
+      "source_name": "Backbone — Epigenetic Reprogramming & Lineage Plasticity (v0.pdf",
+      "source_identity": "provided-project-file:Backbone — Epigenetic Reprogramming & Lineage Plasticity (v0.pdf",
+      "source_sha256": "25966e30d10c18c5efc562690107f1ac0a5b73d128701b917a0a8202b5064fd9",
+      "source_bytes": 35932,
+      "pages": 4,
+      "path": "sources/historical/backbone_epigenetic_reprogramming_lineage_plasticity_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "849319b17e65191bfa02ddddc9e0319af6ebf61e962ddfa6e52c09d828b25c97"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_metabolic_rewiring_v0_md",
+      "source_name": "Backbone — Metabolic Rewiring (v0.pdf",
+      "source_identity": "provided-project-file:Backbone — Metabolic Rewiring (v0.pdf",
+      "source_sha256": "ce6e9fbddf55049be451e88d5aa33f2240d16470fc5f1e94c9ec133cfe13062d",
+      "source_bytes": 36289,
+      "pages": 4,
+      "path": "sources/historical/backbone_metabolic_rewiring_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "76af548d13f2df78299a1015e8fe70d41582ffcb4bca45f01e1d3cc3d3a4f208"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_oncogene_tsg_circuitry_non_oncogene_dependencies_v0_md",
+      "source_name": "Backbone — Oncogene_tsg Circuitry & Non‑oncogene Dependencies (v0.pdf",
+      "source_identity": "provided-project-file:Backbone — Oncogene_tsg Circuitry & Non‑oncogene Dependencies (v0.pdf",
+      "source_sha256": "7b0b13666657045f035abb4fe1b133522eb7ce4dbb05048a95582719a7e101e7",
+      "source_bytes": 37155,
+      "pages": 5,
+      "path": "sources/historical/backbone_oncogene_tsg_circuitry_non_oncogene_dependencies_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "46b6a7f3810c2529673a595aa0d9106b4e683293fc757dda0e5e2e743b8c4f0f"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_somatic_mutation_clonal_evolution_v0_md",
+      "source_name": "Backbone — Somatic Mutation & Clonal Evolution (v0.pdf",
+      "source_identity": "provided-project-file:Backbone — Somatic Mutation & Clonal Evolution (v0.pdf",
+      "source_sha256": "d8b5321135ebb0e5b2dd10534b39811d7aabaa29393ac7eec62a79bfbf23da03",
+      "source_bytes": 33587,
+      "pages": 4,
+      "path": "sources/historical/backbone_somatic_mutation_clonal_evolution_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "1dc03bc16155645c80bab579ec1d8686666662c189eb6fce4abb59b2c1f4c7bc"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_structural_variation_ec_dna_v0_md",
+      "source_name": "Backbone — Structural Variation & Ec Dna (v0.pdf",
+      "source_identity": "provided-project-file:Backbone — Structural Variation & Ec Dna (v0.pdf",
+      "source_sha256": "cc6c1cdf8189d9ce46107d25d31b3bc058216f13fd4759ae33241846ed2dda5f",
+      "source_bytes": 35352,
+      "pages": 4,
+      "path": "sources/historical/backbone_structural_variation_ec_dna_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "0e06e10b5e1bc1531d41feb0ed016ec677182dccf3cda818d0ddf0f713bf5495"
+    },
+    {
+      "id": "artifact:sources_historical_backbone_tumor_microenvironment_caf_ecm_hypoxia_angiogenesis_acidosis_v0_md",
+      "source_name": "Backbone — Tumor Microenvironment (caf_ecm_hypoxia_angiogenesis_acidosis) (v0.pdf",
+      "source_identity": "provided-project-file:Backbone — Tumor Microenvironment (caf_ecm_hypoxia_angiogenesis_acidosis) (v0.pdf",
+      "source_sha256": "0a3dc4778dceaeccceb56780691b84a4644c1abaf11d67cd7c5f3f026fc87961",
+      "source_bytes": 35514,
+      "pages": 4,
+      "path": "sources/historical/backbone_tumor_microenvironment_caf_ecm_hypoxia_angiogenesis_acidosis_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "225f7248654ae979caf64951bb2d4dbfda475c2f754e1b36385bc30c62c4a3cb"
+    },
+    {
+      "id": "artifact:sources_historical_backbones_epigenetics_transcriptional_dysregulation_immune_evasion_tumor_immune_microenvironment_v0_md",
+      "source_name": "Backbones — Epigenetics & Transcriptional Dysregulation + Immune Evasion_tumor Immune Microenvironment (v0.pdf",
+      "source_identity": "provided-project-file:Backbones — Epigenetics & Transcriptional Dysregulation + Immune Evasion_tumor Immune Microenvironment (v0.pdf",
+      "source_sha256": "6d1db2d8f4c50928b554aa613bb46dfb0f85762f5989e604b5941275ddbff839",
+      "source_bytes": 43260,
+      "pages": 8,
+      "path": "sources/historical/backbones_epigenetics_transcriptional_dysregulation_immune_evasion_tumor_immune_microenvironment_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "de1609e36c481e4e342fb112008427d57da9906d99f7b76ab3e799044eb22af1"
+    },
+    {
+      "id": "artifact:sources_historical_backbones_metastasis_emt_pmn_therapy_resistance_evolution_nc_rna_3d_genome_aging_chip_v0_md",
+      "source_name": "Backbones — Metastasis_emt_pmn + Therapy Resistance & Evolution + Nc Rna_3d Genome + Aging_chip (v0.pdf",
+      "source_identity": "provided-project-file:Backbones — Metastasis_emt_pmn + Therapy Resistance & Evolution + Nc Rna_3d Genome + Aging_chip (v0.pdf",
+      "source_sha256": "73369f2d1b9431f628699ac44bbf2d4679295f7d92e4d3162baf9735cf46b02a",
+      "source_bytes": 58433,
+      "pages": 13,
+      "path": "sources/historical/backbones_metastasis_emt_pmn_therapy_resistance_evolution_nc_rna_3d_genome_aging_chip_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "ede37f610be205dc6df0445f6ba8d18e0f3d4749682b06ce302eb0ba0d62a398"
+    },
+    {
+      "id": "artifact:sources_historical_cancer_synthesis_backbone_map_workflow_md",
+      "source_name": "Cancer Synthesis — Backbone Map & Workflow.pdf",
+      "source_identity": "provided-project-file:Cancer Synthesis — Backbone Map & Workflow.pdf",
+      "source_sha256": "3c460312df299d92f4a40f1b4693f73fcfc2302bf6f7efff04bddf71a63518a1",
+      "source_bytes": 37438,
+      "pages": 5,
+      "path": "sources/historical/cancer_synthesis_backbone_map_workflow.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "02f9c44c3d9ed21a8f8738325604b3bac819b595038b5da3350bc92aeaaa9393"
+    },
+    {
+      "id": "artifact:sources_historical_cancer_synthesis_execution_plan_sprint_v0_md",
+      "source_name": "Cancer Synthesis — Execution Plan (sprint V0.pdf",
+      "source_identity": "provided-project-file:Cancer Synthesis — Execution Plan (sprint V0.pdf",
+      "source_sha256": "be0812b1396d24b5dcef127afa70fe8ad4fa65ddce0a2c075d06f6b2c675b09c",
+      "source_bytes": 39972,
+      "pages": 3,
+      "path": "sources/historical/cancer_synthesis_execution_plan_sprint_v0.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "050a5209e4b3481fce81b41f99260d92f9a40e178231443b947a015f06baf8d7"
+    },
+    {
+      "id": "artifact:sources_historical_cancer_synthesis_external_explainer_for_scholar_gpt_consensus_md",
+      "source_name": "Cancer Synthesis — External Explainer (for Scholar Gpt_consensus).pdf",
+      "source_identity": "provided-project-file:Cancer Synthesis — External Explainer (for Scholar Gpt_consensus).pdf",
+      "source_sha256": "2d295c2062f25140a83164953317ab91f94e4ff4d301dc346b06de44faac3da3",
+      "source_bytes": 46918,
+      "pages": 4,
+      "path": "sources/historical/cancer_synthesis_external_explainer_for_scholar_gpt_consensus.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "d36c2e04156b08869a89a4b492714ad919bf363a3091c8c82b3db9b89a82266e"
+    },
+    {
+      "id": "artifact:sources_historical_integrated_minimal_viable_cancer_loop_mvcl_framework_md",
+      "source_name": "Integrated Minimal Viable Cancer Loop (MVCL) Framework.pdf",
+      "source_identity": "provided-project-file:Integrated Minimal Viable Cancer Loop (MVCL) Framework.pdf",
+      "source_sha256": "77f7f4bfe610e5163925feeadb1ddfe3eeecc7926e491eaa28a9bb7ad35e0f37",
+      "source_bytes": 209109,
+      "pages": 22,
+      "path": "sources/historical/integrated_minimal_viable_cancer_loop_mvcl_framework.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "88342a96fe2b6efc5889e06ae7f59db9c07e5a3bb2c7210d28eecf82afe3c5e2"
+    },
+    {
+      "id": "artifact:sources_historical_minimal_viable_cancer_loop_mvcl_an_integrative_framework_of_cancer_progression_and_therapy_md",
+      "source_name": "Minimal Viable Cancer Loop (MVCL)_ An Integrative Framework of Cancer Progression and Therapy.pdf",
+      "source_identity": "provided-project-file:Minimal Viable Cancer Loop (MVCL)_ An Integrative Framework of Cancer Progression and Therapy.pdf",
+      "source_sha256": "9679a9f92ad564b98f5a55eeed23bac97693b8ff3dd043328f60734d8dce2a0c",
+      "source_bytes": 448630,
+      "pages": 48,
+      "path": "sources/historical/minimal_viable_cancer_loop_mvcl_an_integrative_framework_of_cancer_progression_and_therapy.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "f06d58eb0a5de1d57eb03ffb0138d8512280073eed087bab92ec630501820ff6"
+    },
+    {
+      "id": "artifact:sources_historical_mvcl_universal_playbook_v1_3_md",
+      "source_name": "Mvcl Universal Playbook V1 (3).pdf",
+      "source_identity": "provided-project-file:Mvcl Universal Playbook V1 (3).pdf",
+      "source_sha256": "f03fa15d3f7259dc3cb8e02dcdadcb39a318ae45b5a210109d0250e790986234",
+      "source_bytes": 24398,
+      "pages": 3,
+      "path": "sources/historical/mvcl_universal_playbook_v1_3.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "e9527aa14e1eaa7e5c32fe83d866427c6eb48e4378fbd121c66078c804effe67"
+    },
+    {
+      "id": "artifact:sources_historical_mvcl_updates_v1_2_plus_edge_cases_2_md",
+      "source_name": "Mvcl Updates V1 2 Plus Edge Cases (2).pdf",
+      "source_identity": "provided-project-file:Mvcl Updates V1 2 Plus Edge Cases (2).pdf",
+      "source_sha256": "578d36be953bf0d4caeea1717e12d3d30f567795ef31a642dbb37c7b39dc3b60",
+      "source_bytes": 18681,
+      "pages": 2,
+      "path": "sources/historical/mvcl_updates_v1_2_plus_edge_cases_2.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "97295a0d25cbdb51cfa8645926f7b4b190ee87dd37985b7b08790609f3af9c1e"
+    },
+    {
+      "id": "artifact:sources_historical_mvcl_v1_2_md",
+      "source_name": "Mvcl V1.2.pdf",
+      "source_identity": "provided-project-file:Mvcl V1.2.pdf",
+      "source_sha256": "c33cea633a219c7d97af5b0af4a250dfb918ecf1e92f84c5266af5c24969d25a",
+      "source_bytes": 84347,
+      "pages": 12,
+      "path": "sources/historical/mvcl_v1_2.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "HISTORICAL_NOT_CURRENT_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "88a90cb4bb181abf078aa61007d49c7266f7105107561101fa0b21766047a482"
+    },
+    {
+      "id": "artifact:sources_baseline_ooc_research_programme_v0_1_1_md",
+      "source_name": "Origin_of_Cancer_Research_Programme_v0_1_1_2026-08-25(1).pdf",
+      "source_identity": "provided-project-file:Origin_of_Cancer_Research_Programme_v0_1_1_2026-08-25(1).pdf",
+      "source_sha256": "260997f2f95df88792669498babcbd06623e465856bc552cfe3e7c094180e617",
+      "source_bytes": 1082089,
+      "pages": 47,
+      "path": "sources/baseline/ooc_research_programme_v0_1_1.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "PRE_FORMALIZATION_PROGRAMME",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "bc6b4b75d182dfd7cb773854d628d1ef6032aa1154ca55671f075c82fa0c22cc"
+    },
+    {
+      "id": "artifact:edges_v1_3_csv",
+      "source_name": "edges_v1_3.csv",
+      "source_identity": "provided-project-file:edges_v1_3.csv",
+      "source_sha256": "baade90211ac6ff643627ad3eea3f1660c0a6c4cf77bd7b7b26fda1e2cca9abf",
+      "path": "sources/baseline/edges_v1_3.csv",
+      "representation": "EXACT_ORIGINAL_CSV",
+      "role": "MVCL_EDGE_REFERENCE",
+      "derivative_sha256": "baade90211ac6ff643627ad3eea3f1660c0a6c4cf77bd7b7b26fda1e2cca9abf"
+    },
+    {
+      "id": "artifact:edges_v1_3_core_schema_csv",
+      "source_name": "edges_v1_3_core_schema.csv",
+      "source_identity": "provided-project-file:edges_v1_3_core_schema.csv",
+      "source_sha256": "12d217fa7ee7e2b2c6eee437bd16bb3ac113dc108810ab1e060a11cfda8b1075",
+      "path": "sources/baseline/edges_v1_3_core_schema.csv",
+      "representation": "EXACT_ORIGINAL_CSV",
+      "role": "MVCL_EDGE_REFERENCE",
+      "derivative_sha256": "12d217fa7ee7e2b2c6eee437bd16bb3ac113dc108810ab1e060a11cfda8b1075"
+    },
+    {
+      "id": "artifact:sources_methods_ffbbp_v1_6_0_md",
+      "source_name": "FFBBP_Reference_Solver_Architecture_v1_6_0_TYPED_REDUCTION_ASSURANCE_RELEASE_2026-08-25.pdf",
+      "source_identity": "library:file_000000005bf481f4b5de7a525a8c1070",
+      "source_sha256": null,
+      "source_hash_status": "RAW_BYTES_UNAVAILABLE",
+      "text_sha256": "9a38ba0a49acba3e74fbad30ca49e2bc1991c738b05e7df89c82e9457b86e123",
+      "path": "sources/methods/ffbbp_v1_6_0.md",
+      "representation": "PAGINATED_INDEXED_TEXT",
+      "retrieval_windows": [
+        [
+          1,
+          1000
+        ],
+        [
+          1001,
+          2000
+        ],
+        [
+          2001,
+          3000
+        ],
+        [
+          3001,
+          3088
+        ]
+      ],
+      "role": "METHOD_SOURCE_NOT_CANCER_AUTHORITY",
+      "derivative_sha256": "1a47a0678284e38af845c0eab564ff9c941ee7e04860bb4a2e066c2c435b77eb"
+    },
+    {
+      "id": "artifact:sources_methods_mcm_hmwh_v2_0_md",
+      "source_name": "MCM-HMWH_Recursive_Governed_OODA_Architecture_v2_0_PUBLIC_REVIEW_CANDIDATE_FINAL.pdf",
+      "source_identity": "library:file_00000000aca4822fbed851d15adac533",
+      "source_sha256": null,
+      "source_hash_status": "RAW_BYTES_UNAVAILABLE",
+      "text_sha256": "d76683d6d373af8985432e048d9044a67e1aedf011f8f591d978a62e9a9dd3a0",
+      "path": "sources/methods/mcm_hmwh_v2_0.md",
+      "representation": "PAGINATED_INDEXED_TEXT",
+      "retrieval_windows": [
+        [
+          1,
+          1000
+        ],
+        [
+          1001,
+          2000
+        ],
+        [
+          2001,
+          3000
+        ],
+        [
+          3001,
+          4000
+        ],
+        [
+          4001,
+          4680
+        ]
+      ],
+      "role": "METHOD_SOURCE_NOT_CANCER_AUTHORITY",
+      "derivative_sha256": "9340dd80bdd86702157c9102a15410456928ae3e7265b8cbd461287f59b3e935"
+    },
+    {
+      "id": "artifact:sources_methods_permansson_v0_1_6_md",
+      "source_name": "Permansson_Regimes_Strategic_Dynamics_Beyond_Equilibrium_v0.1.6_SUBMISSION_FINAL_2026-08-23(20260919-010939).pdf",
+      "source_identity": "library:file_00000000bc80820a9a54621334c0606d",
+      "source_sha256": "c9173e7dca3f889bd55aeb5de99e1ecf9684795e377e933a9041028a35c4a18e",
+      "source_bytes": 202707,
+      "pages": 22,
+      "path": "sources/methods/permansson_v0_1_6.md",
+      "representation": "PDF_TEXT_EXTRACTION",
+      "role": "METHOD_SOURCE_NOT_CANCER_AUTHORITY",
+      "extraction_completeness": "ALL_PAGES_TEXT_EXTRACTED_LAYOUT_NOT_EQUIVALENT",
+      "derivative_sha256": "59dd4240337c47e43e59fba1fc6e2bdad273a76958deafa225e48adef1043693"
+    },
+    {
+      "id": "artifact:ool_mvs_release",
+      "source_name": "OoL_MVS_Clean_Submission_and_Laboratory_Release_FINAL(1).zip",
+      "source_identity": "uploaded:file_000000006178820abb3e0748f7ce97a0",
+      "source_sha256": "c47c7d568e9822524ccc05b8a2f346cd20ae3218799700b708d78fe5b35ded30",
+      "source_bytes": 9202818,
+      "path": "sources/methods/ool_mvs/PIN.json",
+      "representation": "SELECTED_UPSTREAM_REFERENCE_SOURCES",
+      "role": "METHOD_SOURCE_NOT_CANCER_AUTHORITY"
+    }
+  ],
+  "rights": "User-directed publication of authored research transcriptions; no publisher article PDFs included. No new blanket license granted.",
+  "extraction_policy": "Raw artifacts remain outside Git; Markdown transcriptions are reviewer references, not independent evidence."
+}

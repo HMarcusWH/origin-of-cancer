@@ -1,0 +1,5678 @@
+{
+  "$defs": {
+    "Adapter": {
+      "additionalProperties": false,
+      "properties": {
+        "completion_decision_ref": {
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "dossier_complete": {
+          "type": "boolean"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "registered_gap_expression": {
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "OPEN",
+            "IN_REVIEW",
+            "DOSSIER_COMPLETE",
+            "RETIRED"
+          ]
+        },
+        "type": {
+          "const": "Adapter"
+        }
+      },
+      "required": [
+        "dossier_complete",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Assumption": {
+      "additionalProperties": false,
+      "properties": {
+        "assessment": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNKNOWN",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "basis": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "statement": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "RECORDED",
+            "IN_REVIEW"
+          ]
+        },
+        "type": {
+          "const": "Assumption"
+        }
+      },
+      "required": [
+        "assessment",
+        "basis",
+        "id",
+        "label",
+        "provenance_class",
+        "required",
+        "schema_version",
+        "statement",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Authority": {
+      "additionalProperties": false,
+      "properties": {
+        "axes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "empirical_truth_authority": {
+          "type": "boolean"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "scope": {
+          "type": "object"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "subject_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "type": {
+          "const": "Authority"
+        }
+      },
+      "required": [
+        "axes",
+        "empirical_truth_authority",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "scope",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "BiologicalState": {
+      "additionalProperties": false,
+      "properties": {
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "definition": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "history_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "BiologicalState"
+        },
+        "variable_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "context_ref",
+        "definition",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Boundary": {
+      "additionalProperties": false,
+      "properties": {
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "observed_or_assumed": {
+          "enum": [
+            "OBSERVED",
+            "ASSUMED",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "state_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Boundary"
+        },
+        "upstream_exclusions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "context_ref",
+        "id",
+        "label",
+        "observed_or_assumed",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type",
+        "upstream_exclusions"
+      ],
+      "type": "object"
+    },
+    "CandidateSet": {
+      "additionalProperties": false,
+      "properties": {
+        "admissibility_rule": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "identification_status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "member_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "target_estimand_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "CandidateSet"
+        }
+      },
+      "required": [
+        "admissibility_rule",
+        "id",
+        "identification_status",
+        "label",
+        "member_refs",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "target_estimand_ref",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Claim": {
+      "additionalProperties": false,
+      "properties": {
+        "assessment_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "assumption_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "claim_kind": {
+          "enum": [
+            "CAPABILITY",
+            "ROUTE",
+            "ANCESTRY",
+            "PERSISTENCE",
+            "CONSTITUTIVE",
+            "OBSERVATION",
+            "CERTIFICATE"
+          ]
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "empirical_admission": {
+          "enum": [
+            "NOT_ESTABLISHED",
+            "RECORDED_IN_VERDICTS"
+          ]
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "modality": {
+          "enum": [
+            "ASSERTION",
+            "HYPOTHESIS",
+            "REQUIREMENT",
+            "CONDITIONAL",
+            "FALSIFIER",
+            "NON_CLAIM",
+            "EXCLUSION",
+            "INTERPRETATION"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "required_gate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "scope": {
+          "type": "object"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "statement": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "OPEN",
+            "PROVISIONAL",
+            "FROZEN",
+            "REVISED",
+            "RETIRED"
+          ]
+        },
+        "type": {
+          "const": "Claim"
+        }
+      },
+      "required": [
+        "claim_kind",
+        "empirical_admission",
+        "id",
+        "label",
+        "modality",
+        "provenance_class",
+        "schema_version",
+        "scope",
+        "statement",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Context": {
+      "additionalProperties": false,
+      "properties": {
+        "constraints": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "population": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "species": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "stage": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "time_scope": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "tissue": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Context"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "species",
+        "stage",
+        "status",
+        "time_scope",
+        "tissue",
+        "type"
+      ],
+      "type": "object"
+    },
+    "DataUse": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "independence_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "independence_status": {
+          "enum": [
+            "UNKNOWN",
+            "DOCUMENTED_DISJOINT",
+            "OVERLAP"
+          ]
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "model_instance_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "partition_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "protocol_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "TRAIN",
+            "SELECT",
+            "CALIBRATION",
+            "CONFIRM",
+            "AUDIT",
+            "REGRESSION",
+            "DIAGNOSTIC"
+          ]
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "PROPOSED",
+            "RECORDED",
+            "ADMITTED",
+            "REJECTED"
+          ]
+        },
+        "type": {
+          "const": "DataUse"
+        },
+        "unit_keys": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "dataset_ref",
+        "id",
+        "independence_status",
+        "label",
+        "model_instance_ref",
+        "partition_id",
+        "protocol_ref",
+        "provenance_class",
+        "role",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Dataset": {
+      "additionalProperties": false,
+      "properties": {
+        "accession": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "availability": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "contains_patient_identifiers": {
+          "const": false
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "family_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Dataset"
+        },
+        "version": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "availability",
+        "contains_patient_identifiers",
+        "family_id",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type",
+        "version"
+      ],
+      "type": "object"
+    },
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "decision": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "preserves_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "rationale": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "scope": {
+          "type": "object"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "RECORDED"
+          ]
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Decision"
+        }
+      },
+      "required": [
+        "authority_ref",
+        "decision",
+        "evidence_refs",
+        "id",
+        "label",
+        "provenance_class",
+        "rationale",
+        "schema_version",
+        "scope",
+        "status",
+        "subject_ref",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Equation": {
+      "additionalProperties": false,
+      "properties": {
+        "assumption_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "domain_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "expression": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Equation"
+        },
+        "variable_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "assumption_refs",
+        "domain_ref",
+        "expression",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "source_locator_refs",
+        "status",
+        "type",
+        "variable_refs"
+      ],
+      "type": "object"
+    },
+    "Estimand": {
+      "additionalProperties": false,
+      "properties": {
+        "definition_obligation": {
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Estimand"
+        }
+      },
+      "required": [
+        "definition_obligation",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "EvidenceAssessment": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "effect": {
+          "enum": [
+            "SUPPORTS",
+            "CONTRADICTS",
+            "CONSTRAINS",
+            "DOES_NOT_ESTABLISH",
+            "CALIBRATES",
+            "FALSIFIES"
+          ]
+        },
+        "evidence_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "limitations": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "rationale": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "scope": {
+          "type": "object"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "IN_REVIEW",
+            "ADJUDICATED",
+            "SUPERSEDED"
+          ]
+        },
+        "target_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "EvidenceAssessment"
+        }
+      },
+      "required": [
+        "effect",
+        "evidence_ref",
+        "id",
+        "label",
+        "limitations",
+        "provenance_class",
+        "rationale",
+        "schema_version",
+        "scope",
+        "status",
+        "target_ref",
+        "type"
+      ],
+      "type": "object"
+    },
+    "EvidenceObject": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_ceiling": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "evidence_class": {
+          "enum": [
+            "PRIMARY_HUMAN_LONGITUDINAL",
+            "PRIMARY_HUMAN_CROSS_SECTIONAL",
+            "PRIMARY_ANIMAL",
+            "PRIMARY_ORGANOID",
+            "PRIMARY_IN_VITRO",
+            "HUMAN_CAUSAL",
+            "REVIEW",
+            "PREPRINT",
+            "ANALYTIC",
+            "FORMAL",
+            "NUMERICAL",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "finding": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "source_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "RECORDED",
+            "IN_REVIEW",
+            "WITHDRAWN"
+          ]
+        },
+        "study_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "system_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "EvidenceObject"
+        },
+        "uncertainty": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "witness_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "claim_ceiling",
+        "context_ref",
+        "evidence_class",
+        "finding",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "source_locator_refs",
+        "status",
+        "study_id",
+        "system_id",
+        "type",
+        "uncertainty"
+      ],
+      "type": "object"
+    },
+    "Execution": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "object"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "input_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "model_instance_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "outcome": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "output_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "protocol_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "seed": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "software_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Execution"
+        }
+      },
+      "required": [
+        "environment",
+        "id",
+        "input_refs",
+        "label",
+        "outcome",
+        "output_sha256",
+        "protocol_ref",
+        "provenance_class",
+        "schema_version",
+        "software_ref",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Falsifier": {
+      "additionalProperties": false,
+      "properties": {
+        "criterion": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "prospective": {
+          "type": "boolean"
+        },
+        "protocol_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_consequence": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "REGISTERED_NOT_EXECUTED",
+            "TESTED",
+            "SUPERSEDED"
+          ]
+        },
+        "target_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Falsifier"
+        }
+      },
+      "required": [
+        "criterion",
+        "id",
+        "label",
+        "prospective",
+        "provenance_class",
+        "revision_consequence",
+        "schema_version",
+        "status",
+        "target_ref",
+        "type"
+      ],
+      "type": "object"
+    },
+    "FounderEnsemble": {
+      "additionalProperties": false,
+      "properties": {
+        "ancestry_basis": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "member_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "FounderEnsemble"
+        }
+      },
+      "required": [
+        "ancestry_basis",
+        "context_ref",
+        "id",
+        "label",
+        "member_refs",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Gate": {
+      "additionalProperties": false,
+      "properties": {
+        "criterion": {
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "layer": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Gate"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Intervention": {
+      "additionalProperties": false,
+      "properties": {
+        "admissibility_basis": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "estimand_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "held_fixed": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "operator_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "plane": {
+          "enum": [
+            "FORMAL",
+            "MODEL_ABLATION",
+            "EXPERIMENTAL",
+            "HUMAN_CAUSAL"
+          ]
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Intervention"
+        }
+      },
+      "required": [
+        "admissibility_basis",
+        "context_ref",
+        "estimand_ref",
+        "held_fixed",
+        "id",
+        "label",
+        "plane",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "InterventionOperator": {
+      "additionalProperties": false,
+      "properties": {
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "held_fixed": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mapping": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "plane": {
+          "enum": [
+            "FORMAL",
+            "MODEL_ABLATION",
+            "EXPERIMENTAL",
+            "HUMAN_CAUSAL"
+          ]
+        },
+        "property_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "InterventionOperator"
+        }
+      },
+      "required": [
+        "context_ref",
+        "held_fixed",
+        "id",
+        "label",
+        "mapping",
+        "plane",
+        "property_ref",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "LiteratureSource": {
+      "additionalProperties": false,
+      "properties": {
+        "bibliographic_verification": {
+          "type": "string"
+        },
+        "claim_limit": {
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "extraction_status": {
+          "type": "string"
+        },
+        "foundation_area": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "identifiers_raw": {
+          "type": "string"
+        },
+        "imported_status_label": {
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "legacy_id": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "same_identifier_as": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_class": {
+          "type": "string"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "REGISTERED_NOT_EXTRACTED",
+            "EXTRACTED",
+            "RETIRED"
+          ]
+        },
+        "type": {
+          "const": "LiteratureSource"
+        },
+        "verification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "year": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "bibliographic_verification",
+        "extraction_status",
+        "id",
+        "identifiers_raw",
+        "label",
+        "legacy_id",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "MVCLModule": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "origin_role": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "MVCLModule"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "MVCLOverlay": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "is_core_module": {
+          "type": "boolean"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "MVCLOverlay"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "MVCLReference": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "legacy_payload": {
+          "type": "object"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "MVCLReference"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Mechanism": {
+      "additionalProperties": false,
+      "properties": {
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "stage": {
+          "enum": [
+            "ENTRY",
+            "ESTABLISHMENT",
+            "MAINTENANCE",
+            "PROGRESSION",
+            "UNKNOWN"
+          ]
+        },
+        "statement": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Mechanism"
+        }
+      },
+      "required": [
+        "context_ref",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "stage",
+        "statement",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "MethodApplicability": {
+      "additionalProperties": false,
+      "properties": {
+        "assessment": {
+          "enum": [
+            "APPLICABLE",
+            "NOT_APPLICABLE",
+            "UNKNOWN",
+            "BLOCKED"
+          ]
+        },
+        "assumption_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "diagnostics": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "domain_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "estimand_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "identification": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "limitations": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "model_class_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "numerical_requirements": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "observation_adequacy": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "MethodApplicability"
+        }
+      },
+      "required": [
+        "assessment",
+        "assumption_refs",
+        "diagnostics",
+        "domain_ref",
+        "estimand_ref",
+        "id",
+        "identification",
+        "label",
+        "limitations",
+        "model_class_ref",
+        "numerical_requirements",
+        "observation_adequacy",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "MethodImport": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "dossier_version": {
+          "type": "string"
+        },
+        "exclusions": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "import_admission": {
+          "type": "string"
+        },
+        "imports": {
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "reviewed_version": {
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "REFERENCE_ONLY",
+            "SCOPED_IMPORT_ADMITTED",
+            "RETIRED"
+          ]
+        },
+        "type": {
+          "const": "MethodImport"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "ModelClass": {
+      "additionalProperties": false,
+      "properties": {
+        "assumption_obligations": {
+          "type": "string"
+        },
+        "cancer_backend_implemented": {
+          "type": "boolean"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "CATALOG_ONLY",
+            "IMPLEMENTED_REFERENCE",
+            "RETIRED"
+          ]
+        },
+        "type": {
+          "const": "ModelClass"
+        }
+      },
+      "required": [
+        "cancer_backend_implemented",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "ModelInstance": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "assumption_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "boundary_conditions": {
+          "type": "object"
+        },
+        "configuration": {
+          "type": "object"
+        },
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "equation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "estimand_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "frozen_digest": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "initial_conditions": {
+          "type": "object"
+        },
+        "intervention_operator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "model_class_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "observation_operator_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "parameter_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "scope": {
+          "type": "object"
+        },
+        "software_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "state_variable_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "DRAFT",
+            "FROZEN",
+            "ADMITTED",
+            "RETIRED"
+          ]
+        },
+        "type": {
+          "const": "ModelInstance"
+        }
+      },
+      "required": [
+        "applicability_ref",
+        "assumption_refs",
+        "boundary_conditions",
+        "configuration",
+        "context_ref",
+        "equation_refs",
+        "estimand_refs",
+        "id",
+        "initial_conditions",
+        "label",
+        "model_class_ref",
+        "parameter_refs",
+        "provenance_class",
+        "schema_version",
+        "scope",
+        "state_variable_refs",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "NonPromotion": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "NonPromotion"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "NullModel": {
+      "additionalProperties": false,
+      "properties": {
+        "discriminating_prediction": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "model_class_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "target_claim_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "NullModel"
+        }
+      },
+      "required": [
+        "discriminating_prediction",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "target_claim_ref",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "dataset_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "operator_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "time": {
+          "type": [
+            "number",
+            "string"
+          ]
+        },
+        "type": {
+          "const": "Observation"
+        },
+        "units": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "value": {}
+      },
+      "required": [
+        "context_ref",
+        "dataset_ref",
+        "id",
+        "label",
+        "operator_ref",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "time",
+        "type",
+        "units",
+        "value"
+      ],
+      "type": "object"
+    },
+    "ObservationOperator": {
+      "additionalProperties": false,
+      "properties": {
+        "adequacy_status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "limitations": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mapping": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "process_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "ObservationOperator"
+        },
+        "units": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "variable_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "adequacy_status",
+        "id",
+        "label",
+        "limitations",
+        "mapping",
+        "process_ref",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type",
+        "units",
+        "variable_refs"
+      ],
+      "type": "object"
+    },
+    "ObservationProcess": {
+      "additionalProperties": false,
+      "properties": {
+        "censoring": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "sampling": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "selection": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "surveillance": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "ObservationProcess"
+        }
+      },
+      "required": [
+        "censoring",
+        "context_ref",
+        "id",
+        "label",
+        "provenance_class",
+        "sampling",
+        "schema_version",
+        "selection",
+        "status",
+        "surveillance",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Parameter": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "provenance_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "symbol": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Parameter"
+        },
+        "uncertainty": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "units": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "value": {}
+      },
+      "required": [
+        "id",
+        "label",
+        "provenance_class",
+        "provenance_ref",
+        "schema_version",
+        "status",
+        "symbol",
+        "type",
+        "uncertainty",
+        "units",
+        "value"
+      ],
+      "type": "object"
+    },
+    "ParameterProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "data_use_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "rationale": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "MEASURED",
+            "EXTERNAL_REFERENCE",
+            "FITTED",
+            "CALIBRATED",
+            "DERIVED",
+            "ASSUMPTION",
+            "NORMALIZATION",
+            "NUMERICAL_CONTROL",
+            "PRIOR",
+            "SENSITIVITY_ONLY",
+            "DIAGNOSTIC"
+          ]
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "ParameterProvenance"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "provenance_class",
+        "rationale",
+        "role",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "PathologyEntity": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "classification_source_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "definition": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "independent_ooc_variables": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "PathologyEntity"
+        }
+      },
+      "required": [
+        "adapter_ref",
+        "classification_source_ref",
+        "definition",
+        "id",
+        "independent_ooc_variables",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "PersistenceCriterion": {
+      "additionalProperties": false,
+      "properties": {
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "estimand_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "horizon": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "metric": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "preregistration_status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "rationale": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "threshold": {
+          "type": "number"
+        },
+        "type": {
+          "const": "PersistenceCriterion"
+        },
+        "units": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "context_ref",
+        "estimand_ref",
+        "horizon",
+        "id",
+        "label",
+        "metric",
+        "preregistration_status",
+        "provenance_class",
+        "rationale",
+        "schema_version",
+        "status",
+        "type",
+        "units"
+      ],
+      "type": "object"
+    },
+    "Programme": {
+      "additionalProperties": false,
+      "properties": {
+        "clinical_use": {
+          "type": "boolean"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "kernel_frozen": {
+          "type": "boolean"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "research_go": {
+          "type": "boolean"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "PRE_FORMALIZATION",
+            "RESEARCH_OPEN",
+            "FORMALIZATION_CANDIDATE"
+          ]
+        },
+        "type": {
+          "const": "Programme"
+        }
+      },
+      "required": [
+        "clinical_use",
+        "id",
+        "kernel_frozen",
+        "label",
+        "provenance_class",
+        "research_go",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Protocol": {
+      "additionalProperties": false,
+      "properties": {
+        "data_use_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "frozen": {
+          "type": "boolean"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "metrics": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "notes": {
+          "type": "string"
+        },
+        "null_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "revision_rule": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "type": {
+          "const": "Protocol"
+        }
+      },
+      "required": [
+        "frozen",
+        "id",
+        "label",
+        "metrics",
+        "null_refs",
+        "provenance_class",
+        "revision_rule",
+        "schema_version",
+        "status",
+        "target_refs",
+        "type"
+      ],
+      "type": "object"
+    },
+    "ReductionMap": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "error_contract": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "estimand_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "exactness": {
+          "enum": [
+            "EXACT",
+            "APPROXIMATE",
+            "UNKNOWN"
+          ]
+        },
+        "horizon": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "intervention_compatibility": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mapping": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "source_variables_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "target_variables_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "type": {
+          "const": "ReductionMap"
+        }
+      },
+      "required": [
+        "error_contract",
+        "estimand_refs",
+        "exactness",
+        "horizon",
+        "id",
+        "intervention_compatibility",
+        "label",
+        "mapping",
+        "provenance_class",
+        "schema_version",
+        "source_variables_refs",
+        "status",
+        "target_variables_refs",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Relation": {
+      "additionalProperties": false,
+      "properties": {
+        "assessment_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "facet": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "kind": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "scope": {
+          "type": "object"
+        },
+        "source": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "RECORDED"
+          ]
+        },
+        "target": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Relation"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "source",
+        "status",
+        "target",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Requirement": {
+      "additionalProperties": false,
+      "properties": {
+        "bound_scope": {
+          "type": "object"
+        },
+        "criterion": {
+          "type": "string"
+        },
+        "decision_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "gap_ref": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "satisfaction_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "OPEN",
+            "SATISFIED",
+            "BOUNDED",
+            "FAILED",
+            "SUPERSEDED"
+          ]
+        },
+        "subject_ref": {
+          "type": "string"
+        },
+        "type": {
+          "const": "Requirement"
+        }
+      },
+      "required": [
+        "criterion",
+        "gap_ref",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "subject_ref",
+        "type"
+      ],
+      "type": "object"
+    },
+    "ResearchGap": {
+      "additionalProperties": false,
+      "properties": {
+        "bound_scope": {
+          "type": "object"
+        },
+        "decision_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "kernel_object": {
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "legacy_id": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "question": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "source_pages": {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "OPEN",
+            "IN_REVIEW",
+            "RESOLVED",
+            "BOUNDED",
+            "SUPERSEDED"
+          ]
+        },
+        "type": {
+          "const": "ResearchGap"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "legacy_id",
+        "priority",
+        "provenance_class",
+        "question",
+        "schema_version",
+        "source_pages",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Result": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_ceiling": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "evidence_class": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "execution_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "metrics": {
+          "type": "object"
+        },
+        "negative_result": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "outcome": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "test_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Result"
+        }
+      },
+      "required": [
+        "claim_ceiling",
+        "evidence_class",
+        "execution_ref",
+        "id",
+        "label",
+        "outcome",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "test_ref",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Route": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "boundary_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "founder_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "scope": {
+          "type": "object"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "CANDIDATE",
+            "OPEN",
+            "PARTIAL",
+            "CLOSED",
+            "REJECTED",
+            "SUPERSEDED"
+          ]
+        },
+        "transition_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "type": {
+          "const": "Route"
+        },
+        "unresolved_segments": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "witness_bundle_ref": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "adapter_ref",
+        "boundary_ref",
+        "context_ref",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "transition_refs",
+        "type",
+        "unresolved_segments"
+      ],
+      "type": "object"
+    },
+    "Software": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "runtime_role": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Software"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "path",
+        "provenance_class",
+        "runtime_role",
+        "schema_version",
+        "sha256",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "SourceArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "derivative_sha256": {
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "extraction_completeness": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "pages": {
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "representation": {
+          "type": "string"
+        },
+        "retrieval_windows": {
+          "items": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "sheet_counts": {
+          "type": "object"
+        },
+        "source_bytes": {
+          "type": "integer"
+        },
+        "source_hash_status": {
+          "type": "string"
+        },
+        "source_identity": {
+          "type": "string"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "source_name": {
+          "type": "string"
+        },
+        "source_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "text_sha256": {
+          "type": "string"
+        },
+        "type": {
+          "const": "SourceArtifact"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "path",
+        "provenance_class",
+        "representation",
+        "role",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "SourceLocator": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "selector": {
+          "type": "object"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "SourceLocator"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "path",
+        "provenance_class",
+        "schema_version",
+        "selector",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "SourceVerification": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_metadata": {
+          "type": "object"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "identifier_checked": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "public_source_url": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "retrieved_at": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "source_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "SourceVerification"
+        },
+        "verification_scope": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "canonical_metadata",
+        "id",
+        "identifier_checked",
+        "label",
+        "provenance_class",
+        "public_source_url",
+        "retrieved_at",
+        "schema_version",
+        "source_ref",
+        "status",
+        "type",
+        "verification_scope"
+      ],
+      "type": "object"
+    },
+    "StateVariable": {
+      "additionalProperties": false,
+      "properties": {
+        "definition": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "history_role": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "observable_status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "StateVariable"
+        },
+        "units": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "definition",
+        "history_role",
+        "id",
+        "label",
+        "observable_status",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type",
+        "units"
+      ],
+      "type": "object"
+    },
+    "Test": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "execution_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "gate_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "protocol_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Test"
+        }
+      },
+      "required": [
+        "gate_ref",
+        "id",
+        "label",
+        "protocol_ref",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "subject_ref",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Theory": {
+      "additionalProperties": false,
+      "properties": {
+        "adoption_decision": {
+          "type": "string"
+        },
+        "canonical_reading_leads": {
+          "type": "string"
+        },
+        "card_complete": {
+          "type": "boolean"
+        },
+        "completion_decision_ref": {
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "imported_status_label": {
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "legacy_id": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "OPEN",
+            "IN_REVIEW",
+            "CARD_COMPLETE",
+            "RETIRED"
+          ]
+        },
+        "type": {
+          "const": "Theory"
+        }
+      },
+      "required": [
+        "adoption_decision",
+        "card_complete",
+        "id",
+        "label",
+        "legacy_id",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Transition": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "evidence_assessment_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mechanism_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "source_state_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "CANDIDATE",
+            "OPEN",
+            "SUPPORTED_SCOPED",
+            "REJECTED",
+            "SUPERSEDED"
+          ]
+        },
+        "target_state_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "temporal_basis": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Transition"
+        }
+      },
+      "required": [
+        "adapter_ref",
+        "context_ref",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "source_state_ref",
+        "status",
+        "target_state_ref",
+        "temporal_basis",
+        "type"
+      ],
+      "type": "object"
+    },
+    "ValidityDomain": {
+      "additionalProperties": false,
+      "properties": {
+        "conditions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "ValidityDomain"
+        }
+      },
+      "required": [
+        "conditions",
+        "context_ref",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Verdict": {
+      "additionalProperties": false,
+      "properties": {
+        "assessment_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "authority_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "axis": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "UNKNOWN",
+            "OPEN",
+            "PROVISIONAL",
+            "SUPPORTED_SCOPED",
+            "CONTRADICTED",
+            "NOT_ESTABLISHED",
+            "FAILED",
+            "ENGINEERING_PASS",
+            "MATHEMATICALLY_VERIFIED_SCOPED"
+          ]
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "facet": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "model_instance_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "rationale": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "result_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "scope": {
+          "type": "object"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "RECORDED"
+          ]
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "supersedes_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "transfer_decision_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Verdict"
+        }
+      },
+      "required": [
+        "assessment_refs",
+        "authority_ref",
+        "axis",
+        "decision",
+        "facet",
+        "id",
+        "label",
+        "provenance_class",
+        "rationale",
+        "result_refs",
+        "schema_version",
+        "scope",
+        "status",
+        "subject_ref",
+        "supersedes_refs",
+        "type"
+      ],
+      "type": "object"
+    },
+    "WitnessBundle": {
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "bridge_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "common_witness_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "context_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "SAME_SYSTEM",
+            "VALIDATED_BRIDGE",
+            "SYNTHESIS_ONLY"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "WitnessBundle"
+        }
+      },
+      "required": [
+        "basis",
+        "context_ref",
+        "evidence_refs",
+        "id",
+        "label",
+        "mode",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Workstream": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_path": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "layer": {
+          "type": "string"
+        },
+        "legacy_id": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "required_output": {
+          "type": "string"
+        },
+        "revision_of_ref": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "source_locator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "const": "Workstream"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "status",
+        "type"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "urn:ooc:schema:graph-record:0.1.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Adapter"
+    },
+    {
+      "$ref": "#/$defs/Assumption"
+    },
+    {
+      "$ref": "#/$defs/Authority"
+    },
+    {
+      "$ref": "#/$defs/BiologicalState"
+    },
+    {
+      "$ref": "#/$defs/Boundary"
+    },
+    {
+      "$ref": "#/$defs/CandidateSet"
+    },
+    {
+      "$ref": "#/$defs/Claim"
+    },
+    {
+      "$ref": "#/$defs/Context"
+    },
+    {
+      "$ref": "#/$defs/DataUse"
+    },
+    {
+      "$ref": "#/$defs/Dataset"
+    },
+    {
+      "$ref": "#/$defs/Decision"
+    },
+    {
+      "$ref": "#/$defs/Equation"
+    },
+    {
+      "$ref": "#/$defs/Estimand"
+    },
+    {
+      "$ref": "#/$defs/EvidenceAssessment"
+    },
+    {
+      "$ref": "#/$defs/EvidenceObject"
+    },
+    {
+      "$ref": "#/$defs/Execution"
+    },
+    {
+      "$ref": "#/$defs/Falsifier"
+    },
+    {
+      "$ref": "#/$defs/FounderEnsemble"
+    },
+    {
+      "$ref": "#/$defs/Gate"
+    },
+    {
+      "$ref": "#/$defs/Intervention"
+    },
+    {
+      "$ref": "#/$defs/InterventionOperator"
+    },
+    {
+      "$ref": "#/$defs/LiteratureSource"
+    },
+    {
+      "$ref": "#/$defs/MVCLModule"
+    },
+    {
+      "$ref": "#/$defs/MVCLOverlay"
+    },
+    {
+      "$ref": "#/$defs/MVCLReference"
+    },
+    {
+      "$ref": "#/$defs/Mechanism"
+    },
+    {
+      "$ref": "#/$defs/MethodApplicability"
+    },
+    {
+      "$ref": "#/$defs/MethodImport"
+    },
+    {
+      "$ref": "#/$defs/ModelClass"
+    },
+    {
+      "$ref": "#/$defs/ModelInstance"
+    },
+    {
+      "$ref": "#/$defs/NonPromotion"
+    },
+    {
+      "$ref": "#/$defs/NullModel"
+    },
+    {
+      "$ref": "#/$defs/Observation"
+    },
+    {
+      "$ref": "#/$defs/ObservationOperator"
+    },
+    {
+      "$ref": "#/$defs/ObservationProcess"
+    },
+    {
+      "$ref": "#/$defs/Parameter"
+    },
+    {
+      "$ref": "#/$defs/ParameterProvenance"
+    },
+    {
+      "$ref": "#/$defs/PathologyEntity"
+    },
+    {
+      "$ref": "#/$defs/PersistenceCriterion"
+    },
+    {
+      "$ref": "#/$defs/Programme"
+    },
+    {
+      "$ref": "#/$defs/Protocol"
+    },
+    {
+      "$ref": "#/$defs/ReductionMap"
+    },
+    {
+      "$ref": "#/$defs/Relation"
+    },
+    {
+      "$ref": "#/$defs/Requirement"
+    },
+    {
+      "$ref": "#/$defs/ResearchGap"
+    },
+    {
+      "$ref": "#/$defs/Result"
+    },
+    {
+      "$ref": "#/$defs/Route"
+    },
+    {
+      "$ref": "#/$defs/Software"
+    },
+    {
+      "$ref": "#/$defs/SourceArtifact"
+    },
+    {
+      "$ref": "#/$defs/SourceLocator"
+    },
+    {
+      "$ref": "#/$defs/SourceVerification"
+    },
+    {
+      "$ref": "#/$defs/StateVariable"
+    },
+    {
+      "$ref": "#/$defs/Test"
+    },
+    {
+      "$ref": "#/$defs/Theory"
+    },
+    {
+      "$ref": "#/$defs/Transition"
+    },
+    {
+      "$ref": "#/$defs/ValidityDomain"
+    },
+    {
+      "$ref": "#/$defs/Verdict"
+    },
+    {
+      "$ref": "#/$defs/WitnessBundle"
+    },
+    {
+      "$ref": "#/$defs/Workstream"
+    }
+  ]
+}

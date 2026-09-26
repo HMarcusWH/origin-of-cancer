@@ -1,0 +1,399 @@
+{
+  "overall_pass": true,
+  "test_count": 56,
+  "tests": {
+    "01_ctmc_committor_known_solution": {
+      "pass": true,
+      "qC": 0.6
+    },
+    "02_tpt_reactive_current_conservation": {
+      "pass": true,
+      "residuals": [
+        2.7755575615628914e-17,
+        -1.3877787807814457e-17
+      ],
+      "pi": [
+        0.18433179723502294,
+        0.2764976958525346,
+        0.3317972350230415,
+        0.20737327188940102
+      ],
+      "q": [
+        0.0,
+        0.42857142857142855,
+        0.7142857142857143,
+        1.0
+      ]
+    },
+    "03_periodic_invariant_family_transport": {
+      "pass": true,
+      "pi0": [
+        0.41772151898734183,
+        0.5822784810126582
+      ],
+      "pi1": [
+        0.3924050632911393,
+        0.6075949367088608
+      ]
+    },
+    "04_periodic_labels_without_transport_fail_invariance": {
+      "pass": true,
+      "error": 0.050000000000000044
+    },
+    "05_PAC_signed_flow_orientation_invariance": {
+      "pass": true,
+      "production": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "flipped_flow": [
+        5.0,
+        -4.0,
+        3.0
+      ]
+    },
+    "06_ensemble_convergence_bounded": {
+      "pass": true,
+      "C_ens": 0.675
+    },
+    "07_joint_RST_not_naive_marginal_product": {
+      "pass": true,
+      "joint": 0.36,
+      "naive": 0.3136,
+      "cells": [
+        [
+          [
+            0.05,
+            0.05
+          ],
+          [
+            0.05,
+            0.05
+          ]
+        ],
+        [
+          [
+            0.1,
+            0.1
+          ],
+          [
+            0.24,
+            0.36
+          ]
+        ]
+      ]
+    },
+    "08_linear_recursive_operator_supercritical": {
+      "pass": true,
+      "R_rec": 1.0563941029804986
+    },
+    "09_subcritical_linear_recursion_decays": {
+      "pass": true,
+      "final_mass": 0.00207589352769996
+    },
+    "10_nonlinear_recursion_finite_time_gain": {
+      "pass": true,
+      "trajectory": [
+        0.4,
+        0.8258064516129032,
+        1.311523308026166,
+        1.4716641630815208,
+        1.4963639019760548,
+        1.4995439684235197,
+        1.4999429722149933,
+        1.4999928711542132,
+        1.4999991088884534
+      ],
+      "gain": 3.7499977722211333
+    },
+    "11_supercritical_branching_positive_survival": {
+      "pass": true,
+      "extinction": 0.48898882116936876,
+      "survival": 0.5110111788306313
+    },
+    "12_subcritical_branching_extinction": {
+      "pass": true,
+      "extinction": 1.0
+    },
+    "13_degenerate_critical_branching_exception": {
+      "pass": true,
+      "mean": 1.0,
+      "survival": 1.0
+    },
+    "14_nonequilibrium_stationary_ring_current_and_entropy": {
+      "pass": true,
+      "J": 0.5,
+      "entropy_production": 2.1972245773362196
+    },
+    "15_calorimetry_system_vs_release_sign": {
+      "pass": true,
+      "Qdot_system": -0.000436,
+      "Qdot_release": 0.000436
+    },
+    "16_planetary_opportunity_dimensionless_and_poisson_conditional": {
+      "pass": true,
+      "lambda_per_time": 0.06,
+      "Omega": 0.3,
+      "P": 0.2591817793182821
+    },
+    "17_transitive_provenance_prevents_X_to_T_laundering": {
+      "pass": true,
+      "ancestry": [
+        "G",
+        "X"
+      ]
+    },
+    "18_transition_graph_not_metric_graph": {
+      "pass": true,
+      "close_metric": true,
+      "close_edge": false,
+      "far_edge": true
+    },
+    "19_empty_site_convention_defined": {
+      "pass": true,
+      "PA": 0.0,
+      "PB": 0.0
+    },
+    "20_handoff_kernel_preserves_mass": {
+      "pass": true,
+      "output": [
+        0.39999999999999997,
+        0.6
+      ]
+    },
+    "21_integrated_generated_ensemble_recursive_growth_and_selection": {
+      "pass": true,
+      "masses": [
+        1.0,
+        1.093,
+        1.1995500000000001,
+        1.3221354,
+        1.4637315149999999,
+        1.62790194537
+      ],
+      "frequency_before": [
+        0.7127842193998176,
+        0.28721578060018227
+      ],
+      "frequency_after": [
+        0.6650322781747483,
+        0.3349677218252518
+      ],
+      "selection_logodds": 0.2231435513142097
+    },
+    "22_controlled_reachability_can_exceed_natural_reachability": {
+      "pass": true
+    },
+    "23_periodic_linear_recursion_monodromy": {
+      "pass": true,
+      "monodromy": 1.1880000000000002,
+      "floquet": 0.05742374031348444
+    },
+    "24_stoichiometric_mass_conservation_toy": {
+      "pass": true,
+      "mass_balance": 0.0
+    },
+    "25_parameter_nonuniqueness_can_preserve_route_functional": {
+      "pass": true,
+      "functional": 3.0
+    },
+    "26_natural_closure_implies_lab_closure": {
+      "pass": true
+    },
+    "27_RE_not_PCS": {
+      "pass": true
+    },
+    "28_PCS_not_establishment": {
+      "pass": true
+    },
+    "29_JS_divergence_base2_in_unit_interval": {
+      "pass": true,
+      "JS": 0.27807190511263774
+    },
+    "30_negative_kernel_not_positive_next_generation_operator": {
+      "pass": true,
+      "matrix": [
+        [
+          1.0,
+          -0.2
+        ],
+        [
+          0.1,
+          0.9
+        ]
+      ]
+    },
+    "31_common_witness_prevents_witness_mismatch_gate": {
+      "pass": true,
+      "naive": true,
+      "common": false
+    },
+    "32_redundant_external_support_requires_all_X_counterfactual": {
+      "pass": true,
+      "remove_x1": true,
+      "remove_x2": true,
+      "remove_all_X": false
+    },
+    "33_frozen_start_boundary_prevents_downstream_shift_laundering": {
+      "pass": true,
+      "original_boundary_external": true,
+      "shifted_boundary_would_hide": true
+    },
+    "34_cooperative_emergence_requires_joint_local_measure": {
+      "pass": true,
+      "marginals": [
+        0.5,
+        0.5
+      ],
+      "joint": 0.0
+    },
+    "35_functional_overlap_not_seed_takeoff_when_absolute_flux_negligible": {
+      "pass": true,
+      "eta": 0.2,
+      "expected_seed_count": 2e-13
+    },
+    "36_transient_nonlinear_burst_not_sustained_recursion": {
+      "pass": true,
+      "trajectory": [
+        1.0,
+        10.0,
+        25.0,
+        7.0,
+        1.0,
+        0.2,
+        0.0
+      ],
+      "finite_gain": 25.0
+    },
+    "37_natural_operator_mapping_quantified": {
+      "pass": true,
+      "TV_good": 0.01999999999999995,
+      "TV_bad": 0.7000000000000001,
+      "epsilon": 0.05
+    },
+    "38_natural_reachability_not_natural_plausibility": {
+      "pass": true,
+      "reachable": true,
+      "route_probability": 1e-30,
+      "plausibility_floor": 1e-08
+    },
+    "39_RE_to_PCS_identity_continuity": {
+      "pass": true,
+      "good": [
+        "child",
+        "R42"
+      ],
+      "bad": [
+        "other"
+      ]
+    },
+    "40_causal_selection_not_association_only": {
+      "pass": true,
+      "observed_association": 0.3,
+      "interventional_effect": 0.0
+    },
+    "41_cooperative_seed_basin_threshold_matters": {
+      "pass": true,
+      "low_final": 7.735757893278719e-22,
+      "high_final": 0.9993106337384049
+    },
+    "42_selection_must_bind_same_variant_and_lineage": {
+      "pass": true,
+      "aggregate_variant": 0.6,
+      "same_lineage_effect": false
+    },
+    "43_coarse_ODE_persistence_does_not_override_CTMC_extinction": {
+      "pass": true,
+      "ODE_x_t": 0.13533528323661276,
+      "CTMC_extinction": 1.0
+    },
+    "44_claim_specific_approximation_certificate": {
+      "pass": true,
+      "fine": 0.12,
+      "coarse": 0.2,
+      "epsilon": 0.03
+    },
+    "45_same_diffusion_summary_does_not_identify_parameters": {
+      "pass": true,
+      "summary": [
+        5.0,
+        5.0
+      ]
+    },
+    "46_aggregate_growth_not_cooperative_completeness": {
+      "pass": true,
+      "total": [
+        30,
+        36,
+        46,
+        66.2
+      ],
+      "C": [
+        10,
+        6,
+        2,
+        0.2
+      ],
+      "floor": 1.0
+    },
+    "47_redundant_functional_support_sets_allow_substitution": {
+      "pass": true,
+      "supports": [
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ]
+    },
+    "48_parasite_failure_is_downstream_of_RE": {
+      "pass": true,
+      "G_RE": true,
+      "P_est": 0.0
+    },
+    "49_generic_carrier_viability_kernel": {
+      "pass": true,
+      "p_viable": 0.75,
+      "p_floor": 0.6
+    },
+    "50_surface_carrier_can_pass_without_individuation": {
+      "pass": true,
+      "retention": 0.92,
+      "individuated": false
+    },
+    "51_temporal_overlap_race_probability": {
+      "pass": true,
+      "p_overlap": 0.16666666666666669
+    },
+    "52_finite_reservoir_depletion_boundary": {
+      "pass": true,
+      "initial": 10.0,
+      "consumption": 1.5,
+      "horizon": 8.0,
+      "remaining": -2.0
+    },
+    "53_open_CRN_energy_balance": {
+      "pass": true,
+      "Wdot": 12.0,
+      "Gdot": 4.0,
+      "T_sigma": 8.0
+    },
+    "54_theorem_inapplicability_means_NA_not_physical_false": {
+      "pass": true,
+      "physical_event": true,
+      "E_LDP_ADE": false
+    },
+    "55_hidden_history_can_break_coarse_markov_property": {
+      "pass": true,
+      "p0": 0.1,
+      "p1": 0.9
+    },
+    "56_PCS_not_equivalent_to_individuated_reproducer": {
+      "pass": true
+    }
+  }
+}

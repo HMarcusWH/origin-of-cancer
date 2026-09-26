@@ -1,0 +1,14 @@
+{
+  "biological_truth_inference": false,
+  "incomparable_verdicts": "CONFLICT",
+  "missing_verdict": "UNKNOWN",
+  "partition": [
+    "subject_ref",
+    "axis",
+    "facet",
+    "scope",
+    "model_instance_ref"
+  ],
+  "precedence": "explicit same-partition supersession only",
+  "version": "0.1.0"
+}

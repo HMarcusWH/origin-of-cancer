@@ -1,0 +1,420 @@
+{
+  "suite": "evidence_semantics_v2.7.7",
+  "passed": 84,
+  "total": 84,
+  "all_pass": true,
+  "tests": {
+    "001_kleene_AND_PASS_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "002_kleene_AND_PASS_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "003_kleene_AND_PASS_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "004_kleene_AND_FAIL_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "005_kleene_AND_FAIL_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "006_kleene_AND_FAIL_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "007_kleene_AND_NA_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "008_kleene_AND_NA_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "009_kleene_AND_NA_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "010_kleene_OR_PASS_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "011_kleene_OR_PASS_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "012_kleene_OR_PASS_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "013_kleene_OR_FAIL_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "014_kleene_OR_FAIL_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "015_kleene_OR_FAIL_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "016_kleene_OR_NA_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "017_kleene_OR_NA_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "018_kleene_OR_NA_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "019_kleene_NOT_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "020_kleene_NOT_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "021_kleene_NOT_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "022_complete_evidence_RE_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "023_complete_empty_RE_domain_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "024_partial_empty_RE_domain_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "025_unknown_RE_domain_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "026_missing_leaf_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "027_unauthorized_leaf_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "028_leaf_binding_mismatch_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "029_missing_ancestry_relation_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "030_explicit_failed_core_ancestry_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "031_handoff_missing_experimental_probability_floor_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "032_handoff_missing_time_horizon_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "033_negative_time_horizon_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "034_posthoc_probability_floor_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "035_unresolved_probability_floor_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "036_nat_reach_does_not_require_plausibility_floor": {
+      "pass": true,
+      "detail": null
+    },
+    "037_nat_plaus_requires_plausibility_floor": {
+      "pass": true,
+      "detail": null
+    },
+    "038_nat_reach_requires_reachability_contract": {
+      "pass": true,
+      "detail": null
+    },
+    "039_valid_TEST_certificate_can_certify_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "040_NA_produces_INCOMPLETE_certificate": {
+      "pass": true,
+      "detail": null
+    },
+    "041_unbound_physical_witness_invalid_certificate": {
+      "pass": true,
+      "detail": null
+    },
+    "042_unbound_evidence_bundle_invalid_certificate": {
+      "pass": true,
+      "detail": null
+    },
+    "043_wrong_claim_bundle_binding_invalid": {
+      "pass": true,
+      "detail": null
+    },
+    "044_bundle_missing_support_receipts_invalid": {
+      "pass": true,
+      "detail": null
+    },
+    "045_missing_raw_evidence_makes_claim_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "043_provenance_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "044_provenance_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "045_provenance_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "046_provenance_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "047_provenance_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "048_absence_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "049_absence_PASS": {
+      "pass": true,
+      "detail": null
+    },
+    "050_absence_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "051_absence_FAIL": {
+      "pass": true,
+      "detail": null
+    },
+    "055_unresolved_conflicting_assays_reduce_leaf_to_NA": {
+      "pass": true,
+      "detail": null
+    },
+    "056_de_morgan_strong_kleene": {
+      "pass": true,
+      "detail": null
+    },
+    "057_AND_information_monotone": {
+      "pass": true,
+      "detail": null
+    },
+    "058_OR_information_monotone": {
+      "pass": true,
+      "detail": null
+    },
+    "059_NOT_information_monotone": {
+      "pass": true,
+      "detail": null
+    },
+    "060_complete_evidence_collapse_RE-BENCH-W-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "061_complete_evidence_collapse_RE-ENDO-W-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "062_complete_evidence_collapse_PCS-W-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "063_complete_evidence_collapse_RE-PCS-PAIR-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "064_complete_evidence_collapse_INTERFACE-W-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "065_complete_evidence_collapse_HANDOFF-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "066_complete_evidence_collapse_BRIDGE-W-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "067_complete_evidence_collapse_RE-BENCH-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "068_complete_evidence_collapse_RE-ENDO-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "069_complete_evidence_collapse_PCS-LOCAL-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "070_complete_evidence_collapse_PCS-LINKED-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "071_complete_evidence_collapse_RE-PCS-CONT-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "072_complete_evidence_collapse_INTERFACE-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "073_complete_evidence_collapse_BRIDGE-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "074_complete_evidence_collapse_PROGRAMME-CURRENT-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "075_complete_evidence_collapse_LAB-CLOSURE-W-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "076_complete_evidence_collapse_LAB-CLOSURE-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "077_complete_evidence_collapse_NAT-REACH-W-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "078_complete_evidence_collapse_NAT-REACH-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "079_complete_evidence_collapse_NAT-PLAUS-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "080_complete_evidence_collapse_CARRIER-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "081_complete_evidence_collapse_INDIVIDUATED-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "082_complete_evidence_collapse_EST-MOL-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "083_complete_evidence_collapse_EST-CARRIER-1": {
+      "pass": true,
+      "detail": {
+        "world": true,
+        "evidence": "PASS"
+      }
+    },
+    "084_complete_evidence_conservative_extension_64_worlds": {
+      "pass": true,
+      "detail": {
+        "worlds": 64,
+        "claim_comparisons": 1536,
+        "mismatches": []
+      }
+    }
+  }
+}
