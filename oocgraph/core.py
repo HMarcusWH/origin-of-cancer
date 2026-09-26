@@ -178,6 +178,12 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
     ids = [r.get("id") for r in records]
     if len(ids) != len(set(ids)): errors.append("DUPLICATE_ID")
     index = {r.get("id"): r for r in records}
+    if root is not None and (root / "config/project.json").is_file():
+        project_config = loads((root / "config/project.json").read_text())
+        configured_critical_gap_refs = {"ooc:gap:"+x for x in project_config.get("critical_gap_ids", [])}
+    else:
+        configured_critical_gap_refs = {r.get("id") for r in records
+                                        if r.get("type") == "ResearchGap" and r.get("priority") == "CRITICAL"}
     if root is not None:
         from jsonschema import Draft202012Validator
         schema = loads((root / "schema/graph-record.schema.json").read_text())
@@ -282,12 +288,16 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             mode = wb.get("mode")
             if mode not in {"SAME_SYSTEM", "VALIDATED_BRIDGE"}: error("COMPOSITED_ROUTE", r)
             if wb.get("context_ref") != r.get("context_ref"): error("WITNESS_CONTEXT_MISMATCH", r)
-            witness_evidence = set(wb.get("evidence_refs", [])) | set(wb.get("bridge_evidence_refs", []))
+            # Segment support always comes from the ordinary witness evidence set.
+            # Bridge evidence has a separate adjudication contract below.
+            witness_evidence = set(wb.get("evidence_refs", []))
             previous = None
             for tr in r.get("transition_refs", []):
                 t = index.get(tr, {})
                 if t.get("context_ref") != r.get("context_ref") or t.get("adapter_ref") != r.get("adapter_ref"):
                     error("ROUTE_CONTEXT_MISMATCH", r)
+                if t.get("status") != "SUPPORTED_SCOPED":
+                    error("INACTIVE_ROUTE_TRANSITION", r)
                 if previous is not None and previous != t.get("source_state_ref"):
                     error("BROKEN_ROUTE_HANDOFF", r)
                 previous = t.get("target_state_ref")
@@ -300,6 +310,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     valid = True
                     if a.get("status") != "ADJUDICATED":
                         error("UNADJUDICATED_ROUTE_ASSESSMENT", r); valid = False
+                    if a.get("provenance_class") == "TEXTUAL_HINT" or e.get("provenance_class") == "TEXTUAL_HINT":
+                        error("TEXT_HINT_ROUTE_SUPPORT", r); valid = False
                     if a.get("target_ref") != tr:
                         error("ROUTE_ASSESSMENT_TARGET_MISMATCH", r); valid = False
                     if a.get("effect") != "SUPPORTS":
@@ -320,8 +332,24 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 if not common or not set(wb.get("common_witness_ids", [])).issubset(common):
                     error("MISSING_COMMON_WITNESS", r)
                 if not wb.get("common_witness_ids"): error("MISSING_COMMON_WITNESS", r)
-            if mode == "VALIDATED_BRIDGE" and not wb.get("bridge_evidence_refs"):
-                error("UNSUPPORTED_BRIDGE", r)
+            if mode == "VALIDATED_BRIDGE":
+                bridge_refs = wb.get("bridge_evidence_refs", [])
+                if not bridge_refs:
+                    error("UNSUPPORTED_BRIDGE", r)
+                for er in bridge_refs:
+                    e = index.get(er, {})
+                    if (e.get("status") != "RECORDED" or e.get("context_ref") != r.get("context_ref")
+                        or e.get("provenance_class") == "TEXTUAL_HINT"):
+                        error("INVALID_BRIDGE_EVIDENCE", r)
+                        continue
+                    bridge_assessments = [a for a in records
+                        if a.get("type") == "EvidenceAssessment" and a.get("evidence_ref") == er
+                        and a.get("target_ref") == r.get("id") and a.get("effect") == "SUPPORTS"
+                        and a.get("status") == "ADJUDICATED"
+                        and a.get("provenance_class") != "TEXTUAL_HINT"
+                        and canonical(a.get("scope")) == canonical(r.get("scope"))]
+                    if not bridge_assessments:
+                        error("UNADJUDICATED_BRIDGE_EVIDENCE", r)
         if typ == "Verdict":
             authority = index.get(r.get("authority_ref"), {})
             if r.get("axis") not in authority.get("axes", []): error("AUTHORITY_AXIS_MISMATCH", r)
@@ -337,6 +365,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 for a in assessments:
                     e = index.get(a.get("evidence_ref"), {})
                     if (a.get("status") == "ADJUDICATED" and e.get("status") == "RECORDED"
+                        and a.get("provenance_class") != "TEXTUAL_HINT"
+                        and e.get("provenance_class") != "TEXTUAL_HINT"
                         and a.get("target_ref") == r.get("subject_ref") and a.get("effect") == "SUPPORTS"
                         and canonical(a.get("scope")) == canonical(r.get("scope"))
                         and e.get("evidence_class") in {"PRIMARY_HUMAN_LONGITUDINAL", "PRIMARY_HUMAN_CROSS_SECTIONAL", "PRIMARY_ANIMAL", "PRIMARY_ORGANOID", "PRIMARY_IN_VITRO", "HUMAN_CAUSAL"}):
@@ -358,9 +388,14 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
         if typ == "Programme":
             if r.get("clinical_use"): error("CLINICAL_USE_OUT_OF_SCOPE", r)
             requirements = [x for x in records if x.get("type") == "Requirement" and x.get("subject_ref") == r["id"]]
-            critical = [x for x in records if x.get("type") == "ResearchGap" and x.get("priority") == "CRITICAL"]
-            for gap in critical:
-                if not any(q.get("gap_ref") == gap.get("id") for q in requirements):
+            for gap_ref in sorted(configured_critical_gap_refs):
+                gap = index.get(gap_ref, {})
+                if gap.get("type") != "ResearchGap":
+                    error("MISSING_CONFIGURED_CRITICAL_GAP", r)
+                    continue
+                if gap.get("priority") != "CRITICAL":
+                    error("CRITICAL_GAP_PRIORITY_DRIFT", gap)
+                if not any(q.get("gap_ref") == gap_ref for q in requirements):
                     error("MISSING_CRITICAL_PROGRAMME_REQUIREMENT", gap)
             if r.get("kernel_frozen"):
                 if not requirements: error("NO_FREEZE_REQUIREMENTS", r)
@@ -370,15 +405,32 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     if q.get("status") == "BOUNDED" and not q.get("bound_scope"): error("UNSCOPED_REQUIREMENT_BOUND", q)
                     decision = index.get(q.get("decision_ref"), {})
                     authority = index.get(decision.get("authority_ref"), {})
-                    decision_evidence = [index.get(e, {}) for e in decision.get("evidence_refs", [])]
+                    decision_refs = set(decision.get("evidence_refs", []))
+                    satisfaction_refs = set(q.get("satisfaction_evidence_refs", []))
+                    decision_evidence = [index.get(e, {}) for e in decision_refs]
+                    authority_ok = ("RESEARCH_POLICY" in authority.get("axes", [])
+                                    and canonical(decision.get("scope")) == canonical(authority.get("scope"))
+                                    and (not authority.get("subject_refs")
+                                         or decision.get("subject_ref") in authority.get("subject_refs", [])))
                     if (decision.get("type") != "Decision" or decision.get("status") != "RECORDED"
                         or decision.get("subject_ref") not in {q.get("id"), q.get("gap_ref")}
-                        or not decision_evidence or any(e.get("status") != "RECORDED" for e in decision_evidence)
-                        or "RESEARCH_POLICY" not in authority.get("axes", [])
-                        or authority.get("scope", {}).get("domain") != "PROGRAMME_GOVERNANCE"):
+                        or not decision_refs or decision_refs != satisfaction_refs
+                        or any(e.get("status") != "RECORDED" or e.get("provenance_class") == "TEXTUAL_HINT"
+                               for e in decision_evidence)
+                        or not authority_ok):
                         error("INVALID_FREEZE_DECISION", q)
+                    effects = {"SUPPORTS"} if q.get("status") == "SATISFIED" else {"SUPPORTS", "CONSTRAINS", "DOES_NOT_ESTABLISH"}
+                    for er in decision_refs:
+                        assessments = [a for a in records
+                            if a.get("type") == "EvidenceAssessment" and a.get("evidence_ref") == er
+                            and a.get("target_ref") in {q.get("id"), q.get("gap_ref")}
+                            and a.get("effect") in effects and a.get("status") == "ADJUDICATED"
+                            and a.get("provenance_class") != "TEXTUAL_HINT"
+                            and canonical(a.get("scope")) == canonical(decision.get("scope"))]
+                        if not assessments:
+                            error("UNADJUDICATED_FREEZE_EVIDENCE", q)
                     gap = index.get(q.get("gap_ref"), {})
-                    if gap.get("priority") == "CRITICAL" and gap.get("status") not in {"RESOLVED", "BOUNDED", "SUPERSEDED"}:
+                    if q.get("gap_ref") in configured_critical_gap_refs and gap.get("status") not in {"RESOLVED", "BOUNDED", "SUPERSEDED"}:
                         error("OPEN_CRITICAL_GAP_ON_FREEZE", q)
     uses = [r for r in records if r.get("type") == "DataUse"]
     for i, a in enumerate(uses):

@@ -129,6 +129,9 @@ class FirewallTests(unittest.TestCase):
     def test_withdrawn_evidence_cannot_promote(self):
         rs=evidence_base('PRIMARY_ANIMAL');next(r for r in rs if r['type']=='EvidenceObject')['status']='WITHDRAWN'
         self.has(rs+[verdict(decision='SUPPORTED_SCOPED',assessment_refs=['ooc:fixture:assessment'])],'NONBIOLOGICAL_PROMOTION')
+    def test_textual_hint_cannot_promote(self):
+        rs=evidence_base('PRIMARY_ANIMAL');next(r for r in rs if r['type']=='EvidenceObject')['provenance_class']='TEXTUAL_HINT'
+        self.has(rs+[verdict(decision='SUPPORTED_SCOPED',assessment_refs=['ooc:fixture:assessment'])],'NONBIOLOGICAL_PROMOTION')
     def test_animal_to_human_not_automatic(self):
         scope={'species':'human'};self.has(evidence_base('PRIMARY_ANIMAL',scope)+[verdict(scope=scope,decision='SUPPORTED_SCOPED',assessment_refs=['ooc:fixture:assessment'])],'NONHUMAN_TO_HUMAN_PROMOTION')
     def test_one_scope_not_pan_cancer(self):
@@ -173,6 +176,10 @@ class FirewallTests(unittest.TestCase):
         c=node('Claim','c')
         q=node('Requirement','q',gap_ref=g['id'],subject_ref=c['id'])
         self.has([p,g,c,q],'MISSING_CRITICAL_PROGRAMME_REQUIREMENT')
+    def test_configured_critical_priority_cannot_be_downgraded(self):
+        rs=copy.deepcopy(BaselineTests.records)
+        next(r for r in rs if r.get('id')=='ooc:gap:RG-001')['priority']='HIGH'
+        self.has(rs,'CRITICAL_GAP_PRIORITY_DRIFT')
 
 class ResolutionTests(unittest.TestCase):
     def test_no_verdict_is_unknown(self):self.assertEqual(resolve([])['missing_verdict_state'],'UNKNOWN')
