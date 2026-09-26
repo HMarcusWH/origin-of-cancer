@@ -27,6 +27,20 @@ def evidence_base(cls='SYNTHETIC',scope=None):
       node('EvidenceAssessment','assessment',evidence_ref='ooc:fixture:ev',target_ref='ooc:fixture:claim',
            effect='SUPPORTS',scope={'adapter':'synthetic'} if scope is None else scope,status='ADJUDICATED')]
 
+def freeze_fixture():
+    scope={'domain':'PROGRAMME_GOVERNANCE'}
+    p=node('Programme','p',kernel_frozen=True)
+    g=node('ResearchGap','g',priority='CRITICAL',status='RESOLVED')
+    e=node('EvidenceObject','freeze-e',status='RECORDED')
+    a=node('EvidenceAssessment','freeze-a',status='ADJUDICATED',evidence_ref=e['id'],
+           target_ref='ooc:fixture:q',effect='SUPPORTS',scope=scope)
+    auth=node('Authority','freeze-auth',axes=['RESEARCH_POLICY'],scope=scope)
+    d=node('Decision','freeze-d',status='RECORDED',authority_ref=auth['id'],
+           subject_ref='ooc:fixture:q',evidence_refs=[e['id']],scope=scope)
+    q=node('Requirement','q',status='SATISFIED',subject_ref=p['id'],gap_ref=g['id'],
+           decision_ref=d['id'],satisfaction_evidence_refs=[e['id']])
+    return [p,g,e,a,auth,d,q]
+
 class StrictIO(unittest.TestCase):
     def test_duplicate_json_keys(self):
         with self.assertRaises(IntegrityError):loads('{"x":1,"x":2}')
@@ -179,7 +193,26 @@ class FirewallTests(unittest.TestCase):
     def test_configured_critical_priority_cannot_be_downgraded(self):
         rs=copy.deepcopy(BaselineTests.records)
         next(r for r in rs if r.get('id')=='ooc:gap:RG-001')['priority']='HIGH'
-        self.has(rs,'CRITICAL_GAP_PRIORITY_DRIFT')
+        errors=validate_records(rs,ROOT)
+        self.assertTrue(any('CRITICAL_GAP_PRIORITY_DRIFT' in x for x in errors),errors)
+    def test_valid_freeze_fixture(self):
+        self.assertEqual(validate_records(freeze_fixture()),[])
+    def test_freeze_authority_subject_allowlist_enforced(self):
+        rs=freeze_fixture();auth=next(r for r in rs if r['id']=='ooc:fixture:freeze-auth')
+        auth['subject_refs']=['ooc:fixture:g']
+        self.has(rs,'INVALID_FREEZE_DECISION')
+    def test_freeze_authority_scope_enforced(self):
+        rs=freeze_fixture();d=next(r for r in rs if r['id']=='ooc:fixture:freeze-d')
+        d['scope']={'domain':'OTHER'}
+        self.has(rs,'INVALID_FREEZE_DECISION')
+    def test_freeze_decision_evidence_must_equal_satisfaction_evidence(self):
+        rs=freeze_fixture();q=next(r for r in rs if r['id']=='ooc:fixture:q')
+        q['satisfaction_evidence_refs']=[]
+        self.has(rs,'INVALID_FREEZE_DECISION')
+    def test_freeze_evidence_requires_adjudicated_binding(self):
+        rs=freeze_fixture();a=next(r for r in rs if r['id']=='ooc:fixture:freeze-a')
+        a['status']='IN_REVIEW'
+        self.has(rs,'UNADJUDICATED_FREEZE_EVIDENCE')
 
 class ResolutionTests(unittest.TestCase):
     def test_no_verdict_is_unknown(self):self.assertEqual(resolve([])['missing_verdict_state'],'UNKNOWN')
