@@ -12,3 +12,11 @@ source checksums, contribution/security guidance and CI.
 
 No bibliography row was promoted to extracted evidence. No cancer model, origin
 route, biological validation, independent replication or clinical use was admitted.
+
+## Bootstrap checkout correction
+
+The first PR checkout exposed Git text normalization of two frozen source CSVs.
+Source locks correctly failed; source hashes were not changed to accept altered
+bytes. `sources/** -text` preserves originals in the Git index and checkout. A
+real Git round-trip regression test now checks this boundary. The optional
+Python-version-dependent typing-extensions dependency is pinned explicitly.
