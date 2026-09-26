@@ -30,16 +30,19 @@ def evidence_base(cls='SYNTHETIC',scope=None):
 def freeze_fixture():
     scope={'domain':'PROGRAMME_GOVERNANCE'}
     p=node('Programme','p',kernel_frozen=True)
-    g=node('ResearchGap','g',priority='CRITICAL',status='RESOLVED')
-    e=node('EvidenceObject','freeze-e',status='RECORDED')
-    a=node('EvidenceAssessment','freeze-a',status='ADJUDICATED',evidence_ref=e['id'],
-           target_ref='ooc:fixture:q',effect='SUPPORTS',scope=scope)
+    loc=node('SourceLocator','freeze-loc',selector={'figure':'freeze-fixture'})
+    e=node('EvidenceObject','freeze-e',status='RECORDED',source_locator_refs=[loc['id']])
     auth=node('Authority','freeze-auth',axes=['RESEARCH_POLICY'],scope=scope)
+    gd=node('Decision','gap-d',status='RECORDED',authority_ref=auth['id'],
+            subject_ref='ooc:fixture:g',evidence_refs=[e['id']],scope=scope)
+    g=node('ResearchGap','g',priority='CRITICAL',status='RESOLVED',decision_ref=gd['id'])
     d=node('Decision','freeze-d',status='RECORDED',authority_ref=auth['id'],
            subject_ref='ooc:fixture:q',evidence_refs=[e['id']],scope=scope)
     q=node('Requirement','q',status='SATISFIED',subject_ref=p['id'],gap_ref=g['id'],
            decision_ref=d['id'],satisfaction_evidence_refs=[e['id']])
-    return [p,g,e,a,auth,d,q]
+    a=node('EvidenceAssessment','freeze-a',status='ADJUDICATED',evidence_ref=e['id'],
+           target_ref=q['id'],effect='SUPPORTS',scope=scope)
+    return [p,loc,e,auth,gd,g,d,q,a]
 
 class StrictIO(unittest.TestCase):
     def test_duplicate_json_keys(self):
