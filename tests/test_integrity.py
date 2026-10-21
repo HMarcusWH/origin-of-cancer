@@ -339,6 +339,35 @@ class ModelIdentityTests(unittest.TestCase):
         rs=[m,d,p,u];before=model_identity_digest(rs,m);u['unit_keys']=['B']
         self.assertNotEqual(before,model_identity_digest(rs,m))
 
+    def test_shared_protocol_does_not_import_other_model(self):
+        from oocgraph.core import model_identity_digest
+        m1=node('ModelInstance','m1');m2=node('ModelInstance','m2')
+        data=node('Dataset','d')
+        u1=node('DataUse','u1',model_instance_ref=m1['id'],protocol_ref='ooc:fixture:p',
+                dataset_ref=data['id'],role='TRAIN',partition_id='train1',unit_keys=['unit1'])
+        u2=node('DataUse','u2',model_instance_ref=m2['id'],protocol_ref='ooc:fixture:p',
+                dataset_ref=data['id'],role='TRAIN',partition_id='train2',unit_keys=['unit2'])
+        protocol=node('Protocol','p',metrics=['metric-A'],data_use_refs=[u1['id'],u2['id']],
+                      target_refs=[m1['id'],m2['id']])
+        rs=[m1,m2,data,u1,u2,protocol]
+        original=model_identity_digest(rs,m1)
+        u2['unit_keys']=['different-units']
+        self.assertEqual(model_identity_digest(rs,m1),original)
+        m2['configuration']={'different':True}
+        self.assertEqual(model_identity_digest(rs,m1),original)
+        protocol['metrics']=['metric-B']
+        self.assertNotEqual(model_identity_digest(rs,m1),original)
+    def test_bad_bound_data_use_refs_produces_integrity_error(self):
+        from oocgraph.core import model_identity_digest
+        m=node('ModelInstance','m',status='FROZEN',frozen_digest='0'*64)
+        p=node('Protocol','p');d=node('Dataset','d')
+        u=node('DataUse','u',model_instance_ref=m['id'],protocol_ref=p['id'],
+               dataset_ref=d['id'],role='TRAIN',partition_id='x',unit_keys=['A'])
+        u['independence_evidence_refs']='ooc:fixture:d'
+        rs=[m,p,d,u]
+        with self.assertRaises(IntegrityError): model_identity_digest(rs,m)
+        self.assertTrue(any('INCOMPLETE_MODEL_IDENTITY' in x for x in validate_records(rs)))
+
 class QueryToolTests(unittest.TestCase):
     def test_relation_neighbor_expansion_includes_endpoints(self):
         from tools.query import expand_neighbors
