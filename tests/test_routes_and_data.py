@@ -195,4 +195,62 @@ class DataUseTests(unittest.TestCase):
         get(r,'u2')['model_instance_ref']='ooc:fixture:other';get(r,'u2')['unit_keys']=['A']
         self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
 
+class IndependenceEvidenceTests(unittest.TestCase):
+    def setUp(self):
+        self.records=data_fixture()
+        self.a=get(self.records,'u1');self.b=get(self.records,'u2')
+        self.a.update(status='ADMITTED',independence_status='DOCUMENTED_DISJOINT')
+        self.b.update(status='ADMITTED',independence_status='DOCUMENTED_DISJOINT')
+        get(self.records,'d1')['version']='fixture-v1'
+        get(self.records,'d2')['version']='fixture-v1'
+        scope={
+            'data_use_refs':sorted([self.a['id'],self.b['id']]),
+            'dataset_refs':sorted([self.a['dataset_ref'],self.b['dataset_ref']]),
+            'dataset_versions':{self.a['id']:'fixture-v1',self.b['id']:'fixture-v1'},
+            'partition_ids':{self.a['id']:'train',self.b['id']:'confirm'}
+        }
+        self.records.extend([
+            node('Context','audit-context'),
+            node('SourceLocator','audit-loc',selector={'audit':'synthetic'}),
+            node('EvidenceObject','audit-e',status='RECORDED',context_ref='ooc:fixture:audit-context',
+                 evidence_class='ANALYTIC',claim_ceiling='DATA_PARTITION_AUDIT',
+                 design_class='DATA_AUDIT',study_id='synthetic',system_id='audit',
+                 source_locator_refs=['ooc:fixture:audit-loc'],provenance_class='CURATED_SEMANTIC'),
+            node('EvidenceAssessment','audit-a',status='ADJUDICATED',effect='SUPPORTS',
+                 evidence_ref='ooc:fixture:audit-e',target_ref=self.a['id'],
+                 assessment_role='INDEPENDENCE',scope=scope,provenance_class='CURATED_SEMANTIC'),
+            node('EvidenceAssessment','audit-b',status='ADJUDICATED',effect='SUPPORTS',
+                 evidence_ref='ooc:fixture:audit-e',target_ref=self.b['id'],
+                 assessment_role='INDEPENDENCE',scope=scope,provenance_class='CURATED_SEMANTIC')
+        ])
+        self.a['independence_evidence_refs']=['ooc:fixture:audit-e']
+        self.b['independence_evidence_refs']=['ooc:fixture:audit-e']
+    def has(self,code):
+        e=validate_records(self.records)
+        self.assertTrue(any(code in x for x in e),e)
+    def test_pair_specific_audit_accepted(self):
+        self.assertEqual(validate_records(self.records),[])
+    def test_withdrawn_audit_rejected(self):
+        get(self.records,'audit-e')['status']='WITHDRAWN'
+        self.has('UNKNOWN_PARTITION_INDEPENDENCE')
+    def test_textual_audit_rejected(self):
+        get(self.records,'audit-e')['provenance_class']='TEXTUAL_HINT'
+        self.has('UNKNOWN_PARTITION_INDEPENDENCE')
+    def test_wrong_audit_scope_rejected(self):
+        get(self.records,'audit-a')['scope']={'adapter':'other'}
+        self.has('UNKNOWN_PARTITION_INDEPENDENCE')
+    def test_unadjudicated_pair_rejected(self):
+        get(self.records,'audit-b')['status']='IN_REVIEW'
+        self.has('UNKNOWN_PARTITION_INDEPENDENCE')
+    def test_overlapping_units_never_accepted(self):
+        self.b['unit_keys']=['A']
+        self.has('DATA_USE_LEAKAGE')
+    def test_cross_candidate_selection_family_rejected(self):
+        self.records.append(node('ModelInstance','other'))
+        self.b['model_instance_ref']='ooc:fixture:other'
+        self.a['selection_family_id']=self.b['selection_family_id']='selection-a'
+        self.b['independence_evidence_refs']=[]
+        self.has('UNKNOWN_PARTITION_INDEPENDENCE')
+
+
 if __name__=='__main__':unittest.main()
