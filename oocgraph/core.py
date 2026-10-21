@@ -841,6 +841,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             if not witness_evidence:
                 error("EMPTY_WITNESS_EVIDENCE", r)
             previous = None
+            current_context = r.get("context_ref")
             segment_witnesses = []
             for tr in transitions:
                 t = index.get(tr, {})
@@ -851,6 +852,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 source = index.get(t.get("source_state_ref"), {})
                 target = index.get(t.get("target_state_ref"), {})
                 sc, tc = source.get("context_ref"), target.get("context_ref")
+                if sc != current_context:
+                    error("BROKEN_ROUTE_CONTEXT_HANDOFF", r)
                 if sc != tc:
                     a = index.get(t.get("context_transition_assessment_ref"), {})
                     e = index.get(a.get("evidence_ref"), {})
@@ -862,8 +865,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         and a.get("assessment_role") in {"TEMPORAL", "ANCESTRY", "CAUSAL"}
                     ):
                         error("UNVALIDATED_CONTEXT_TRANSITION", r)
-                elif sc != r.get("context_ref") or tc != r.get("context_ref"):
-                    error("ROUTE_STATE_CONTEXT_MISMATCH", r)
+                current_context = tc
                 if t.get("status") != "SUPPORTED_SCOPED":
                     error("INACTIVE_ROUTE_TRANSITION", r)
                 if previous is not None and previous != t.get("source_state_ref"):
@@ -888,15 +890,14 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("NON_SUPPORTING_ROUTE_ASSESSMENT", r); valid = False
                     if e.get("status") != "RECORDED":
                         error("INACTIVE_ROUTE_EVIDENCE", r); valid = False
-                    if e.get("context_ref") != r.get("context_ref"):
+                    if e.get("context_ref") not in {r.get("context_ref"), sc, tc}:
                         error("ROUTE_EVIDENCE_CONTEXT_MISMATCH", r); valid = False
                     if e.get("id") not in witness_evidence:
                         error("ROUTE_EVIDENCE_OUTSIDE_WITNESS", r); valid = False
                     route_kind = r.get("claim_kind", "CAUSAL")
                     evidence_kind = "ROUTE" if route_kind == "CAUSAL" else "TRANSITION"
                     if not _appropriate_biological_assessment(
-                            index, a, tr, scope, evidence_kind,
-                            context_ref=(r.get("context_ref") if route_kind == "CAUSAL" else None)):
+                            index, a, tr, scope, evidence_kind):
                         error("NONBIOLOGICAL_ROUTE_SUPPORT", r); valid = False
                     if valid:
                         segment_supported = True
