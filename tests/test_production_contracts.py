@@ -91,6 +91,7 @@ class ProductionValidation(unittest.TestCase):
         for source in ('graph-record.schema.json','vocab.json','nested_reference_contract.json'):
             shutil.copy(ROOT/'schema'/source,cls.root/'schema'/source)
         (cls.root/'README.md').write_text('Synthetic fixture — no biological claims\n')
+        (cls.root/'verifier_output.txt').write_text('Synthetic checker transcript: PASS\n')
     @classmethod
     def tearDownClass(cls):
         cls.tmp.cleanup()
@@ -179,6 +180,10 @@ def mathematical_fixture():
              representation='synthetic',
              sha256=__import__('hashlib').sha256(
                  'Synthetic fixture — no biological claims\n'.encode('utf-8')).hexdigest()),
+        node('SourceArtifact','checker-output',path='verifier_output.txt',
+             role='SYNTHETIC_CHECKER_OUTPUT',representation='synthetic',
+             sha256=__import__('hashlib').sha256(
+                 'Synthetic checker transcript: PASS\n'.encode('utf-8')).hexdigest()),
         node('Assumption','assumption',status='RECORDED',assessment='PASS',required=True,
              statement='Synthetic assumption',basis='test'),
         node('ModelClass','model-class',status='IMPLEMENTED_REFERENCE',cancer_backend_implemented=False),
@@ -212,7 +217,9 @@ def mathematical_fixture():
         node('Execution','math-execution',status='COMPLETED',outcome='PASS',
              environment={},input_refs=[refs('model')],protocol_ref=refs('math-protocol'),
              model_instance_ref=refs('model'),software_ref=refs('math-software'),
-             output_sha256='b'*64),
+             output_artifact_ref=refs('checker-output'),
+             output_sha256=__import__('hashlib').sha256(
+                 'Synthetic checker transcript: PASS\n'.encode('utf-8')).hexdigest()),
         node('Result','math-result',status='VALIDATED',outcome='PASS',
              claim_ceiling='MATHEMATICAL_EXACT',evidence_class='FORMAL',
              verification_mode='FORMAL_PROOF',verification_artifact_ref=refs('proof-art'),
@@ -223,7 +230,8 @@ def mathematical_fixture():
                      'Synthetic fixture — no biological claims\n'.encode('utf-8')).hexdigest(),
                  'verifier_sha256':__import__('hashlib').sha256(
                      'Synthetic fixture — no biological claims\n'.encode('utf-8')).hexdigest(),
-                 'execution_output_sha256':'b'*64,
+                 'execution_output_sha256':__import__('hashlib').sha256(
+                     'Synthetic checker transcript: PASS\n'.encode('utf-8')).hexdigest(),
                  'verifier_version':'synthetic-v0','outcome':'PASS'},
              model_instance_ref=refs('model'),subject_ref=refs('math-claim'),scope=sc,
              test_ref=refs('math-test'),execution_ref=refs('math-execution'),
@@ -280,6 +288,20 @@ class MathematicalAdmissionContracts(ProductionValidation):
         software=next(x for x in records if x['type']=='Software')
         software['sha256']='a'*64
         self.assert_problem(records,'VERIFIER_SOFTWARE_BYTE_DRIFT')
+
+    def test_execution_output_bytes_must_match_receipt(self):
+        records=mathematical_fixture()
+        output=next(x for x in records if x['id']=='ooc:fixture:checker-output')
+        output['sha256']='0'*64
+        self.assert_problem(records,'UNBOUND_EXECUTION_OUTPUT')
+        records=mathematical_fixture()
+        transcript=self.root/'verifier_output.txt'
+        previous=transcript.read_bytes()
+        try:
+            transcript.write_bytes(b'Altered checker transcript: FAIL\n')
+            self.assert_problem(records,'EXECUTION_OUTPUT_BYTE_DRIFT')
+        finally:
+            transcript.write_bytes(previous)
 
     def test_execution_output_not_bound_blocks_formal_promotion(self):
         records=mathematical_fixture()
