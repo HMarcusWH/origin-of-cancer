@@ -78,3 +78,12 @@ memberships must not import unrelated candidates.
 Digest-algorithm upgrades require a new version with migration and
 cross-version conformance tests. Earlier frozen model digests must remain
 reviewable under their original algorithm, not silently recomputed.
+
+## Direct protocol ownership
+
+Every FROZEN/ADMITTED ModelInstance has an explicit forward protocol_refs
+list, with its protocols and null-model target claim semantics included
+in digest v2. Protocol.data_use_refs and protocol targets are reverse
+indexing only. Claim-bearing equation assumptions must be declared by
+the model and its applicability assessment, and every required assumption
+must be PASS and finally RECORDED.

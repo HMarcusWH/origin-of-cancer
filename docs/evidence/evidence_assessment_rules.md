@@ -33,3 +33,12 @@ mechanistic participation, causal constitution and persistence remain
 separate; later adapter-specific decisions must state their required
 evidential design, independent nulls and limitations. A relation marked
 SUPPORTS is never independent evidence of the relation's own validity.
+
+## Role-specific scientific support
+
+The assessment_role and EvidenceObject.design_class are required by the
+admission policy for scoped ancestry, persistence and constitutive
+conclusions. Ancestry uses lineage-qualified evidence, persistence uses
+longitudinal evidence and causal route/constitution claims require a
+qualified perturbational or mixed design. This is a minimum documentary
+admission condition, not automatic biological truth or patient action.

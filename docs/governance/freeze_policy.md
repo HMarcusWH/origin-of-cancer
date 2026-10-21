@@ -45,3 +45,13 @@ statement that a proof exists. SUPERSEDED critical gaps remain blockers.
 
 No source paper, explanation, synthetic fixture or result was promoted during
 this engineering change. Programme remains GO research / NO-GO kernel freeze.
+
+## Claim-kind-specific evidence
+
+For any resolved/bounded scientific obligation, ResearchGap/Requirement
+declare obligation_claim_kind independently of the approving Decision.
+BIOLOGICAL CAPABILITY/OBSERVATION, ANCESTRY, PERSISTENCE, ROUTE and
+CONSTITUTIVE claims have different permissible evidence ceilings,
+experiment designs, and assessment roles. A primary observational result
+cannot be relabelled as proof of a causal origin route. All 43 critical
+freeze obligations remain OPEN in the authored graph.

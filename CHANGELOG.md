@@ -31,3 +31,11 @@ selection/confirmation audit rules. Schema-valid synthetic integration
 fixtures supplement intentionally minimal unit tests. No previously
 registered research gap, cancer evidence, source snapshot or model
 has been scientifically advanced.
+
+## Additional adversarial closure hardening
+
+Added independent claim-kind policy, study/system-scoped witness identity,
+transitively checked nested founder contexts, primary-support roles for
+causal/lineage claims, and explicit ModelInstance protocol ownership.
+Both minimal unit tests and production-schema positive fixtures are
+retained. No original source snapshot or research status was changed.

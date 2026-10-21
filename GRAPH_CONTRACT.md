@@ -80,3 +80,12 @@ EvidenceObject.claim_ceiling is a controlled maximum capability, not a
 reviewer's confidence scalar. An ADJUDICATED assessment must support an exact
 target, polarity and scope, with a compatible evidence class and active source
 locator. An authored Relation never provides a shortcut to scientific admission.
+
+## Study-scoped witness identity
+
+Witness labels are keyed by (study_id, system_id, witness_id), not by
+a naked string. Identical labels in unrelated studies do not imply common
+ancestry. Every nested founder state must agree with the route context.
+Origin route closure requires supported causal transition evidence and
+separately supported lineage ancestry. A technically closed route is not
+itself proof of universal malignant causation.
