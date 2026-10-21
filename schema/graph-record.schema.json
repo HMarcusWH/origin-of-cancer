@@ -2616,8 +2616,13 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "ACTIVE",
+            "SUPERSEDED",
+            "RETIRED"
+          ]
         },
         "type": {
           "const": "MethodApplicability"
@@ -4524,6 +4529,43 @@
         "verification_artifact_ref": {
           "type": "string",
           "minLength": 1
+        },
+        "verification_receipt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "statement_sha256",
+            "artifact_sha256",
+            "verifier_sha256",
+            "verifier_version",
+            "outcome"
+          ],
+          "properties": {
+            "statement_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "artifact_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "verifier_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "verifier_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "PASS",
+                "FAIL",
+                "INCOMPLETE"
+              ]
+            }
+          }
         }
       },
       "required": [
@@ -4635,6 +4677,13 @@
         "witness_bundle_ref": {
           "minLength": 1,
           "type": "string"
+        },
+        "claim_kind": {
+          "type": "string",
+          "enum": [
+            "HISTORICAL",
+            "CAUSAL"
+          ]
         }
       },
       "required": [
@@ -4832,6 +4881,10 @@
         },
         "type": {
           "const": "SourceArtifact"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
         }
       },
       "required": [
@@ -5375,6 +5428,22 @@
         },
         "type": {
           "const": "Transition"
+        },
+        "scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "source_context_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_context_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "context_transition_assessment_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
