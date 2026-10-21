@@ -58,3 +58,23 @@ partitions. Shared protocol settings enter each dependent model digest, but
 Protocol.target_refs and Protocol.data_use_refs are reverse memberships; they
 must not import other candidate models or their data into the identity. Malformed
 references produce ordinary integrity errors, not uncaught tracebacks.
+
+## Model and result admission contracts
+
+Frozen/admitted ModelInstances identify `identity_algorithm =
+ooc-model-digest-v2` and bind all required direct *and equation-level*
+assumptions, with required assessments PASS and final RECORDED workflow state.
+MODEL_DERIVED assertions are not free empirical support.
+
+A MATHEMATICALLY_VERIFIED_SCOPED Verdict must be on the
+MATHEMATICAL_VERIFICATION axis and must bind an exact-scoped formal
+Result, its successful Test, completed Execution, frozen active Protocol,
+exact ModelInstance, verification artifact, and independent adjudicated
+formal EvidenceAssessment. Numerical approximation and engineering success
+are not equivalent to formal proof. The hash dependency graph follows
+null-model target Claims and only model-owned data use; reverse protocol
+memberships must not import unrelated candidates.
+
+Digest-algorithm upgrades require a new version with migration and
+cross-version conformance tests. Earlier frozen model digests must remain
+reviewable under their original algorithm, not silently recomputed.

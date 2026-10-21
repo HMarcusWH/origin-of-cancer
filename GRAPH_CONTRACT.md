@@ -61,3 +61,22 @@ requires an explicit adjacent-transition bridge link, adjudicated primary eviden
 supporting that route, exact scientific scope, matching context, and identifiers
 connecting the two witness sides. Cross-study stitching without such a bridge
 remains OPEN/PARTIAL, never CLOSED.
+
+## Typed reference and admission law
+
+Nested references are validated for all statuses, including OPEN witness bundles,
+under `schema/nested_reference_contract.json`. Root-schema validation happens
+before semantic interpretation. A schema-invalid record never enters digest,
+admission, or scientific-state projection.
+
+Every scientific Decision has a `decision_kind` and controlled outcome; a
+RESOLVED gap requires RESOLVE, a SATISFIED Requirement requires SATISFY, and
+a BOUNDED record requires BOUND. A Decision does not define its own scientific
+obligation. Independent `obligation_scope` and `obligation_domain` on
+Requirement/ResearchGap are compared with the adjudicated scientific scope.
+A conflicting decision, evidence target, or scope fails closed.
+
+EvidenceObject.claim_ceiling is a controlled maximum capability, not a
+reviewer's confidence scalar. An ADJUDICATED assessment must support an exact
+target, polarity and scope, with a compatible evidence class and active source
+locator. An authored Relation never provides a shortcut to scientific admission.

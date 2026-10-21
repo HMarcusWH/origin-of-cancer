@@ -30,3 +30,18 @@ SUPERSEDED critical gaps remain open blockers until a new closure decision
 specifically discharges their obligation. The configured Critical RG set must
 match the SHA-locked source programme registry; it is not a mutable priority
 count that may be silently rearranged.
+
+## Admissible scientific obligations
+
+A satisfied or bounded ResearchGap/Requirement is checked *before* any future
+kernel freeze. Both items declare obligation_domain and obligation_scope
+independently of their own Decision. Decision.kind/outcome must agree with
+the target's status; an explicit REJECT or KEEP_OPEN is never interpreted as
+RESOLVE or SATISFY. Biological-origin obligations require eligible primary
+biological support; analytical, numerical and software evidence alone cannot
+resolve biological causality. Mathematical/formal evidence requires an exact
+scoped result and a verified execution/claim chain rather than a free-text
+statement that a proof exists. SUPERSEDED critical gaps remain blockers.
+
+No source paper, explanation, synthetic fixture or result was promoted during
+this engineering change. Programme remains GO research / NO-GO kernel freeze.

@@ -20,3 +20,14 @@ Source locks correctly failed; source hashes were not changed to accept altered
 bytes. `sources/** -text` preserves originals in the Git index and checkout. A
 real Git round-trip regression test now checks this boundary. The optional
 Python-version-dependent typing-extensions dependency is pinned explicitly.
+
+## Unmerged PR #2 — admission integrity hardening
+
+Typed scientific Decisions, independently declared obligation scopes,
+biological claim ceilings, ancestry-first witness linkage, nested bridge
+reference validation, equation-assumption closure, exact mathematical
+result admission, null-model semantic hashing, and pair-specific
+selection/confirmation audit rules. Schema-valid synthetic integration
+fixtures supplement intentionally minimal unit tests. No previously
+registered research gap, cancer evidence, source snapshot or model
+has been scientifically advanced.

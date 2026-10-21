@@ -18,3 +18,18 @@ simulations and withdrawn evidence cannot establish biological support. Evidence
 for a route segment must also agree with the route context and admitted witness
 bundle. Different studies do not become one path without a separately validated
 common witness or explicit adjudicated bridge link.
+
+## Typed ceilings and non-promotion
+
+EvidenceObject.claim_ceiling is one of BIOLOGICAL_OBSERVATION,
+BIOLOGICAL_CAUSAL_SCOPED, MATHEMATICAL_EXACT, MATHEMATICAL_NUMERICAL,
+METHODOLOGICAL, DATA_PARTITION_AUDIT, VERIFICATION_ONLY or ENGINEERING_ONLY.
+These values cap permissible uses; they do not automatically authorize them.
+An assessment also needs admissible source class, active status, context,
+adjudication, appropriate scope and exact target.
+
+Primary is not synonymous with causal. Ancestry, temporal ordering,
+mechanistic participation, causal constitution and persistence remain
+separate; later adapter-specific decisions must state their required
+evidential design, independent nulls and limitations. A relation marked
+SUPPORTS is never independent evidence of the relation's own validity.
