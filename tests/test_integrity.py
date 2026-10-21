@@ -227,6 +227,45 @@ class FirewallTests(unittest.TestCase):
         a['status']='IN_REVIEW'
         self.has(rs,'UNADJUDICATED_DISPOSITION_EVIDENCE')
 
+    def test_revoked_authority_never_freezes(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:freeze-auth')['status']='REVOKED'
+        self.has(rs,'INVALID_FREEZE_DECISION')
+        self.has(rs,'INVALID_CRITICAL_GAP_DECISION')
+    def test_invalid_gap_decision_does_not_close_critical(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:gap-d')['evidence_refs']=[]
+        self.has(rs,'INVALID_CRITICAL_GAP_DECISION')
+    def test_gap_requires_its_own_adjudication(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:gap-a')['status']='IN_REVIEW'
+        self.has(rs,'INVALID_CRITICAL_GAP_DECISION')
+    def test_superseded_critical_gap_does_not_satisfy_freeze(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:g')['status']='SUPERSEDED'
+        self.has(rs,'SUPERSEDED_CRITICAL_GAP_ON_FREEZE')
+    def bounded_fixture(self):
+        rs=freeze_fixture()
+        for name in ('g','q'):
+            x=next(r for r in rs if r['id']=='ooc:fixture:'+name)
+            x['status']='BOUNDED';x['bound_scope']={'adapter':'synthetic'}
+        for name in ('freeze-a','gap-a'):
+            next(r for r in rs if r['id']=='ooc:fixture:'+name)['effect']='CONSTRAINS'
+        return rs
+    def test_bounded_freeze_with_exact_scientific_scope(self):
+        self.assertEqual(validate_records(self.bounded_fixture()),[])
+    def test_bounded_requirement_evidence_scope_must_match(self):
+        rs=self.bounded_fixture()
+        next(r for r in rs if r['id']=='ooc:fixture:freeze-a')['scope']={'adapter':'different'}
+        self.has(rs,'INVALID_FREEZE_DECISION')
+    def test_bounded_requirement_decision_scope_must_match(self):
+        rs=self.bounded_fixture()
+        next(r for r in rs if r['id']=='ooc:fixture:freeze-d')['disposition_scope']={'adapter':'different'}
+        self.has(rs,'INVALID_FREEZE_DECISION')
+    def test_bounded_gap_scope_must_match_requirement(self):
+        rs=self.bounded_fixture()
+        next(r for r in rs if r['id']=='ooc:fixture:g')['bound_scope']={'adapter':'different'}
+        self.has(rs,'REQUIREMENT_GAP_BOUND_MISMATCH')
+    def test_engineering_result_does_not_close_scientific_freeze(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:freeze-e')['evidence_class']='ENGINEERING'
+        self.has(rs,'INVALID_FREEZE_DECISION')
+
 class ResolutionTests(unittest.TestCase):
     def test_no_verdict_is_unknown(self):self.assertEqual(resolve([])['missing_verdict_state'],'UNKNOWN')
     def test_single_partition(self):self.assertEqual(resolve([verdict()])['partitions'][0]['state'],'UNKNOWN')
