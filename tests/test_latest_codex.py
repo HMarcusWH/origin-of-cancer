@@ -39,7 +39,7 @@ class LatestCodexContracts(unittest.TestCase):
         rs=evidence_base('PRIMARY_ANIMAL')
         auth=next(x for x in rs if x['type']=='Authority')
         auth['axes']=['RESEARCH_POLICY']
-        rs.append(verdict(decision='SUPPORTED_SCOPED',axis='RESEARCH_POLICY',
+        rs.append(verdict(decision='SUPPORTED_SCOPED',
                           assessment_refs=['ooc:fixture:assessment']))
         # The fixture helper already specifies axis; construct exactly one valid object.
         rs[-1]['axis']='RESEARCH_POLICY'
