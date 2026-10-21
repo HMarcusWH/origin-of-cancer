@@ -31,21 +31,28 @@ def evidence_base(cls='SYNTHETIC',scope=None):
            provenance_class='CURATED_SEMANTIC')]
 
 def freeze_fixture():
-    scope={'domain':'PROGRAMME_GOVERNANCE'}
+    """Synthetic epistemic fixture, never actual cancer evidence."""
+    governance={'domain':'PROGRAMME_GOVERNANCE'}
+    science={'adapter':'synthetic'}
     p=node('Programme','p',kernel_frozen=True)
     loc=node('SourceLocator','freeze-loc',selector={'figure':'freeze-fixture'})
-    e=node('EvidenceObject','freeze-e',status='RECORDED',source_locator_refs=[loc['id']])
-    auth=node('Authority','freeze-auth',axes=['RESEARCH_POLICY'],scope=scope)
+    e=node('EvidenceObject','freeze-e',status='RECORDED',source_locator_refs=[loc['id']],
+           evidence_class='PRIMARY_ANIMAL',provenance_class='CURATED_SEMANTIC')
+    auth=node('Authority','freeze-auth',axes=['RESEARCH_POLICY'],scope=governance,status='ACTIVE_RULE')
     gd=node('Decision','gap-d',status='RECORDED',authority_ref=auth['id'],
-            subject_ref='ooc:fixture:g',evidence_refs=[e['id']],scope=scope)
+            subject_ref='ooc:fixture:g',evidence_refs=[e['id']],scope=governance,
+            disposition_scope=science,provenance_class='CURATED_SEMANTIC')
     g=node('ResearchGap','g',priority='CRITICAL',status='RESOLVED',decision_ref=gd['id'])
     d=node('Decision','freeze-d',status='RECORDED',authority_ref=auth['id'],
-           subject_ref='ooc:fixture:q',evidence_refs=[e['id']],scope=scope)
+           subject_ref='ooc:fixture:q',evidence_refs=[e['id']],scope=governance,
+           disposition_scope=science,provenance_class='CURATED_SEMANTIC')
     q=node('Requirement','q',status='SATISFIED',subject_ref=p['id'],gap_ref=g['id'],
            decision_ref=d['id'],satisfaction_evidence_refs=[e['id']])
     a=node('EvidenceAssessment','freeze-a',status='ADJUDICATED',evidence_ref=e['id'],
-           target_ref=q['id'],effect='SUPPORTS',scope=scope)
-    return [p,loc,e,auth,gd,g,d,q,a]
+           target_ref=q['id'],effect='SUPPORTS',scope=science,provenance_class='CURATED_SEMANTIC')
+    ga=node('EvidenceAssessment','gap-a',status='ADJUDICATED',evidence_ref=e['id'],
+            target_ref=g['id'],effect='SUPPORTS',scope=science,provenance_class='CURATED_SEMANTIC')
+    return [p,loc,e,auth,gd,g,d,q,a,ga]
 
 class StrictIO(unittest.TestCase):
     def test_duplicate_json_keys(self):
@@ -218,7 +225,7 @@ class FirewallTests(unittest.TestCase):
     def test_freeze_evidence_requires_adjudicated_binding(self):
         rs=freeze_fixture();a=next(r for r in rs if r['id']=='ooc:fixture:freeze-a')
         a['status']='IN_REVIEW'
-        self.has(rs,'UNADJUDICATED_FREEZE_EVIDENCE')
+        self.has(rs,'UNADJUDICATED_DISPOSITION_EVIDENCE')
 
 class ResolutionTests(unittest.TestCase):
     def test_no_verdict_is_unknown(self):self.assertEqual(resolve([])['missing_verdict_state'],'UNKNOWN')
