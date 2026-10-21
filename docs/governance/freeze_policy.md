@@ -55,3 +55,17 @@ CONSTITUTIVE claims have different permissible evidence ceilings,
 experiment designs, and assessment roles. A primary observational result
 cannot be relabelled as proof of a causal origin route. All 43 critical
 freeze obligations remain OPEN in the authored graph.
+
+## Gap–Requirement equivalence
+
+A configured Critical ResearchGap and its programme Requirement may discharge
+one another only when scientific obligation_scope, obligation_domain, and
+obligation_claim_kind match, or when a *future explicit independently adjudicated*
+coverage certificate authorizes a scientifically legitimate narrower resolution.
+No such coverage certificates exist at bootstrap. The 43 currently OPEN
+Requirements lack these independently curated obligation fields; the engineering
+bootstrap must not populate invented values or assert freeze readiness.
+
+`kernel_frozen=true` requires independent, compatible satisfied/bounded
+dispositions for BOTH the critical gap and its linked Requirement. An accepted
+Decision is not a substitute for resolving the scientific obligation itself.

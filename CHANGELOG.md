@@ -39,3 +39,13 @@ transitively checked nested founder contexts, primary-support roles for
 causal/lineage claims, and explicit ModelInstance protocol ownership.
 Both minimal unit tests and production-schema positive fixtures are
 retained. No original source snapshot or research status was changed.
+
+## PR #2 follow-up — scientific-state admission and history
+
+Independent scoped Transition/positive Verdict admission, explicit biological
+context handoffs, historically immutable semantic dependency closure, exact
+proof-protocol/target/verifier/output identity, active applicability for admitted
+models, exact bibliography identifiers, critical-gap obligation matching,
+append-only authorized retractions, and declared/effective scientific views.
+Production fixtures remain synthetic; the original scientific baseline and all
+43 OPEN critical gaps remain unchanged.

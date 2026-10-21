@@ -87,3 +87,24 @@ in digest v2. Protocol.data_use_refs and protocol targets are reverse
 indexing only. Claim-bearing equation assumptions must be declared by
 the model and its applicability assessment, and every required assumption
 must be PASS and finally RECORDED.
+
+## Freezing is not licensing
+
+FROZEN means a stable, content-addressed **specification** and may legitimately
+contain UNKNOWN or failed assumptions or negative mathematical findings. ADMITTED
+means applicability has been established within the declared estimand/domain/scope;
+it requires an ACTIVE MethodApplicability, final required assumptions, and
+model-specific protocol/data provenance. RETIRED removes present applicability
+without deleting historical results.
+
+The formal-result receipt binds the exact statement, proof-artifact digest,
+verifier-software digest, execution output digest, and verifier version.
+When files are in-repository, validation additionally compares actual source and
+checker bytes with the declared SHA-256 values. These are **engineering and
+provenance controls**; supplied receipt metadata does not itself constitute an
+independently replicated proof-checker result. No mathematics about cancer is
+promoted from synthetic test fixtures.
+
+Model-identity algorithms are versioned. Existing frozen model history must
+remain verifiable under the version used when it was created, with any migration
+recorded as an explicit successor.

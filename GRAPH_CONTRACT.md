@@ -98,3 +98,29 @@ an explicit witness_bridge_pairs mapping that must exactly match the typed
 bridge link and its adjacent route segments. Matching human-readable labels
 alone is never enough. A successful structural check remains a scoped research
 certificate, not a guarantee of causal or genealogical truth.
+
+## Declared status versus current admitted state
+
+`Transition.status=SUPPORTED_SCOPED` is never a permission to skip independent
+evidence qualification. A supported Transition declares its exact scientific scope
+and must have target-matched adjudicated primary evidence even when no Route
+references it. Scoped Verdicts use a decision/axis/claim-kind compatibility gate.
+
+A historical Route marked CLOSED remains a preserved declaration. New admissible
+contradictory evidence or an authorized retraction is **ingested without rewriting
+history**. The current effective Route/Transition status then becomes CONTESTED;
+`generated/route_atlas.json` exposes both the declaration and effective status.
+This separation is required for honest, continuously updated research.
+
+Every stage/context handoff must declare both source and target contexts and
+adjudicated evidence linking them. Stage progression must not be silently
+equated with migration to an unrelated lineage or biological system.
+
+## Semantic history
+
+Admitted Decisions, Results, EvidenceObjects, Verdicts, active model specifications,
+and their load-bearing Claims, Requirements, ResearchGaps, SourceLocators and proof
+artifacts form a directed, typed immutable dependency closure. Changing one of
+these records in-place is not scientific revision: author a successor and preserve
+the historical object. Legitimate draft Claims and OPEN obligations remain editable.
+The history gate checks both referenced graph meaning and admitted file bytes.

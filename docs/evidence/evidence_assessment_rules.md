@@ -42,3 +42,16 @@ conclusions. Ancestry uses lineage-qualified evidence, persistence uses
 longitudinal evidence and causal route/constitution claims require a
 qualified perturbational or mixed design. This is a minimum documentary
 admission condition, not automatic biological truth or patient action.
+
+## Contradiction and retraction handling
+
+An adjudicated contradiction can challenge effective CURRENT support for a
+Transition, Route, FounderEnsemble or Claim without rendering the underlying
+evidence graph malformed. Negative findings remain visible and attributable.
+
+Journal corrections or retractions are append-only, source-located
+EvidenceAssessments with effect RETRACTS and assessment_role RETRACTION. An
+adjudicated retraction needs active EVIDENCE_POLICY authority and a recorded
+verification-only source notice. The prior EvidenceObject and historical
+adjudications remain immutable, while current derived views flag affected support
+as CONTESTED. Pending retraction proposals do not alter current admission.
