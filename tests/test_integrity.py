@@ -11,21 +11,24 @@ from oocgraph.core import (IntegrityError, canonical, loads, safe_path, read_gra
 ROOT=Path(__file__).resolve().parents[1]
 def node(typ, name, **kw):
     status=kw.pop('status','OPEN')
+    provenance=kw.pop('provenance_class','SYNTHETIC')
     return dict(id='ooc:fixture:'+name,type=typ,label=name,status=status,
-                schema_version='0.1.0',provenance_class='SYNTHETIC',**kw)
+                schema_version='0.1.0',provenance_class=provenance,**kw)
 def verdict(name='v', decision='UNKNOWN', scope=None, **kw):
     return node('Verdict',name,subject_ref='ooc:fixture:claim',axis='BIOLOGICAL_SUPPORT',facet='test',
                 scope={'adapter':'synthetic'} if scope is None else scope,decision=decision,
                 authority_ref='ooc:fixture:authority',**kw)
 def vbase(scope=None):
     return [node('Claim','claim'),node('Authority','authority',axes=['BIOLOGICAL_SUPPORT'],
-      scope={'adapter':'synthetic'} if scope is None else scope)]
+      scope={'adapter':'synthetic'} if scope is None else scope,status='ACTIVE_RULE')]
 def evidence_base(cls='SYNTHETIC',scope=None):
     return vbase(scope)+[node('Context','context'),node('SourceLocator','loc',selector={'figure':'synthetic-fixture'}),
       node('EvidenceObject','ev',evidence_class=cls,source_locator_refs=['ooc:fixture:loc'],
-           context_ref='ooc:fixture:context',witness_ids=['system-1'],status='RECORDED'),
+           context_ref='ooc:fixture:context',witness_ids=['system-1'],status='RECORDED',
+           provenance_class='CURATED_SEMANTIC'),
       node('EvidenceAssessment','assessment',evidence_ref='ooc:fixture:ev',target_ref='ooc:fixture:claim',
-           effect='SUPPORTS',scope={'adapter':'synthetic'} if scope is None else scope,status='ADJUDICATED')]
+           effect='SUPPORTS',scope={'adapter':'synthetic'} if scope is None else scope,status='ADJUDICATED',
+           provenance_class='CURATED_SEMANTIC')]
 
 def freeze_fixture():
     scope={'domain':'PROGRAMME_GOVERNANCE'}
