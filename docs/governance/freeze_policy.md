@@ -69,3 +69,18 @@ bootstrap must not populate invented values or assert freeze readiness.
 `kernel_frozen=true` requires independent, compatible satisfied/bounded
 dispositions for BOTH the critical gap and its linked Requirement. An accepted
 Decision is not a substitute for resolving the scientific obligation itself.
+
+
+### Mathematical obligations and historical provenance
+
+Mathematical obligations cannot be silently satisfied by referring to a
+formal proof of the obligation record as though it were a Claim. They must
+bind an independent certificate Claim through obligation_claim_ref and
+adjudicated evidence of its formal verification. Pre-formalization critical
+obligations remain explicitly OPEN until independently curated.
+
+Previously admitted evidence, locators, tests, gates, model specifications,
+and their content-bearing source bytes are historical semantic dependencies.
+Any change to their scientific meaning requires revision/supersession,
+not silent in-place mutation. Reassessment or retraction changes current
+admission, not the historical record.

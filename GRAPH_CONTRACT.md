@@ -124,3 +124,18 @@ artifacts form a directed, typed immutable dependency closure. Changing one of
 these records in-place is not scientific revision: author a successor and preserve
 the historical object. Legitimate draft Claims and OPEN obligations remain editable.
 The history gate checks both referenced graph meaning and admitted file bytes.
+
+
+### Historical certification versus current scientific state
+
+A previously admitted Transition, Route, or Verdict retains its immutable
+historical certificate when qualifying evidence is later contradicted or
+retracted. The effective current scientific state is separately projected as
+CONTESTED. New contradictions and retractions must be ingestible without
+rewriting prior support or forcing removal of negative evidence.
+
+Standalone SUPPORTED_SCOPED transitions must independently qualify both state
+endpoints, the biological frame, their evidence context, and any declared
+context handoff. BIOLOGICAL_SUPPORT Verdicts require claim-compatible Claim
+subjects. ROUTE_CLOSURE and adapter transfers use their explicitly scoped
+route-specific evidential contract.

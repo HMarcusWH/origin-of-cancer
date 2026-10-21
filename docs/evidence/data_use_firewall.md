@@ -23,3 +23,16 @@ of claims of disjointness.
 No raw patient, sample or participant identifiers should be committed to
 this public repository; use access-controlled source storage and carefully
 scoped, non-reversible pseudonymous linkage tokens when essential.
+
+
+### Current independence after retraction
+
+Previously admitted data-use entries are historical declarations. If the
+underlying independent-partition audit is subsequently retracted through an
+authorized, append-only evidence assessment, the original DataUse record is
+not rewritten. The generated data-use report labels its *effective* status
+CONTESTED, and mathematical verdicts relying on that model's revoked audit
+are projected as CONTESTED rather than as currently verified.
+
+Evidence revisions never convert shared train/selection/confirmation cohorts
+into independently verified partitions by changing protocol IDs.

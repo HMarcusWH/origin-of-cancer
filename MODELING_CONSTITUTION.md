@@ -108,3 +108,21 @@ promoted from synthetic test fixtures.
 Model-identity algorithms are versioned. Existing frozen model history must
 remain verifiable under the version used when it was created, with any migration
 recorded as an explicit successor.
+
+
+### Proof-output provenance and exact obligation discharge
+
+A formal verification requires an output-artifact SourceArtifact whose real
+byte digest matches Execution.output_sha256 and the verification receipt, in
+addition to the proof artifact, statement and proof-checker digests. Two
+self-consistent digest strings with no preserved output bytes are insufficient.
+
+A mathematical Requirement/ResearchGap may be discharged by a proven Claim
+only through an explicit obligation_claim_ref to that exact certificate Claim.
+The EvidenceAssessment remains targeted at the Requirement or ResearchGap,
+while the proof Result, Test and Protocol certify the Claim. A proof of the
+model alone has no authority to establish cancer biology.
+
+The model's frozen specification and historical proof receipt remain
+append-only. A later authorized retraction contests the *current* scientific
+result without invalidating the original proof record's recorded meaning.

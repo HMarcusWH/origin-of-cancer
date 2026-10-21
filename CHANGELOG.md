@@ -49,3 +49,13 @@ models, exact bibliography identifiers, critical-gap obligation matching,
 append-only authorized retractions, and declared/effective scientific views.
 Production fixtures remain synthetic; the original scientific baseline and all
 43 OPEN critical gaps remain unchanged.
+
+
+### Independent review hardening — resumed pass
+
+Repairs Codex's current-head findings concerning transition context,
+axis/subject compatibility, contested route/mathematical verdict history,
+output-transcript bytes, mathematical obligation-to-Claim certification,
+historical dependency closure and withdrawn independence audits.
+Includes production-valid negative controls and extended append-only
+historical checks. No original scientific source or gap disposition changes.
