@@ -1490,22 +1490,23 @@ IMMUTABLE_REFERENCES = {
                  "transfer_adapter_refs"},
     "EvidenceObject": {"source_locator_refs", "source_ref", "context_ref",
                        "result_ref", "model_instance_ref"},
-    "EvidenceAssessment": {"evidence_ref", "target_ref", "source_locator_refs"},
+    "EvidenceAssessment": {"evidence_ref", "target_ref", "authority_ref", "source_locator_refs"},
     "SourceVerification": {"source_ref", "source_locator_refs"},
-    "ResearchGap": {"source_locator_refs"},
-    "Requirement": {"gap_ref", "source_locator_refs", "satisfaction_evidence_refs"},
-    "Claim": {"assumption_refs", "source_locator_refs"},
+    "ResearchGap": {"source_locator_refs", "decision_ref", "obligation_claim_ref"},
+    "Requirement": {"gap_ref", "subject_ref", "decision_ref", "obligation_claim_ref",
+                    "source_locator_refs", "satisfaction_evidence_refs"},
+    "Claim": {"assumption_refs", "required_gate_refs", "source_locator_refs"},
     "SourceLocator": {"source_locator_refs"},
     "SourceArtifact": {"source_locator_refs"},
-    "Route": {"boundary_ref", "founder_ref", "context_ref", "transition_refs",
+    "Route": {"boundary_ref", "founder_ref", "context_ref", "adapter_ref", "transition_refs",
               "witness_bundle_ref", "source_locator_refs"},
     "Transition": {"source_state_ref", "target_state_ref", "context_ref",
-                   "source_context_ref", "target_context_ref",
+                   "source_context_ref", "target_context_ref", "adapter_ref", "mechanism_refs",
                    "context_transition_assessment_ref", "evidence_assessment_refs"},
     "FounderEnsemble": {"context_ref", "member_refs", "ancestry_assessment_refs"},
     "Boundary": {"context_ref", "state_refs", "source_locator_refs"},
-    "Protocol": {"null_refs", "source_locator_refs"},
-    "ModelInstance": {"applicability_ref", "assumption_refs", "context_ref",
+    "Protocol": {"null_refs", "target_refs", "source_locator_refs"},
+    "ModelInstance": {"model_class_ref", "applicability_ref", "assumption_refs", "context_ref",
                       "equation_refs", "parameter_refs", "estimand_refs",
                       "protocol_refs", "state_variable_refs", "software_ref",
                       "observation_operator_ref", "intervention_operator_refs",
@@ -1519,6 +1520,26 @@ IMMUTABLE_REFERENCES = {
     "DataUse": {"dataset_ref", "protocol_ref", "independence_evidence_refs",
                 "candidate_set_ref", "source_locator_refs"},
     "WitnessBundle": {"evidence_refs", "bridge_evidence_refs", "context_ref"},
+    "Test": {"gate_ref", "protocol_ref", "subject_ref", "execution_ref",
+             "source_locator_refs"},
+    "Gate": {"source_locator_refs"},
+    "BiologicalState": {"context_ref", "history_ref", "variable_refs", "source_locator_refs"},
+    "StateVariable": {"source_locator_refs"},
+    "Context": {"source_locator_refs"},
+    "ValidityDomain": {"context_ref", "source_locator_refs"},
+    "Software": {"source_locator_refs"},
+    "ObservationProcess": {"context_ref", "source_locator_refs"},
+    "ObservationOperator": {"process_ref", "variable_refs", "source_locator_refs"},
+    "InterventionOperator": {"context_ref", "property_ref", "source_locator_refs"},
+    "Dataset": {"source_locator_refs"},
+    "Assumption": {"evidence_refs", "source_locator_refs"},
+    "ModelClass": {"source_locator_refs"},
+    "Estimand": {"source_locator_refs"},
+    "CandidateSet": {"target_estimand_ref", "member_refs", "source_locator_refs"},
+    "ReductionMap": {"source_variables_refs", "target_variables_refs", "estimand_refs",
+                     "evidence_refs", "source_locator_refs"},
+    "Falsifier": {"target_ref", "protocol_ref", "source_locator_refs"},
+    "LiteratureSource": {"verification_refs", "source_locator_refs"},
 }
 
 
@@ -1556,7 +1577,17 @@ def scientific_dependency_closure(records):
         if not record:
             continue
         locked.add(ident)
-        for field in IMMUTABLE_REFERENCES.get(record.get("type"), {"source_locator_refs"}):
+        forward = set(IMMUTABLE_REFERENCES.get(record.get("type"), {"source_locator_refs"}))
+        # Newly declared semantic references are locked by default; explicit
+        # reverse indexes do not pull other models or unrelated draft subjects.
+        for field in record:
+            if field.endswith(("_ref", "_refs")) and field != "revision_of_ref":
+                if (record.get("type"), field) not in {
+                    ("Protocol", "data_use_refs"), ("Authority", "subject_refs"),
+                    ("ParameterProvenance", "data_use_refs"),
+                }:
+                    forward.add(field)
+        for field in forward:
             val = record.get(field)
             if isinstance(val, str):
                 pending.append(val)

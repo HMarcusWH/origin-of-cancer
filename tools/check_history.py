@@ -52,6 +52,26 @@ if old_lock_path in tracked:
         if not f.is_file() or sha256(f.read_bytes())!=digest:
             print('MUTATED_FROZEN_SOURCE:'+path);raise SystemExit(1)
     print('PASS: prior frozen source bytes remain unchanged.')
+# Lock the physical bytes behind previously admitted scientific source selectors.
+# The original graph declarations alone cannot catch rewriting a referenced file.
+from oocgraph.core import scientific_dependency_closure, safe_path
+old_index={r['id']:r for r in before}
+for ident in sorted(scientific_dependency_closure(before)):
+    old=old_index[ident]
+    if old.get('type') not in {'SourceLocator','SourceArtifact','Software'}:
+        continue
+    path=old.get('path')
+    if not path:
+        continue
+    local=safe_path(root,path)
+    try:
+        prior=subprocess.check_output(['git','-C',str(root),'show',base+':'+path])
+    except subprocess.CalledProcessError:
+        print('MISSING_HISTORICAL_SEMANTIC_FILE:'+path)
+        raise SystemExit(1)
+    if not local.is_file() or local.read_bytes()!=prior:
+        print('MUTATED_ADMITTED_SEMANTIC_FILE:'+path)
+        raise SystemExit(1)
 for path in ('BASELINE.md','tests/fixtures/bootstrap_graph.json'):
     if path in git('ls-tree','-r','--name-only',base,path).splitlines():
         if not (root/path).is_file() or (root/path).read_text()!=git('show',base+':'+path):
