@@ -76,6 +76,30 @@ class RouteTests(unittest.TestCase):
         r=route_fixture();get(r,'r')['transition_refs']=[];self.has(r,'EMPTY_CLOSED_ROUTE')
     def test_missing_founder_fails(self):
         r=route_fixture();del get(r,'r')['founder_ref'];self.has(r,'MISSING_ROUTE_ANCESTRY')
+    def test_boundary_context_must_match(self):
+        r=route_fixture();get(r,'b')['context_ref']='another-context'
+        self.has(r,'ROUTE_BOUNDARY_CONTEXT_MISMATCH')
+    def test_founder_context_must_match(self):
+        r=route_fixture();get(r,'f')['context_ref']='another-context'
+        self.has(r,'ROUTE_FOUNDER_CONTEXT_MISMATCH')
+    def test_boundary_must_anchor_first_source_state(self):
+        r=route_fixture();get(r,'b')['state_refs']=['ooc:fixture:s2']
+        self.has(r,'ROUTE_BOUNDARY_NOT_ANCHORED')
+    def test_founder_must_anchor_first_source_state(self):
+        r=route_fixture();get(r,'f')['member_refs']=['ooc:fixture:s2']
+        self.has(r,'ROUTE_FOUNDER_NOT_ANCHORED')
+    def test_nested_cooperative_founder_allowed(self):
+        r=route_fixture()
+        nested=node('FounderEnsemble','nested',context_ref='ooc:fixture:c',
+                    member_refs=['ooc:fixture:s1'])
+        r.append(nested);get(r,'f')['member_refs']=[nested['id'],'ooc:fixture:s2']
+        self.assertEqual(validate_records(r),[])
+    def test_ancestry_requires_adjudicated_support(self):
+        r=route_fixture();get(r,'f')['ancestry_assessment_refs']=[]
+        self.has(r,'UNSUPPORTED_ROUTE_ANCESTRY')
+    def test_ancestry_cannot_use_review(self):
+        r=route_fixture();get(r,'e1')['evidence_class']='REVIEW'
+        self.has(r,'INVALID_ROUTE_ANCESTRY_ASSESSMENT')
     def test_closed_route_requires_explicit_scope(self):
         r=route_fixture();del get(r,'r')['scope'];self.has(r,'MISSING_ROUTE_SCOPE')
     def test_route_assessment_scope_must_match(self):
@@ -94,6 +118,22 @@ class RouteTests(unittest.TestCase):
         r=route_fixture();get(r,'a1')['target_ref']='ooc:fixture:t2';self.has(r,'ROUTE_ASSESSMENT_TARGET_MISMATCH')
     def test_route_assessment_must_support(self):
         r=route_fixture();get(r,'a1')['effect']='CONTRADICTS';self.has(r,'NON_SUPPORTING_ROUTE_ASSESSMENT')
+    def test_review_cannot_close_biological_route(self):
+        r=route_fixture();get(r,'e2')['evidence_class']='REVIEW'
+        self.has(r,'NONBIOLOGICAL_ROUTE_SUPPORT')
+    def test_synthetic_cannot_close_biological_route(self):
+        r=route_fixture();get(r,'e2')['evidence_class']='SYNTHETIC'
+        self.has(r,'NONBIOLOGICAL_ROUTE_SUPPORT')
+    def test_engineering_cannot_close_biological_route(self):
+        r=route_fixture();get(r,'e2')['evidence_class']='ENGINEERING'
+        self.has(r,'NONBIOLOGICAL_ROUTE_SUPPORT')
+    def test_unrelated_witness_placeholder_does_not_close_route(self):
+        r=route_fixture();get(r,'e2')['witness_ids']=['system2']
+        phantom=node('EvidenceObject','phantom',context_ref='ooc:fixture:c',status='RECORDED',
+                     source_locator_refs=['ooc:fixture:l'],evidence_class='PRIMARY_ANIMAL',
+                     witness_ids=['system1','system2'],provenance_class='CURATED_SEMANTIC')
+        r.append(phantom);get(r,'w')['evidence_refs'].append(phantom['id'])
+        self.has(r,'MISSING_COMMON_WITNESS')
     def test_route_evidence_must_be_active(self):
         r=route_fixture();get(r,'e1')['status']='WITHDRAWN';self.has(r,'INACTIVE_ROUTE_EVIDENCE')
     def test_route_evidence_must_be_in_witness_bundle(self):
