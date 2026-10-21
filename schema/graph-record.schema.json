@@ -849,6 +849,14 @@
           },
           "type": "array",
           "uniqueItems": true
+        },
+        "selection_family_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "candidate_set_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -961,8 +969,20 @@
           "type": "string"
         },
         "decision": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "RESOLVE",
+            "SATISFY",
+            "BOUND",
+            "SUPERSEDE",
+            "REJECT",
+            "KEEP_OPEN",
+            "COMPLETE",
+            "VERIFY",
+            "ALLOW_TRANSFER",
+            "DENY_TRANSFER",
+            "ACKNOWLEDGE"
+          ]
         },
         "doc_path": {
           "type": "string"
@@ -1042,6 +1062,18 @@
         "disposition_scope": {
           "type": "object",
           "minProperties": 1
+        },
+        "decision_kind": {
+          "type": "string",
+          "enum": [
+            "RESEARCH_GAP_DISPOSITION",
+            "REQUIREMENT_DISPOSITION",
+            "THEORY_CARD_COMPLETION",
+            "ADAPTER_DOSSIER_COMPLETION",
+            "SOURCE_VERIFICATION",
+            "TRANSFER",
+            "POLICY"
+          ]
         }
       },
       "required": [
@@ -1056,7 +1088,8 @@
         "scope",
         "status",
         "subject_ref",
-        "type"
+        "type",
+        "decision_kind"
       ],
       "type": "object"
     },
@@ -1301,6 +1334,20 @@
         },
         "type": {
           "const": "EvidenceAssessment"
+        },
+        "assessment_role": {
+          "type": "string",
+          "enum": [
+            "OBSERVATION",
+            "ANCESTRY",
+            "TEMPORAL",
+            "PERSISTENCE",
+            "CAUSAL",
+            "MODEL",
+            "INDEPENDENCE",
+            "BOUNDED_DISPOSITION",
+            "DOCUMENT_COMPLETION"
+          ]
         }
       },
       "required": [
@@ -1323,8 +1370,17 @@
       "additionalProperties": false,
       "properties": {
         "claim_ceiling": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "BIOLOGICAL_OBSERVATION",
+            "BIOLOGICAL_CAUSAL_SCOPED",
+            "MATHEMATICAL_EXACT",
+            "MATHEMATICAL_NUMERICAL",
+            "METHODOLOGICAL",
+            "DATA_PARTITION_AUDIT",
+            "VERIFICATION_ONLY",
+            "ENGINEERING_ONLY"
+          ]
         },
         "context_ref": {
           "minLength": 1,
@@ -1406,12 +1462,12 @@
           ]
         },
         "study_id": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "system_id": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "type": {
           "const": "EvidenceObject"
@@ -1426,6 +1482,30 @@
           },
           "type": "array",
           "uniqueItems": true
+        },
+        "claim_ceiling_detail": {
+          "type": "string"
+        },
+        "result_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_instance_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "design_class": {
+          "type": "string",
+          "enum": [
+            "OBSERVATIONAL",
+            "LONGITUDINAL",
+            "LINEAGE",
+            "PERTURBATION",
+            "MIXED",
+            "FORMAL_DERIVATION",
+            "NUMERICAL_BENCHMARK",
+            "DATA_AUDIT"
+          ]
         }
       },
       "required": [
@@ -1528,8 +1608,13 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "REGISTERED",
+            "COMPLETED",
+            "FAILED",
+            "SUPERSEDED"
+          ]
         },
         "type": {
           "const": "Execution"
@@ -2796,6 +2881,12 @@
         },
         "type": {
           "const": "ModelInstance"
+        },
+        "identity_algorithm": {
+          "type": "string",
+          "enum": [
+            "ooc-model-digest-v2"
+          ]
         }
       },
       "required": [
@@ -3751,8 +3842,12 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "ACTIVE",
+            "RETIRED"
+          ]
         },
         "target_refs": {
           "items": {
@@ -4071,6 +4166,20 @@
         },
         "type": {
           "const": "Requirement"
+        },
+        "obligation_scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "obligation_domain": {
+          "type": "string",
+          "enum": [
+            "BIOLOGICAL",
+            "MATHEMATICAL",
+            "MEASUREMENT",
+            "STATISTICAL",
+            "METHODOLOGICAL"
+          ]
         }
       },
       "required": [
@@ -4170,6 +4279,20 @@
         },
         "type": {
           "const": "ResearchGap"
+        },
+        "obligation_scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "obligation_domain": {
+          "type": "string",
+          "enum": [
+            "BIOLOGICAL",
+            "MATHEMATICAL",
+            "MEASUREMENT",
+            "STATISTICAL",
+            "METHODOLOGICAL"
+          ]
         }
       },
       "required": [
@@ -4190,15 +4313,32 @@
       "additionalProperties": false,
       "properties": {
         "claim_ceiling": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "BIOLOGICAL_OBSERVATION",
+            "BIOLOGICAL_CAUSAL_SCOPED",
+            "MATHEMATICAL_EXACT",
+            "MATHEMATICAL_NUMERICAL",
+            "METHODOLOGICAL",
+            "DATA_PARTITION_AUDIT",
+            "VERIFICATION_ONLY",
+            "ENGINEERING_ONLY"
+          ]
         },
         "doc_path": {
           "type": "string"
         },
         "evidence_class": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "FORMAL",
+            "NUMERICAL",
+            "ANALYTIC",
+            "SYNTHETIC",
+            "ENGINEERING",
+            "PRIMARY_HUMAN_LONGITUDINAL",
+            "PRIMARY_ANIMAL"
+          ]
         },
         "execution_ref": {
           "minLength": 1,
@@ -4254,8 +4394,13 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "RECORDED",
+            "VALIDATED",
+            "FAILED",
+            "SUPERSEDED"
+          ]
         },
         "test_ref": {
           "minLength": 1,
@@ -4263,6 +4408,18 @@
         },
         "type": {
           "const": "Result"
+        },
+        "scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "subject_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_instance_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -4722,8 +4879,12 @@
           "type": "string"
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "RECORDED",
+            "VERIFIED",
+            "RETRACTED"
+          ]
         },
         "type": {
           "const": "SourceVerification"
@@ -4890,8 +5051,13 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "REGISTERED",
+            "PASSED",
+            "FAILED",
+            "SUPERSEDED"
+          ]
         },
         "subject_ref": {
           "minLength": 1,
