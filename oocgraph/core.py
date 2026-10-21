@@ -504,6 +504,7 @@ def approved_retractions(records, index=None):
         notice = index.get(a.get("evidence_ref"), {})
         authority = index.get(a.get("authority_ref"), {})
         if (a.get("assessment_role") == "RETRACTION"
+            and a.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
             and target.get("type") == "EvidenceObject"
             and notice.get("type") == "EvidenceObject"
             and notice.get("status") == "RECORDED"

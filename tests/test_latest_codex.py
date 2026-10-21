@@ -134,11 +134,13 @@ class LatestCodexContracts(unittest.TestCase):
                 evidence_class='PRIMARY_HUMAN_LONGITUDINAL',
                 claim_ceiling='BIOLOGICAL_OBSERVATION',
                 study_id='synthetic-study',system_id='synthetic-system',
-                design_class='LONGITUDINAL',source_locator_refs=['ooc:fixture:l'])])[0]
+                design_class='LONGITUDINAL',source_locator_refs=['ooc:fixture:l'],
+                provenance_class='CURATED_SEMANTIC')])[0]
             assessment=fully_typed([node('EvidenceAssessment','context-assessment',
                 status='ADJUDICATED',target_ref=tr['id'],
                 evidence_ref=evidence['id'],effect='SUPPORTS',
-                assessment_role='TEMPORAL',scope={'adapter':'synthetic'})])[0]
+                assessment_role='TEMPORAL',scope={'adapter':'synthetic'},
+                provenance_class='CURATED_SEMANTIC')])[0]
             rs.extend([evidence,assessment])
         return rs
 
@@ -166,15 +168,18 @@ class LatestCodexContracts(unittest.TestCase):
             status='RECORDED',context_ref='ooc:fixture:c',evidence_class='REVIEW',
             claim_ceiling='VERIFICATION_ONLY',design_class='OBSERVATIONAL',
             study_id='synthetic-journal',system_id='synthetic-notice',
-            source_locator_refs=['ooc:fixture:l'],finding='Synthetic correction notice')])[0]
+            source_locator_refs=['ooc:fixture:l'],finding='Synthetic correction notice',
+            provenance_class='CURATED_SEMANTIC')])[0]
         authority=fully_typed([node('Authority','retraction-policy',
             status='ACTIVE_RULE',axes=['EVIDENCE_POLICY'],
-            scope={'adapter':'synthetic'},empirical_truth_authority=False)])[0]
+            scope={'adapter':'synthetic'},empirical_truth_authority=False,
+            provenance_class='CURATED_SEMANTIC')])[0]
         assessment=fully_typed([node('EvidenceAssessment','retraction-adjudication',
             status='ADJUDICATED',effect='RETRACTS',assessment_role='RETRACTION',
             target_ref='ooc:fixture:e1',evidence_ref=notice['id'],
             authority_ref=authority['id'],scope={'adapter':'synthetic'},
-            rationale='Synthetic provenance correction')])[0]
+            rationale='Synthetic provenance correction',
+            provenance_class='CURATED_SEMANTIC')])[0]
         rs.extend([notice,authority,assessment])
         return rs
 
@@ -215,7 +220,7 @@ class LatestCodexContracts(unittest.TestCase):
                    provenance_class='CURATED_SEMANTIC')
         rs=fully_typed([source,proof])
         self.rejects(rs,'UNBACKED_SOURCE_VERIFICATION')
-        proof['identifier_checked']='10.1038/s41568-023-00602-5'
+        next(x for x in rs if x['type']=='SourceVerification')['identifier_checked']='10.1038/s41568-023-00602-5'
         self.assertEqual(self.errors(rs),[])
 
 

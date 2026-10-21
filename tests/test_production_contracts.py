@@ -261,10 +261,14 @@ class MathematicalAdmissionContracts(ProductionValidation):
         model=next(r for r in records if r['id']=='ooc:fixture:model')
         model['assumption_refs']=[]
         self.assert_problem(records,'UNDECLARED_EQUATION_ASSUMPTION')
-    def test_equation_assumption_unknown_fails(self):
+    def test_equation_assumption_unknown_blocks_admitted_model(self):
         records=mathematical_fixture()
         a=next(r for r in records if r['id']=='ooc:fixture:assumption')
         a['assessment']='UNKNOWN'
+        from oocgraph.core import model_identity_digest
+        model=next(r for r in records if r['id']=='ooc:fixture:model')
+        model['status']='ADMITTED'
+        model['frozen_digest']=model_identity_digest(records,model)
         self.assert_problem(records,'FAILED_OR_UNKNOWN_MODEL_ASSUMPTION')
     def test_failed_formal_execution_blocks_mathematical_promotion(self):
         records=mathematical_fixture()
