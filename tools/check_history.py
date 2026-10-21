@@ -5,7 +5,8 @@ import argparse
 import subprocess
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from oocgraph.core import loads, read_graph, history_violations
+from oocgraph.core import (loads, read_graph, history_violations,
+                           scientific_dependency_closure, safe_path, IntegrityError)
 root=Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--base',required=True);a=p.parse_args()
 def git(*args):
@@ -18,6 +19,27 @@ for path in paths:
         before.extend(loads(line) for line in git('show',base+':'+path).splitlines() if line.strip())
 errors=history_violations(before,read_graph(root))
 if errors: print('\n'.join(errors));raise SystemExit(1)
+# Protect bytes underlying admitted SourceLocators / proof artifacts / software,
+# not only the graph records carrying their semantic selectors and checksums.
+locked = scientific_dependency_closure(before)
+for rec in before:
+    if rec.get('id') not in locked or rec.get('type') not in {
+            'SourceLocator', 'SourceArtifact', 'Software'}:
+        continue
+    relpath = rec.get('path')
+    if not relpath:
+        continue
+    try:
+        current = safe_path(root, relpath)
+        prior = subprocess.check_output(
+            ['git', '-C', str(root), 'show', base+':'+relpath])
+    except (subprocess.CalledProcessError, IntegrityError, OSError) as exc:
+        print('LOST_ADMITTED_ARTIFACT:'+rec['id']+':'+str(exc))
+        raise SystemExit(1)
+    if not current.is_file() or current.read_bytes() != prior:
+        print('MUTATED_ADMITTED_ARTIFACT:'+rec['id']+':'+relpath)
+        raise SystemExit(1)
+print('PASS: admitted semantic dependencies and artifact bytes preserved against '+base)
 print('PASS: immutable evidence/result/decision history preserved against '+base)
 # Frozen source bytes cannot be rewritten by changing both content and a local lock.
 old_lock_path='config/source_locks.json'
