@@ -303,6 +303,7 @@ def _verified_result(index, result, subject_ref, scope):
             claim.get("statement", "").encode("utf-8"))
         and receipt.get("artifact_sha256") == artifact.get("sha256")
         and receipt.get("verifier_sha256") == verifier.get("sha256")
+        and receipt.get("execution_output_sha256") == exe.get("output_sha256")
         and bool(receipt.get("verifier_version"))
         and result.get("status") == "VALIDATED"
         and result.get("outcome") == "PASS"
@@ -823,6 +824,15 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("PROOF_ARTIFACT_BYTE_DRIFT", r)
                 except (IntegrityError, OSError):
                     error("INVALID_PROOF_ARTIFACT_PATH", r)
+            exe = index.get(r.get("execution_ref"), {})
+            software = index.get(exe.get("software_ref"), {})
+            if root is not None and software.get("path"):
+                try:
+                    verifier_path = safe_path(root, software["path"])
+                    if not verifier_path.is_file() or sha256(verifier_path.read_bytes()) != software.get("sha256"):
+                        error("VERIFIER_SOFTWARE_BYTE_DRIFT", r)
+                except (IntegrityError, OSError):
+                    error("INVALID_VERIFIER_SOFTWARE_PATH", r)
         if typ == "EvidenceAssessment" and r.get("effect") == "RETRACTS" and r.get("status") == "ADJUDICATED":
             if r.get("target_ref") not in approved_retractions(records, index):
                 error("UNAUTHORIZED_RETRACTION", r)

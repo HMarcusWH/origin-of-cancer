@@ -205,7 +205,9 @@ def mathematical_fixture():
              target_refs=[refs('math-claim')],revision_rule='new instance'),
         node('Test','math-test',status='PASSED',gate_ref=refs('math-gate'),
              protocol_ref=refs('math-protocol'),subject_ref=refs('math-claim')),
-        node('Software','math-software',path='README.md',sha256='a'*64,
+        node('Software','math-software',path='README.md',
+             sha256=__import__('hashlib').sha256(
+                 'Synthetic fixture — no biological claims\n'.encode('utf-8')).hexdigest(),
              runtime_role='REFERENCE_ONLY'),
         node('Execution','math-execution',status='COMPLETED',outcome='PASS',
              environment={},input_refs=[refs('model')],protocol_ref=refs('math-protocol'),
@@ -219,7 +221,10 @@ def mathematical_fixture():
                      'Synthetic verification target'.encode('utf-8')).hexdigest(),
                  'artifact_sha256':__import__('hashlib').sha256(
                      'Synthetic fixture — no biological claims\n'.encode('utf-8')).hexdigest(),
-                 'verifier_sha256':'a'*64,'verifier_version':'synthetic-v0','outcome':'PASS'},
+                 'verifier_sha256':__import__('hashlib').sha256(
+                     'Synthetic fixture — no biological claims\n'.encode('utf-8')).hexdigest(),
+                 'execution_output_sha256':'b'*64,
+                 'verifier_version':'synthetic-v0','outcome':'PASS'},
              model_instance_ref=refs('model'),subject_ref=refs('math-claim'),scope=sc,
              test_ref=refs('math-test'),execution_ref=refs('math-execution'),
              provenance_class='CURATED_SEMANTIC'),
@@ -266,6 +271,18 @@ class MathematicalAdmissionContracts(ProductionValidation):
         exe=next(r for r in records if r['id']=='ooc:fixture:math-execution')
         exe['status']='FAILED'
         self.assert_problem(records,'UNVERIFIED_MATHEMATICAL_PROMOTION')
+    def test_checker_byte_mismatch_blocks_formal_promotion(self):
+        records=mathematical_fixture()
+        software=next(x for x in records if x['type']=='Software')
+        software['sha256']='a'*64
+        self.assert_problem(records,'VERIFIER_SOFTWARE_BYTE_DRIFT')
+
+    def test_execution_output_not_bound_blocks_formal_promotion(self):
+        records=mathematical_fixture()
+        result=next(x for x in records if x['type']=='Result')
+        result['verification_receipt']['execution_output_sha256']='0'*64
+        self.assert_problem(records,'UNVERIFIED_MATHEMATICAL_PROMOTION')
+
     def test_missing_proof_artifact_blocks_mathematical_promotion(self):
         records=mathematical_fixture()
         result=next(r for r in records if r['id']=='ooc:fixture:math-result')
