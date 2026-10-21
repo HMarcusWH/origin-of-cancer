@@ -262,6 +262,77 @@ def mathematical_fixture():
 
 class MathematicalAdmissionContracts(ProductionValidation):
     """Every positive/negative passes the actual schema+semantic check."""
+    def test_formal_result_can_discharge_exact_mathematical_obligation(self):
+        records=mathematical_fixture()
+        sc={'adapter':'synthetic-math'}
+        governance={'domain':'PROGRAMME_GOVERNANCE'}
+        refs=lambda name:'ooc:fixture:'+name
+        records.extend([
+            node('Programme','math-programme',status='PRE_FORMALIZATION',
+                 kernel_frozen=False,research_go=True,clinical_use=False),
+            node('Authority','research-policy',status='ACTIVE_RULE',scope=governance,
+                 axes=['RESEARCH_POLICY'],empirical_truth_authority=False),
+            node('ResearchGap','math-gap',legacy_id='RG-MATH-FIXTURE',priority='HIGH',
+                 status='RESOLVED',question='Verify an exact synthetic mathematical identity',
+                 source_pages=[],decision_ref=refs('gap-decision'),
+                 obligation_scope=sc,obligation_domain='MATHEMATICAL',
+                 obligation_claim_kind='CERTIFICATE',obligation_claim_ref=refs('math-claim')),
+            node('Requirement','math-req',criterion='Verify exact bound proof',
+                 status='SATISFIED',gap_ref=refs('math-gap'),
+                 subject_ref=refs('math-programme'),decision_ref=refs('req-decision'),
+                 satisfaction_evidence_refs=[refs('math-evidence')],
+                 obligation_scope=sc,obligation_domain='MATHEMATICAL',
+                 obligation_claim_kind='CERTIFICATE',obligation_claim_ref=refs('math-claim')),
+            node('Decision','gap-decision',status='RECORDED',
+                 decision_kind='RESEARCH_GAP_DISPOSITION',decision='RESOLVE',
+                 authority_ref=refs('research-policy'),subject_ref=refs('math-gap'),
+                 evidence_refs=[refs('math-evidence')],scope=governance,
+                 disposition_scope=sc,rationale='Synthetic exact model verification',
+                 provenance_class='CURATED_SEMANTIC'),
+            node('Decision','req-decision',status='RECORDED',
+                 decision_kind='REQUIREMENT_DISPOSITION',decision='SATISFY',
+                 authority_ref=refs('research-policy'),subject_ref=refs('math-req'),
+                 evidence_refs=[refs('math-evidence')],scope=governance,
+                 disposition_scope=sc,rationale='Synthetic exact model verification',
+                 provenance_class='CURATED_SEMANTIC'),
+            node('EvidenceAssessment','math-gap-assessment',status='ADJUDICATED',
+                 target_ref=refs('math-gap'),evidence_ref=refs('math-evidence'),
+                 effect='SUPPORTS',scope=sc,rationale='Fixture proof',
+                 limitations='Synthetic only',provenance_class='CURATED_SEMANTIC'),
+            node('EvidenceAssessment','math-req-assessment',status='ADJUDICATED',
+                 target_ref=refs('math-req'),evidence_ref=refs('math-evidence'),
+                 effect='SUPPORTS',scope=sc,rationale='Fixture proof',
+                 limitations='Synthetic only',provenance_class='CURATED_SEMANTIC'),
+        ])
+        records=fully_typed(records)
+        self.assertEqual(self.errors(records),[])
+        target=next(x for x in records if x['id']==refs('math-gap'))
+        target['obligation_claim_ref']=refs('math-model')  # nonexistent binding
+        self.assertTrue(self.errors(records))
+
+    def test_retracted_mathematical_evidence_contests_not_invalidates_history(self):
+        records=mathematical_fixture()
+        sc={'adapter':'synthetic-math'}
+        refs=lambda name:'ooc:fixture:'+name
+        records.extend(fully_typed([
+            node('Authority','retraction-auth',status='ACTIVE_RULE',scope=sc,
+                 axes=['EVIDENCE_POLICY'],empirical_truth_authority=False),
+            node('EvidenceObject','math-retraction-notice',status='RECORDED',
+                 context_ref=refs('math-context'),source_locator_refs=[refs('math-loc')],
+                 evidence_class='REVIEW',claim_ceiling='VERIFICATION_ONLY',
+                 finding='Synthetic retraction notice',study_id='synthetic',
+                 system_id='math-fixture',uncertainty='test',provenance_class='CURATED_SEMANTIC'),
+            node('EvidenceAssessment','retract-math-evidence',status='ADJUDICATED',
+                 effect='RETRACTS',assessment_role='RETRACTION',
+                 evidence_ref=refs('math-retraction-notice'),target_ref=refs('math-evidence'),
+                 authority_ref=refs('retraction-auth'),scope=sc,
+                 rationale='Synthetic retraction of admitted fixture support',
+                 limitations='Test only',provenance_class='CURATED_SEMANTIC')
+        ]))
+        from oocgraph.core import resolve
+        self.assertEqual(self.errors(records),[])
+        self.assertEqual(resolve(records)['partitions'][0]['state'],'CONTESTED')
+
     def test_production_valid_mathematical_certificate(self):
         self.assertEqual(self.errors(mathematical_fixture()),[])
     def test_equation_assumption_missing_from_model_fails(self):
