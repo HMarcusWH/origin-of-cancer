@@ -160,6 +160,48 @@ class LatestCodexContracts(unittest.TestCase):
         res['verification_receipt']['artifact_sha256']='0'*64
         self.rejects(rs,'PROOF_RECEIPT_ARTIFACT_MISMATCH')
 
+    def retracted_route_fixture(self):
+        rs=route_records()
+        notice=fully_typed([node('EvidenceObject','retraction-notice',
+            status='RECORDED',context_ref='ooc:fixture:c',evidence_class='REVIEW',
+            claim_ceiling='VERIFICATION_ONLY',design_class='OBSERVATIONAL',
+            study_id='synthetic-journal',system_id='synthetic-notice',
+            source_locator_refs=['ooc:fixture:l'],finding='Synthetic correction notice')])[0]
+        authority=fully_typed([node('Authority','retraction-policy',
+            status='ACTIVE_RULE',axes=['EVIDENCE_POLICY'],
+            scope={'adapter':'synthetic'},empirical_truth_authority=False)])[0]
+        assessment=fully_typed([node('EvidenceAssessment','retraction-adjudication',
+            status='ADJUDICATED',effect='RETRACTS',assessment_role='RETRACTION',
+            target_ref='ooc:fixture:e1',evidence_ref=notice['id'],
+            authority_ref=authority['id'],scope={'adapter':'synthetic'},
+            rationale='Synthetic provenance correction')])[0]
+        rs.extend([notice,authority,assessment])
+        return rs
+
+    def test_authorized_retraction_preserves_historical_record_and_contests_route(self):
+        from oocgraph.core import approved_retractions
+        before=route_records()
+        rs=self.retracted_route_fixture()
+        self.assertEqual(self.errors(rs),[])
+        self.assertEqual(history_violations(before,rs),[])
+        route=next(x for x in rs if x['type']=='Route')
+        self.assertEqual(effective_route_state(rs,route)['effective'],'CONTESTED')
+        self.assertIn('ooc:fixture:e1',approved_retractions(rs))
+
+    def test_unapproved_retraction_cannot_change_current_support(self):
+        from oocgraph.core import approved_retractions
+        rs=self.retracted_route_fixture()
+        next(x for x in rs if x['id']=='ooc:fixture:retraction-policy')['status']='REVOKED'
+        self.rejects(rs,'UNAUTHORIZED_RETRACTION')
+        self.assertNotIn('ooc:fixture:e1',approved_retractions(rs))
+
+    def test_retraction_proposal_does_not_revoke_support(self):
+        rs=self.retracted_route_fixture()
+        next(x for x in rs if x['id']=='ooc:fixture:retraction-adjudication')['status']='IN_REVIEW'
+        self.assertEqual(self.errors(rs),[])
+        route=next(x for x in rs if x['type']=='Route')
+        self.assertEqual(effective_route_state(rs,route)['effective'],'ADMITTED_CLOSED')
+
     def test_verification_receipt_requires_exact_source_identifier(self):
         source=node('LiteratureSource','s',
                     identifiers_raw='10.1038/s41568-023-00602-5',
