@@ -140,6 +140,7 @@ REF_LIST_TYPES = {
     "source_variables_refs": {"StateVariable"}, "target_variables_refs": {"StateVariable"},
     "state_refs": {"BiologicalState"}, "required_gate_refs": {"Gate"}, "null_refs": {"NullModel"},
     "ancestry_assessment_refs": {"EvidenceAssessment"},
+    "protocol_refs": {"Protocol"},
     "completion_requirement_refs": {"Requirement"},
 }
 COMMON_SUBJECT_TYPES = {
@@ -421,7 +422,11 @@ def _nested_reference_errors(record, index, contract):
                 elif isinstance(value,(dict,list)):
                     walk(value,loc,contract_key)
     for key,value in record.items():
-        if isinstance(value,(list,dict)):
+        # Arbitrary scope/configuration data may contain descriptive keys ending
+        # in _refs. Only schema-declared nested structures are graph references.
+        if isinstance(value,(list,dict)) and any(
+                k.startswith(type_name+"."+key+"[") or
+                k.startswith(type_name+"."+key+".") for k in contract):
             walk(value,key,key)
     return violations
 
@@ -597,6 +602,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 if assumption.get("required", True) and assumption.get("assessment") != "PASS":
                     error("FAILED_OR_UNKNOWN_REQUIRED_ASSUMPTION", r)
         if typ == "ModelInstance" and r.get("status") in {"ADMITTED", "FROZEN"}:
+            if not r.get("protocol_refs"):
+                error("UNBOUND_MODEL_PROTOCOL", r)
             app = index.get(r.get("applicability_ref"), {})
             if r.get("identity_algorithm") != MODEL_IDENTITY_ALGORITHM:
                 error("UNVERSIONED_MODEL_IDENTITY", r)
@@ -1049,7 +1056,7 @@ def history_violations(before: list[dict], after: list[dict]) -> list[str]:
 
 MODEL_IDENTITY_FORWARD_REFS = {
     "ModelInstance": {"applicability_ref", "assumption_refs", "context_ref",
-        "equation_refs", "estimand_refs", "intervention_operator_refs",
+        "equation_refs", "estimand_refs", "protocol_refs", "intervention_operator_refs",
         "model_class_ref", "observation_operator_ref", "parameter_refs",
         "software_ref", "state_variable_refs", "source_locator_refs"},
     "MethodApplicability": {"assumption_refs", "domain_ref", "estimand_ref",
