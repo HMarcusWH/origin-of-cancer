@@ -4,7 +4,8 @@ import html
 from collections import Counter
 from pathlib import Path
 from .core import (canonical, loads, read_graph, resolve, sha256, file_inventory,
-                   file_class, subject_digest, effective_route_state, effective_transition_state)
+                   file_class, subject_digest, effective_route_state, effective_transition_state,
+                   approved_retractions)
 
 PRODUCTS = [
  'generated/graph.json','generated/ooc-graph.jsonld','generated/current_state.json',
@@ -81,7 +82,8 @@ def make_views(root: Path) -> dict[str, str]:
         'evidence':items('EvidenceObject'),
         'assessments':items('EvidenceAssessment'),
         'sources_are_not_evidence':True,
-        'reported_adjudication_is_not_independent_verification':True})
+        'reported_adjudication_is_not_independent_verification':True,
+        'retracted_evidence':approved_retractions(records)})
     out['generated/impact_graph.json']=dump({'scope':'EXPLICIT_DEPENDENCY_EDGES_ONLY','relations':[r for r in edges if r['kind'] in {'BLOCKS','REQUIRES','PART_OF'}],'causal_path_claim':False})
     out['generated/repository_coverage.json']=dump({'files':coverage,'file_count':len(files),'unindexed':[],'unclassified':[],'subject_sha256':digest})
     out['generated/documentation_coverage.json']=dump({'required_documents':required,'missing':[p for p in required if not (root/p).is_file()],'document_presence_is_science_complete':False})

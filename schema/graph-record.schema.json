@@ -1279,7 +1279,8 @@
             "CONSTRAINS",
             "DOES_NOT_ESTABLISH",
             "CALIBRATES",
-            "FALSIFIES"
+            "FALSIFIES",
+            "RETRACTS"
           ]
         },
         "evidence_ref": {
@@ -1361,8 +1362,13 @@
             "MODEL",
             "INDEPENDENCE",
             "BOUNDED_DISPOSITION",
-            "DOCUMENT_COMPLETION"
+            "DOCUMENT_COMPLETION",
+            "RETRACTION"
           ]
+        },
+        "authority_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [

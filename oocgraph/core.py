@@ -104,7 +104,10 @@ def resolve(records: Iterable[dict]) -> dict:
         if len(active) == 1 and status == "SUPPORTED_SCOPED":
             v = verdicts[active[0]]
             index = {r["id"]: r for r in records}
-            if _material_scoped_contradictions(records, index, [v.get("subject_ref")], v.get("scope")):
+            retracted = _retracted_support_refs(
+                records, index, v.get("assessment_refs", []))
+            if (retracted or _material_scoped_contradictions(
+                    records, index, [v.get("subject_ref")], v.get("scope"))):
                 status = "CONTESTED"
         output.append({"partition": loads(key), "state": status, "active_verdict_refs": active,
                        "historical_verdict_refs": sorted(removed)})
@@ -487,6 +490,43 @@ def _founder_states(index, founder_ref, seen=None):
     return result
 
 
+def approved_retractions(records, index=None):
+    """Append-only, authorized retractions; originals remain immutable history."""
+    index = {r["id"]: r for r in records} if index is None else index
+    retracted = {}
+    for a in records:
+        if a.get("type") != "EvidenceAssessment" or a.get("effect") != "RETRACTS":
+            continue
+        if a.get("status") != "ADJUDICATED":
+            continue
+        target = index.get(a.get("target_ref"), {})
+        notice = index.get(a.get("evidence_ref"), {})
+        authority = index.get(a.get("authority_ref"), {})
+        if (a.get("assessment_role") == "RETRACTION"
+            and target.get("type") == "EvidenceObject"
+            and notice.get("type") == "EvidenceObject"
+            and notice.get("status") == "RECORDED"
+            and notice.get("evidence_class") in {"REVIEW", "ANALYTIC"}
+            and notice.get("claim_ceiling") == "VERIFICATION_ONLY"
+            and notice.get("source_locator_refs")
+            and notice.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+            and authority.get("type") == "Authority"
+            and authority.get("status") == "ACTIVE_RULE"
+            and "EVIDENCE_POLICY" in authority.get("axes", [])
+            and canonical(authority.get("scope")) == canonical(a.get("scope"))
+            and (not authority.get("subject_refs")
+                 or a.get("target_ref") in authority.get("subject_refs", []))):
+            retracted.setdefault(a["target_ref"], []).append(a["id"])
+    return {k: sorted(v) for k,v in sorted(retracted.items())}
+
+
+def _retracted_support_refs(records, index, assessment_refs):
+    retracted = approved_retractions(records, index)
+    return sorted({a.get("evidence_ref") for ref in assessment_refs
+                   if isinstance(ref,str) for a in [index.get(ref,{})]
+                   if a.get("evidence_ref") in retracted})
+
+
 def _admitted_transition_assessments(records, index, transition, scope):
     """Independent support; absence of a Route never promotes a Transition."""
     return [
@@ -517,11 +557,13 @@ def effective_transition_state(records, transition):
     scope = transition.get("scope")
     contradictions = _material_scoped_contradictions(
         records, index, [transition.get("id")], scope)
+    retracted = _retracted_support_refs(
+        records, index, transition.get("evidence_assessment_refs", []))
     qualified = _admitted_transition_assessments(records, index, transition, scope)
-    effective = ("CONTESTED" if contradictions else
+    effective = ("CONTESTED" if (contradictions or retracted) else
                  "ADMITTED_SUPPORTED_SCOPED" if qualified else "UNADMITTED")
     return {"declared": declared, "effective": effective,
-            "contradiction_refs": contradictions}
+            "contradiction_refs": contradictions, "retracted_support_refs": retracted}
 
 
 def effective_route_state(records, route):
@@ -532,9 +574,17 @@ def effective_route_state(records, route):
     index = {r["id"]: r for r in records}
     targets = [route["id"], route.get("founder_ref")] + list(route.get("transition_refs", []))
     contradictions = _material_scoped_contradictions(records, index, targets, route.get("scope"))
+    refs = []
+    for tr in route.get("transition_refs", []):
+        refs.extend(index.get(tr, {}).get("evidence_assessment_refs", []))
+    refs.extend(index.get(route.get("founder_ref"), {}).get("ancestry_assessment_refs", []))
+    for link in index.get(route.get("witness_bundle_ref"), {}).get("bridge_links", []):
+        if isinstance(link, dict):
+            refs.append(link.get("assessment_ref"))
+    retracted = _retracted_support_refs(records, index, refs)
     return {"declared": declared,
-            "effective": "CONTESTED" if contradictions else "ADMITTED_CLOSED",
-            "contradiction_refs": contradictions}
+            "effective": "CONTESTED" if (contradictions or retracted) else "ADMITTED_CLOSED",
+            "contradiction_refs": contradictions, "retracted_support_refs": retracted}
 
 
 def _normalized_source_identifiers(raw):
@@ -773,6 +823,9 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("PROOF_ARTIFACT_BYTE_DRIFT", r)
                 except (IntegrityError, OSError):
                     error("INVALID_PROOF_ARTIFACT_PATH", r)
+        if typ == "EvidenceAssessment" and r.get("effect") == "RETRACTS" and r.get("status") == "ADJUDICATED":
+            if r.get("target_ref") not in approved_retractions(records, index):
+                error("UNAUTHORIZED_RETRACTION", r)
         if typ == "EvidenceObject":
             if not r.get("source_locator_refs"): error("UNLOCATED_EVIDENCE", r)
             for lr in r.get("source_locator_refs", []):
