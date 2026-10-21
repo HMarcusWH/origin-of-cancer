@@ -140,6 +140,7 @@ REF_LIST_TYPES = {
     "source_variables_refs": {"StateVariable"}, "target_variables_refs": {"StateVariable"},
     "state_refs": {"BiologicalState"}, "required_gate_refs": {"Gate"}, "null_refs": {"NullModel"},
     "ancestry_assessment_refs": {"EvidenceAssessment"},
+    "completion_requirement_refs": {"Requirement"},
 }
 COMMON_SUBJECT_TYPES = {
     "Programme", "Theory", "Adapter", "Claim", "Boundary", "BiologicalState", "FounderEnsemble",
@@ -513,9 +514,30 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 elif (a.get("evidence_ref") != r.get("source") or a.get("target_ref") != r.get("target")
                       or a.get("effect") != r.get("kind")):
                     error("ASSESSMENT_EDGE_MISMATCH", r)
+                elif r.get("kind") == "SUPPORTS" and not (
+                    a.get("status") == "ADJUDICATED"
+                    and index.get(a.get("evidence_ref"),{}).get("status") == "RECORDED"
+                    and canonical(a.get("scope")) == canonical(r.get("scope"))
+                    and a.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+                    and index.get(a.get("evidence_ref"),{}).get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE):
+                    error("UNADMITTED_SUPPORT_RELATION", r)
         if typ == "LiteratureSource":
-            if r.get("bibliographic_verification") == "VERIFIED" and not r.get("verification_refs"):
-                error("UNBACKED_SOURCE_VERIFICATION", r)
+            if r.get("bibliographic_verification") == "VERIFIED":
+                verifications = [
+                    index.get(ref,{}) for ref in r.get("verification_refs",[])
+                    if isinstance(ref,str)
+                ]
+                if not verifications or not any(
+                    v.get("type") == "SourceVerification"
+                    and v.get("status") == "VERIFIED"
+                    and v.get("source_ref") == r.get("id")
+                    and v.get("verification_scope") == "BIBLIOGRAPHIC_METADATA"
+                    and v.get("identifier_checked","").lower() in r.get("identifiers_raw","").lower()
+                    and bool(v.get("canonical_metadata"))
+                    and v.get("public_source_url","").startswith("https://")
+                    and v.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+                    for v in verifications):
+                    error("UNBACKED_SOURCE_VERIFICATION",r)
         if typ in {"ResearchGap", "Requirement"} and r.get("status") in {"RESOLVED", "SATISFIED", "BOUNDED", "SUPERSEDED"}:
             decision = index.get(r.get("decision_ref"), {})
             if decision.get("type") != "Decision" or decision.get("subject_ref") != r.get("id"):
@@ -537,8 +559,31 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("INVALID_SCIENTIFIC_DISPOSITION:"+issue, r)
         if typ in {"Theory", "Adapter"} and (r.get("card_complete") or r.get("dossier_complete")):
             decision = index.get(r.get("completion_decision_ref"), {})
-            if decision.get("type") != "Decision" or decision.get("subject_ref") != r.get("id"):
+            authority = index.get(decision.get("authority_ref"), {})
+            expected_kind = ("THEORY_CARD_COMPLETION" if typ == "Theory" else "ADAPTER_DOSSIER_COMPLETION")
+            requirements = [index.get(ref,{}) for ref in r.get("completion_requirement_refs",[])]
+            if (decision.get("type") != "Decision" or decision.get("subject_ref") != r.get("id")
+                or decision.get("decision_kind") != expected_kind
+                or decision.get("decision") != "COMPLETE"
+                or decision.get("status") != "RECORDED"
+                or authority.get("status") != "ACTIVE_RULE"
+                or "EVIDENCE_POLICY" not in authority.get("axes",[])
+                or canonical(decision.get("scope")) != canonical(authority.get("scope"))
+                or (authority.get("subject_refs") and r.get("id") not in authority.get("subject_refs",[]))
+                or not requirements
+                or any(q.get("type") != "Requirement" or q.get("subject_ref") != r.get("id")
+                       or q.get("status") != "SATISFIED" for q in requirements)):
                 error("UNADJUDICATED_DOCUMENT_COMPLETION", r)
+            for evidence_ref in decision.get("evidence_refs",[]):
+                if not any(a.get("type") == "EvidenceAssessment"
+                           and a.get("evidence_ref") == evidence_ref
+                           and _qualified_assessment(index,a,r.get("id"),decision.get("scope"),
+                               allowed_classes=BIOLOGICAL_EVIDENCE_CLASSES | {"REVIEW"},
+                               allowed_ceilings={"METHODOLOGICAL"},assessment_role="DOCUMENT_COMPLETION")
+                           for a in records):
+                    error("UNSUPPORTED_DOCUMENT_COMPLETION", r)
+            if not decision.get("evidence_refs"):
+                error("UNSUPPORTED_DOCUMENT_COMPLETION", r)
         if typ == "EvidenceObject":
             if not r.get("source_locator_refs"): error("UNLOCATED_EVIDENCE", r)
             for lr in r.get("source_locator_refs", []):

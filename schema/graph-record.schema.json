@@ -64,6 +64,13 @@
         },
         "type": {
           "const": "Adapter"
+        },
+        "completion_requirement_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
         }
       },
       "required": [
@@ -5172,6 +5179,13 @@
         },
         "type": {
           "const": "Theory"
+        },
+        "completion_requirement_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
         }
       },
       "required": [
