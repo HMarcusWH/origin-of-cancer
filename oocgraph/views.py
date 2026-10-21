@@ -40,7 +40,7 @@ def make_views(root: Path) -> dict[str, str]:
     graph_hash=sha256(canonical(records).encode())
     resolver=resolve(records)
     critical=[r for r in items('ResearchGap') if r['priority']=='CRITICAL']
-    opencrit=[r for r in critical if r['status'] not in {'RESOLVED','BOUNDED','SUPERSEDED'}]
+    opencrit=[r for r in critical if r['status'] not in {'RESOLVED','BOUNDED'}]
     required=loads((root/'config/documentation_contract.json').read_text())['required_documents']
     state={'stage':project['scientific_stage'],'kernel_frozen':project['kernel_frozen'],
            'clinical_use_authorized':False,'source_rows':counts['LiteratureSource'],

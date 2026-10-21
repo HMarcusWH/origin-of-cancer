@@ -351,6 +351,19 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 error("UNADJUDICATED_CLOSURE", r)
             if r.get("status") == "BOUNDED" and not r.get("bound_scope"):
                 error("UNSCOPED_REQUIREMENT_BOUND", r)
+            if r.get("status") in {"RESOLVED", "SATISFIED", "BOUNDED"}:
+                scientific_scope = (
+                    r.get("bound_scope") if r.get("status") == "BOUNDED"
+                    else decision.get("disposition_scope"))
+                effects = ({"SUPPORTS"} if r.get("status") in {"RESOLVED", "SATISFIED"}
+                           else {"CONSTRAINS", "DOES_NOT_ESTABLISH"})
+                registered_refs = (r.get("satisfaction_evidence_refs", [])
+                                   if typ == "Requirement" else None)
+                issues = _decision_admission_errors(
+                    records, index, decision, r.get("id"), scientific_scope,
+                    effects, required_evidence_refs=registered_refs)
+                for issue in issues:
+                    error("INVALID_SCIENTIFIC_DISPOSITION:"+issue, r)
         if typ in {"Theory", "Adapter"} and (r.get("card_complete") or r.get("dossier_complete")):
             decision = index.get(r.get("completion_decision_ref"), {})
             if decision.get("type") != "Decision" or decision.get("subject_ref") != r.get("id"):
@@ -674,6 +687,10 @@ def validate_repository(root: Path) -> list[str]:
     req = {(r.get("gap_ref"), r.get("subject_ref")) for r in records if r["type"] == "Requirement"}
     for gid in project["critical_gap_ids"]:
         if ("ooc:gap:"+gid, programme_id) not in req: errors.append("LOST_CRITICAL_REQUIREMENT:"+gid)
+    frozen_gap_register = loads((root / "sources/baseline/research_gaps_91.json").read_text())
+    original_critical = {g["legacy_id"] for g in frozen_gap_register if g["priority"] == "CRITICAL"}
+    if set(project["critical_gap_ids"]) != original_critical:
+        errors.append("CRITICAL_GATE_CONFIG_DRIFT")
     for p in loads((root / "config/documentation_contract.json").read_text())["required_documents"]:
         if not safe_path(root, p).is_file(): errors.append("MISSING_DOCUMENT:"+p)
     for p, expected in loads((root / "config/source_locks.json").read_text())["sha256"].items():

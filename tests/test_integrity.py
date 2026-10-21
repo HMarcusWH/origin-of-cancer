@@ -266,6 +266,29 @@ class FirewallTests(unittest.TestCase):
         rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:freeze-e')['evidence_class']='ENGINEERING'
         self.has(rs,'INVALID_FREEZE_DECISION')
 
+    def test_gap_cannot_claim_resolution_before_kernel_freeze(self):
+        rs=freeze_fixture()
+        next(r for r in rs if r['id']=='ooc:fixture:p')['kernel_frozen']=False
+        next(r for r in rs if r['id']=='ooc:fixture:gap-a')['status']='IN_REVIEW'
+        self.has(rs,'INVALID_SCIENTIFIC_DISPOSITION')
+    def test_requirement_cannot_claim_satisfaction_before_kernel_freeze(self):
+        rs=freeze_fixture()
+        next(r for r in rs if r['id']=='ooc:fixture:p')['kernel_frozen']=False
+        next(r for r in rs if r['id']=='ooc:fixture:freeze-a')['status']='IN_REVIEW'
+        self.has(rs,'INVALID_SCIENTIFIC_DISPOSITION')
+    def test_critical_configuration_matches_frozen_import(self):
+        from pathlib import Path
+        import shutil
+        with tempfile.TemporaryDirectory() as d:
+            scratch=Path(d)
+            (scratch/'config').mkdir()
+            (scratch/'sources/baseline').mkdir(parents=True)
+            shutil.copy(ROOT/'config/project.json',scratch/'config/project.json')
+            # Frozen list must correspond to the original RG corpus, not mutable labels.
+            frozen=loads((ROOT/'sources/baseline/research_gaps_91.json').read_text())
+            configured=loads((ROOT/'config/project.json').read_text())['critical_gap_ids']
+            self.assertEqual(set(configured),{x['legacy_id'] for x in frozen if x['priority']=='CRITICAL'})
+
 class ResolutionTests(unittest.TestCase):
     def test_no_verdict_is_unknown(self):self.assertEqual(resolve([])['missing_verdict_state'],'UNKNOWN')
     def test_single_partition(self):self.assertEqual(resolve([verdict()])['partitions'][0]['state'],'UNKNOWN')

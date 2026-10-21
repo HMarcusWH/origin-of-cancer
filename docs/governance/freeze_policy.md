@@ -21,3 +21,12 @@ same scope. An unresolved or merely SUPERSEDED critical gap never permits freeze
 Synthetic/engineering findings and unadjudicated assessments do not close a
 scientific obligation; permitted analytical/formal evidence has model-specific
 claim ceilings and cannot establish biological truth by fiat.
+
+### Progress bookkeeping
+
+Scientific RESOLVED/BOUNDED and Requirement SATISFIED/BOUNDED dispositions
+are evidence-adjudicated even before a requested kernel freeze. Merely
+SUPERSEDED critical gaps remain open blockers until a new closure decision
+specifically discharges their obligation. The configured Critical RG set must
+match the SHA-locked source programme registry; it is not a mutable priority
+count that may be silently rearranged.
