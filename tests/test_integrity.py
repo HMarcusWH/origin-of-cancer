@@ -19,17 +19,17 @@ def verdict(name='v', decision='UNKNOWN', scope=None, **kw):
                 scope={'adapter':'synthetic'} if scope is None else scope,decision=decision,
                 authority_ref='ooc:fixture:authority',**kw)
 def vbase(scope=None):
-    return [node('Claim','claim'),node('Authority','authority',axes=['BIOLOGICAL_SUPPORT'],
+    return [node('Claim','claim',claim_kind='CAPABILITY'),node('Authority','authority',axes=['BIOLOGICAL_SUPPORT'],
       scope={'adapter':'synthetic'} if scope is None else scope,status='ACTIVE_RULE')]
 def evidence_base(cls='SYNTHETIC',scope=None):
     return vbase(scope)+[node('Context','context'),node('SourceLocator','loc',selector={'figure':'synthetic-fixture'}),
       node('EvidenceObject','ev',evidence_class=cls,source_locator_refs=['ooc:fixture:loc'],
            context_ref='ooc:fixture:context',witness_ids=['system-1'],status='RECORDED',
            claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',study_id='fixture-study',system_id='fixture-system',
-           provenance_class='CURATED_SEMANTIC'),
+           design_class='OBSERVATIONAL',provenance_class='CURATED_SEMANTIC'),
       node('EvidenceAssessment','assessment',evidence_ref='ooc:fixture:ev',target_ref='ooc:fixture:claim',
            effect='SUPPORTS',scope={'adapter':'synthetic'} if scope is None else scope,status='ADJUDICATED',
-           provenance_class='CURATED_SEMANTIC')]
+           assessment_role='OBSERVATION',provenance_class='CURATED_SEMANTIC')]
 
 def freeze_fixture():
     """Synthetic epistemic fixture, never actual cancer evidence."""
@@ -39,7 +39,7 @@ def freeze_fixture():
     loc=node('SourceLocator','freeze-loc',selector={'figure':'freeze-fixture'})
     e=node('EvidenceObject','freeze-e',status='RECORDED',source_locator_refs=[loc['id']],
            evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
-           study_id='fixture-study',system_id='fixture-system',
+           design_class='PERTURBATION',study_id='fixture-study',system_id='fixture-system',
            provenance_class='CURATED_SEMANTIC')
     auth=node('Authority','freeze-auth',axes=['RESEARCH_POLICY'],scope=governance,status='ACTIVE_RULE')
     gd=node('Decision','gap-d',status='RECORDED',authority_ref=auth['id'],
@@ -47,18 +47,18 @@ def freeze_fixture():
             disposition_scope=science,decision_kind='RESEARCH_GAP_DISPOSITION',
             decision='RESOLVE',provenance_class='CURATED_SEMANTIC')
     g=node('ResearchGap','g',priority='CRITICAL',status='RESOLVED',decision_ref=gd['id'],
-           obligation_scope=science,obligation_domain='BIOLOGICAL')
+           obligation_scope=science,obligation_domain='BIOLOGICAL',obligation_claim_kind='CONSTITUTIVE')
     d=node('Decision','freeze-d',status='RECORDED',authority_ref=auth['id'],
            subject_ref='ooc:fixture:q',evidence_refs=[e['id']],scope=governance,
            disposition_scope=science,decision_kind='REQUIREMENT_DISPOSITION',
            decision='SATISFY',provenance_class='CURATED_SEMANTIC')
     q=node('Requirement','q',status='SATISFIED',subject_ref=p['id'],gap_ref=g['id'],
            decision_ref=d['id'],satisfaction_evidence_refs=[e['id']],
-           obligation_scope=science,obligation_domain='BIOLOGICAL')
+           obligation_scope=science,obligation_domain='BIOLOGICAL',obligation_claim_kind='CONSTITUTIVE')
     a=node('EvidenceAssessment','freeze-a',status='ADJUDICATED',evidence_ref=e['id'],
-           target_ref=q['id'],effect='SUPPORTS',scope=science,provenance_class='CURATED_SEMANTIC')
+           target_ref=q['id'],effect='SUPPORTS',scope=science,assessment_role='CAUSAL',provenance_class='CURATED_SEMANTIC')
     ga=node('EvidenceAssessment','gap-a',status='ADJUDICATED',evidence_ref=e['id'],
-            target_ref=g['id'],effect='SUPPORTS',scope=science,provenance_class='CURATED_SEMANTIC')
+            target_ref=g['id'],effect='SUPPORTS',scope=science,assessment_role='CAUSAL',provenance_class='CURATED_SEMANTIC')
     return [p,loc,e,auth,gd,g,d,q,a,ga]
 
 class StrictIO(unittest.TestCase):

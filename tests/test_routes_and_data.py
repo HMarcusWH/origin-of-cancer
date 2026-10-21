@@ -18,18 +18,18 @@ def route_fixture(mode='SAME_SYSTEM'):
         node('SourceLocator','l',selector={'figure':'fixture'}),
         node('EvidenceObject','e1',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l'],
              context_ref=ctx,status='RECORDED',evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
-             study_id='fixture-study',system_id='fixture-system',
+             design_class='MIXED',study_id='fixture-study',system_id='fixture-system',
              provenance_class='CURATED_SEMANTIC'),
         node('EvidenceObject','e2',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l'],
              context_ref=ctx,status='RECORDED',evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
-             study_id='fixture-study',system_id='fixture-system',
+             design_class='PERTURBATION',study_id='fixture-study',system_id='fixture-system',
              provenance_class='CURATED_SEMANTIC'),
         node('EvidenceAssessment','a1',evidence_ref='ooc:fixture:e1',target_ref='ooc:fixture:t1',
-             effect='SUPPORTS',scope=scope,status='ADJUDICATED',provenance_class='CURATED_SEMANTIC'),
+             effect='SUPPORTS',scope=scope,status='ADJUDICATED',assessment_role='CAUSAL',provenance_class='CURATED_SEMANTIC'),
         node('EvidenceAssessment','a2',evidence_ref='ooc:fixture:e2',target_ref='ooc:fixture:t2',
-             effect='SUPPORTS',scope=scope,status='ADJUDICATED',provenance_class='CURATED_SEMANTIC'),
+             effect='SUPPORTS',scope=scope,status='ADJUDICATED',assessment_role='CAUSAL',provenance_class='CURATED_SEMANTIC'),
         node('EvidenceAssessment','fa',evidence_ref='ooc:fixture:e1',target_ref='ooc:fixture:f',
-             effect='SUPPORTS',scope=scope,status='ADJUDICATED',provenance_class='CURATED_SEMANTIC')]
+             effect='SUPPORTS',scope=scope,status='ADJUDICATED',assessment_role='ANCESTRY',provenance_class='CURATED_SEMANTIC')]
     for i in (1,2):
         rs.append(node('Transition','t'+str(i),status='SUPPORTED_SCOPED',
                        source_state_ref=f'ooc:fixture:s{i}',target_state_ref=f'ooc:fixture:s{i+1}',
@@ -49,10 +49,10 @@ def bridge_fixture():
     b=node('EvidenceObject','bridge',status='RECORDED',context_ref='ooc:fixture:c',
            source_locator_refs=['ooc:fixture:l'],witness_ids=['system1','system2'],
            evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
-           study_id='fixture-study',system_id='fixture-system',provenance_class='CURATED_SEMANTIC')
+           design_class='MIXED',study_id='fixture-study',system_id='fixture-system',provenance_class='CURATED_SEMANTIC')
     a=node('EvidenceAssessment','bridge-a',status='ADJUDICATED',evidence_ref=b['id'],
            target_ref='ooc:fixture:r',effect='SUPPORTS',scope={'adapter':'synthetic'},
-           provenance_class='CURATED_SEMANTIC')
+           assessment_role='CAUSAL',provenance_class='CURATED_SEMANTIC')
     r.extend([b,a])
     get(r,'w')['bridge_evidence_refs']=[b['id']]
     get(r,'w')['bridge_links']=[{
