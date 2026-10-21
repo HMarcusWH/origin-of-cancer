@@ -1681,6 +1681,10 @@
         },
         "type": {
           "const": "Execution"
+        },
+        "output_artifact_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -4275,6 +4279,10 @@
             "DATA_INDEPENDENCE",
             "STUDY_DESIGN"
           ]
+        },
+        "obligation_claim_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -4403,6 +4411,10 @@
             "DATA_INDEPENDENCE",
             "STUDY_DESIGN"
           ]
+        },
+        "obligation_claim_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [

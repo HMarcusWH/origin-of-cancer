@@ -137,7 +137,8 @@ REF_TYPES = {
     "result_ref": {"Result"}, "candidate_set_ref": {"CandidateSet"},
     "source_context_ref": {"Context"}, "target_context_ref": {"Context"},
     "context_transition_assessment_ref": {"EvidenceAssessment"},
-    "verification_artifact_ref": {"SourceArtifact"},
+    "verification_artifact_ref": {"SourceArtifact"}, "output_artifact_ref": {"SourceArtifact"},
+    "obligation_claim_ref": {"Claim"},
     "conflict_resolution_ref": {"Decision"},
 }
 REF_LIST_TYPES = {
@@ -294,6 +295,7 @@ def _verified_result(index, result, subject_ref, scope):
     protocol = index.get(tst.get("protocol_ref"), {})
     model = index.get(result.get("model_instance_ref"), {})
     artifact = index.get(result.get("verification_artifact_ref"), {})
+    output_artifact = index.get(exe.get("output_artifact_ref"), {})
     receipt = result.get("verification_receipt")
     claim = index.get(subject_ref, {})
     verifier = index.get(exe.get("software_ref"), {})
@@ -307,6 +309,9 @@ def _verified_result(index, result, subject_ref, scope):
         and receipt.get("artifact_sha256") == artifact.get("sha256")
         and receipt.get("verifier_sha256") == verifier.get("sha256")
         and receipt.get("execution_output_sha256") == exe.get("output_sha256")
+        and output_artifact.get("type") == "SourceArtifact"
+        and output_artifact.get("sha256") == exe.get("output_sha256")
+        and bool(output_artifact.get("path"))
         and bool(receipt.get("verifier_version"))
         and result.get("status") == "VALIDATED"
         and result.get("outcome") == "PASS"
@@ -374,7 +379,13 @@ def _admissible_disposition_evidence(index, assessment, target_ref, scope, domai
                 allowed_classes={"FORMAL"}, allowed_ceilings={"MATHEMATICAL_EXACT"}):
             return False
         result = index.get(evidence.get("result_ref"), {})
-        return _verified_result(index, result, target_ref, scope)
+        obligation_claim = index.get(obligation.get("obligation_claim_ref"), {})
+        return bool(
+            obligation_claim.get("type") == "Claim"
+            and obligation_claim.get("claim_kind") == "CERTIFICATE"
+            and canonical(obligation_claim.get("scope")) == canonical(scope)
+            and _verified_result(index, result, obligation_claim.get("id"), scope)
+        )
     if evidence.get("evidence_class") == "ANALYTIC":
         # Analytical metadata alone is not independent freeze evidence.
         return False
@@ -862,6 +873,19 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 except (IntegrityError, OSError):
                     error("INVALID_PROOF_ARTIFACT_PATH", r)
             exe = index.get(r.get("execution_ref"), {})
+            output = index.get(exe.get("output_artifact_ref"), {})
+            if (output.get("type") != "SourceArtifact"
+                or not output.get("sha256")
+                or output.get("sha256") != exe.get("output_sha256")):
+                error("UNBOUND_EXECUTION_OUTPUT", r)
+            if root is not None and output.get("path"):
+                try:
+                    output_path = safe_path(root, output["path"])
+                    if (not output_path.is_file()
+                        or sha256(output_path.read_bytes()) != output.get("sha256")):
+                        error("EXECUTION_OUTPUT_BYTE_DRIFT", r)
+                except (IntegrityError, OSError):
+                    error("INVALID_EXECUTION_OUTPUT_PATH", r)
             software = index.get(exe.get("software_ref"), {})
             if root is not None and software.get("path"):
                 try:
