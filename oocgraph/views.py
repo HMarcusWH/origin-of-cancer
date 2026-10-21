@@ -5,6 +5,7 @@ from collections import Counter
 from pathlib import Path
 from .core import (canonical, loads, read_graph, resolve, sha256, file_inventory,
                    file_class, subject_digest, effective_route_state, effective_transition_state,
+                   effective_data_use_state,
                    approved_retractions)
 
 PRODUCTS = [
@@ -94,7 +95,12 @@ def make_views(root: Path) -> dict[str, str]:
         'import_reviews_required':[r['id'] for r in items('MethodImport')],
         'backend_rule':'Empty model-instance and evidence collections are legitimate scientific OPEN, not broken engineering.'})
     out['generated/negative_results.json']=dump({'results':[r for r in items('Result') if r.get('negative_result')], 'absence_is_not_no_failures_in_nature':True})
-    out['generated/data_use_firewall.json']=dump({'data_uses':items('DataUse'),'datasets':items('Dataset'),'independence_assumed':False})
+    out['generated/data_use_firewall.json']=dump({
+        'data_uses':items('DataUse'), 'datasets':items('Dataset'),
+        'effective_independence':[
+            {'id':r['id'], **effective_data_use_state(records, r)}
+            for r in items('DataUse')],
+        'independence_assumed':False})
     out['generated/route_atlas.json']=dump({
         'routes':items('Route'), 'transitions':items('Transition'),
         'effective_routes':[

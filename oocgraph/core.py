@@ -109,7 +109,13 @@ def resolve(records: Iterable[dict]) -> dict:
             subject = index.get(v.get("subject_ref"), {})
             route_contested = (subject.get("type") == "Route"
                                and effective_route_state(records, subject)["effective"] == "CONTESTED")
-            if (retracted or route_contested or _material_scoped_contradictions(
+            used_data = [du for du in records if du.get("type") == "DataUse"
+                         and du.get("model_instance_ref") == v.get("model_instance_ref")]
+            model_data_contested = any(
+                effective_data_use_state(records, du)["effective"] == "CONTESTED"
+                for du in used_data)
+            if (retracted or route_contested or model_data_contested
+                or _material_scoped_contradictions(
                     records, index, [v.get("subject_ref")], v.get("scope"))):
                 status = "CONTESTED"
         output.append({"partition": loads(key), "state": status, "active_verdict_refs": active,
@@ -536,6 +542,17 @@ def approved_retractions(records, index=None):
     return {k: sorted(v) for k,v in sorted(retracted.items())}
 
 
+def effective_data_use_state(records, data_use, retractions=None):
+    """Historical DataUse admission remains; revoked audit support is contested."""
+    raw = data_use.get("status", "PROPOSED")
+    if raw != "ADMITTED":
+        return {"declared": raw, "effective": raw, "retracted_audit_refs": []}
+    retractions = approved_retractions(records) if retractions is None else retractions
+    refs = sorted(set(data_use.get("independence_evidence_refs", [])) & set(retractions))
+    return {"declared": raw, "effective": "CONTESTED" if refs else "ADMITTED",
+            "retracted_audit_refs": refs}
+
+
 def _retracted_support_refs(records, index, assessment_refs):
     retracted = approved_retractions(records, index)
     return sorted({a.get("evidence_ref") for ref in assessment_refs
@@ -576,11 +593,11 @@ def _admitted_transition_assessments(records, index, transition, scope):
         return []
     sc = index.get(transition.get("source_state_ref"), {}).get("context_ref")
     tc = index.get(transition.get("target_state_ref"), {}).get("context_ref")
-    retired = approved_retractions(records, index)
+    # Validate the historical declaration against its original assessments;
+    # a later retraction changes effective state, not immutable history.
     return [index.get(ref, {}) for ref in transition.get("evidence_assessment_refs", [])
             if isinstance(ref, str)
             and index.get(index.get(ref, {}).get("evidence_ref"), {}).get("context_ref") in {sc, tc}
-            and index.get(ref, {}).get("evidence_ref") not in retired
             and _appropriate_biological_assessment(
                 index, index.get(ref, {}), transition.get("id"), scope, "TRANSITION")]
 
