@@ -291,6 +291,30 @@ class IndependenceEvidenceTests(unittest.TestCase):
     def test_unadjudicated_pair_rejected(self):
         get(self.records,'audit-b')['status']='IN_REVIEW'
         self.has('UNKNOWN_PARTITION_INDEPENDENCE')
+    def test_adjudicated_audit_retraction_contests_without_erasing_history(self):
+        scope={'domain':'DATA_AUDIT_GOVERNANCE'}
+        self.records.extend([
+            node('Authority','audit-authority',status='ACTIVE_RULE',
+                 axes=['EVIDENCE_POLICY'],scope=scope),
+            node('EvidenceObject','audit-retraction-notice',
+                 status='RECORDED',evidence_class='REVIEW',
+                 claim_ceiling='VERIFICATION_ONLY',
+                 context_ref='ooc:fixture:audit-context',
+                 source_locator_refs=['ooc:fixture:audit-loc'],
+                 study_id='synthetic',system_id='audit',
+                 provenance_class='CURATED_SEMANTIC'),
+            node('EvidenceAssessment','audit-retraction-assessment',
+                 status='ADJUDICATED',effect='RETRACTS',
+                 assessment_role='RETRACTION',
+                 target_ref='ooc:fixture:audit-e',
+                 evidence_ref='ooc:fixture:audit-retraction-notice',
+                 authority_ref='ooc:fixture:audit-authority',
+                 scope=scope,provenance_class='CURATED_SEMANTIC')
+        ])
+        from oocgraph.core import effective_data_use_state
+        self.assertEqual(validate_records(self.records),[])
+        self.assertEqual(effective_data_use_state(self.records,self.a)['effective'],'CONTESTED')
+        self.assertEqual(effective_data_use_state(self.records,self.b)['effective'],'CONTESTED')
     def test_overlapping_units_never_accepted(self):
         self.b['unit_keys']=['A']
         self.has('DATA_USE_LEAKAGE')

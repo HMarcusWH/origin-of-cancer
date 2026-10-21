@@ -355,6 +355,29 @@ class HistoryTests(unittest.TestCase):
         a=node('Protocol','p',frozen=True);b={**a,'metrics':['changed']};self.assertTrue(history_violations([a],[b]))
     def test_adjudicated_assessment_mutation_fails(self):
         a=node('EvidenceAssessment','a',status='ADJUDICATED');b={**a,'effect':'CONTRADICTS'};self.assertTrue(history_violations([a],[b]))
+    def test_admitted_result_gate_criterion_cannot_be_rewritten(self):
+        gate=node('Gate','g',criterion='Original mathematical obligation')
+        test=node('Test','t',gate_ref=gate['id'])
+        result=node('Result','r',test_ref=test['id'])
+        old=[gate,test,result]
+        new=[{**gate,'criterion':'Altered obligation'},test,result]
+        self.assertTrue(any('MUTATED_ADMITTED_DEPENDENCY' in e
+                            for e in history_violations(old,new)))
+    def test_closed_route_state_variable_cannot_be_rewritten(self):
+        variable=node('StateVariable','v',definition='Original biological descriptor')
+        state=node('BiologicalState','s',variable_refs=[variable['id']])
+        transition=node('Transition','t',source_state_ref=state['id'],
+                        target_state_ref=state['id'])
+        route=node('Route','r',status='CLOSED',transition_refs=[transition['id']])
+        old=[variable,state,transition,route]
+        new=[{**variable,'definition':'Retconned descriptor'},state,transition,route]
+        self.assertTrue(any('MUTATED_ADMITTED_DEPENDENCY' in e
+                            for e in history_violations(old,new)))
+    def test_unrelated_draft_still_mutable(self):
+        old=[node('Claim','unrelated',statement='Draft'),
+             node('Result','r')]
+        new=[{**old[0],'statement':'Revised draft'},old[1]]
+        self.assertEqual(history_violations(old,new),[])
     def test_draft_claim_may_evolve(self):
         a=node('Claim','x');b={**a,'label':'revised claim'};self.assertEqual(history_violations([a],[b]),[])
     def test_append_only_evidence_allowed(self):
