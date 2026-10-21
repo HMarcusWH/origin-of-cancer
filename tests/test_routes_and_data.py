@@ -106,7 +106,7 @@ class RouteTests(unittest.TestCase):
     def test_closed_route_requires_explicit_scope(self):
         r=route_fixture();del get(r,'r')['scope'];self.has(r,'MISSING_ROUTE_SCOPE')
     def test_route_assessment_scope_must_match(self):
-        r=route_fixture();get(r,'a1')['scope']={'adapter':'other'};self.has(r,'ROUTE_ASSESSMENT_SCOPE_MISMATCH')
+        r=route_fixture();get(r,'a1')['scope']={'adapter':'other'};self.has(r,'UNSUPPORTED_ROUTE_SEGMENT')
     def test_context_mismatch(self):
         r=route_fixture();get(r,'t1')['context_ref']='ooc:fixture:different';self.has(r,'ROUTE_CONTEXT_MISMATCH')
     def test_inactive_transition_cannot_close_route(self):
@@ -188,7 +188,9 @@ class DataUseTests(unittest.TestCase):
     def test_protocol_change_does_not_reset_data_independence(self):
         r=data_fixture();r.append(node('Protocol','p2'));get(r,'u2')['protocol_ref']='ooc:fixture:p2';get(r,'u2')['unit_keys']=['A']
         self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
-    def test_different_candidate_reuse_explicit(self):
-        r=data_fixture();r.append(node('ModelInstance','other'));get(r,'u2')['model_instance_ref']='ooc:fixture:other';get(r,'u2')['unit_keys']=['A'];self.assertEqual(validate_records(r),[])
+    def test_cross_candidate_confirm_reuse_is_not_independent(self):
+        r=data_fixture();r.append(node('ModelInstance','other'))
+        get(r,'u2')['model_instance_ref']='ooc:fixture:other';get(r,'u2')['unit_keys']=['A']
+        self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
 
 if __name__=='__main__':unittest.main()

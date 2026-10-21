@@ -254,6 +254,8 @@ class FirewallTests(unittest.TestCase):
             x['status']='BOUNDED';x['bound_scope']={'adapter':'synthetic'}
         for name in ('freeze-a','gap-a'):
             next(r for r in rs if r['id']=='ooc:fixture:'+name)['effect']='CONSTRAINS'
+        for name in ('freeze-d','gap-d'):
+            next(r for r in rs if r['id']=='ooc:fixture:'+name)['decision']='BOUND'
         return rs
     def test_bounded_freeze_with_exact_scientific_scope(self):
         self.assertEqual(validate_records(self.bounded_fixture()),[])
