@@ -101,6 +101,11 @@ def resolve(records: Iterable[dict]) -> dict:
         for node in sorted(edges): walk(node)
         active = sorted(v["id"] for v in members if v["id"] not in removed)
         status = verdicts[active[0]]["decision"] if len(active) == 1 else "CONFLICT"
+        if len(active) == 1 and status == "SUPPORTED_SCOPED":
+            v = verdicts[active[0]]
+            index = {r["id"]: r for r in records}
+            if _material_scoped_contradictions(records, index, [v.get("subject_ref")], v.get("scope")):
+                status = "CONTESTED"
         output.append({"partition": loads(key), "state": status, "active_verdict_refs": active,
                        "historical_verdict_refs": sorted(removed)})
     return {"policy": "EXPLICIT_SCOPED_SUPERSESSION_ONLY", "partitions": output,
@@ -501,6 +506,22 @@ def _material_scoped_contradictions(records, index, target_refs, scope):
         and _qualified_assessment(index, a, a.get("target_ref"), scope,
                                   effect=a.get("effect"))
     )
+
+
+def effective_transition_state(records, transition):
+    """The current scoped admission of a biological transition, not its raw label."""
+    declared = transition.get("status", "OPEN")
+    if declared != "SUPPORTED_SCOPED":
+        return {"declared": declared, "effective": declared, "contradiction_refs": []}
+    index = {r["id"]: r for r in records}
+    scope = transition.get("scope")
+    contradictions = _material_scoped_contradictions(
+        records, index, [transition.get("id")], scope)
+    qualified = _admitted_transition_assessments(records, index, transition, scope)
+    effective = ("CONTESTED" if contradictions else
+                 "ADMITTED_SUPPORTED_SCOPED" if qualified else "UNADMITTED")
+    return {"declared": declared, "effective": effective,
+            "contradiction_refs": contradictions}
 
 
 def effective_route_state(records, route):

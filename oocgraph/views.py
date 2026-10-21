@@ -3,7 +3,8 @@ from __future__ import annotations
 import html
 from collections import Counter
 from pathlib import Path
-from .core import canonical, loads, read_graph, resolve, sha256, file_inventory, file_class, subject_digest
+from .core import (canonical, loads, read_graph, resolve, sha256, file_inventory,
+                   file_class, subject_digest, effective_route_state, effective_transition_state)
 
 PRODUCTS = [
  'generated/graph.json','generated/ooc-graph.jsonld','generated/current_state.json',
@@ -76,7 +77,11 @@ def make_views(root: Path) -> dict[str, str]:
     out['generated/blockers.md']='# Critical kernel-freeze blockers\n\n'+table(['ID','Question','Status'],[(r['legacy_id'],r['question'],r['status']) for r in opencrit])
     out['generated/blockers.json']=dump({'critical_open':[r['id'] for r in opencrit],'requirements':items('Requirement'),'kernel_freeze_allowed':project['kernel_frozen'] and not opencrit})
     out['generated/authority_map.json']=dump({'authorities':items('Authority'),'resolution':resolver,'empirical_truth_ownership':False})
-    out['generated/evidence_map.json']=dump({'evidence':items('EvidenceObject'),'assessments':items('EvidenceAssessment'),'sources_are_not_evidence':True})
+    out['generated/evidence_map.json']=dump({
+        'evidence':items('EvidenceObject'),
+        'assessments':items('EvidenceAssessment'),
+        'sources_are_not_evidence':True,
+        'reported_adjudication_is_not_independent_verification':True})
     out['generated/impact_graph.json']=dump({'scope':'EXPLICIT_DEPENDENCY_EDGES_ONLY','relations':[r for r in edges if r['kind'] in {'BLOCKS','REQUIRES','PART_OF'}],'causal_path_claim':False})
     out['generated/repository_coverage.json']=dump({'files':coverage,'file_count':len(files),'unindexed':[],'unclassified':[],'subject_sha256':digest})
     out['generated/documentation_coverage.json']=dump({'required_documents':required,'missing':[p for p in required if not (root/p).is_file()],'document_presence_is_science_complete':False})
@@ -88,7 +93,17 @@ def make_views(root: Path) -> dict[str, str]:
         'backend_rule':'Empty model-instance and evidence collections are legitimate scientific OPEN, not broken engineering.'})
     out['generated/negative_results.json']=dump({'results':[r for r in items('Result') if r.get('negative_result')], 'absence_is_not_no_failures_in_nature':True})
     out['generated/data_use_firewall.json']=dump({'data_uses':items('DataUse'),'datasets':items('Dataset'),'independence_assumed':False})
-    out['generated/route_atlas.json']=dump({'routes':items('Route'),'transitions':items('Transition'),'mvcl_reference_edges':items('MVCLReference'),'reference_edges_are_admitted_routes':False})
+    out['generated/route_atlas.json']=dump({
+        'routes':items('Route'), 'transitions':items('Transition'),
+        'effective_routes':[
+            {'id':r['id'], **effective_route_state(records,r)}
+            for r in items('Route')],
+        'effective_transitions':[
+            {'id':t['id'], **effective_transition_state(records,t)}
+            for t in items('Transition')],
+        'declared_status_is_not_current_scientific_authority':True,
+        'mvcl_reference_edges':items('MVCLReference'),
+        'reference_edges_are_admitted_routes':False})
     out['generated/model_applicability.json']=dump({'estimands':items('Estimand'),'classes':items('ModelClass'),'instances':items('ModelInstance'),'applicability':items('MethodApplicability'),'universal_backend_selected':False})
     out['generated/README.md']='# Generated views\n\nDo not edit these files. Run `python tools/build.py --write` after an authored change. The graph, resolver, tables and static explorer are projections; they do not create scientific authority. Full graph exports are deterministic and carry no build-time clock.\n'
     payload=canonical({'nodes':nodes,'relations':edges}).replace('<','\\u003c').replace('&','\\u0026')
