@@ -102,28 +102,28 @@ class RouteTests(unittest.TestCase):
         r=route_fixture();get(r,'w')['evidence_refs']=['ooc:fixture:e2'];get(r,'w')['bridge_evidence_refs']=['ooc:fixture:e1']
         self.has(r,'ROUTE_EVIDENCE_OUTSIDE_WITNESS')
     def test_validated_bridge_requires_adjudicated_bridge_evidence(self):
-        r=route_fixture('VALIDATED_BRIDGE')
-        b=node('EvidenceObject','bridge',status='RECORDED',context_ref='ooc:fixture:c',
-               source_locator_refs=['ooc:fixture:l'],witness_ids=['bridge'])
-        r.append(b);get(r,'w')['bridge_evidence_refs']=[b['id']]
-        self.has(r,'UNADJUDICATED_BRIDGE_EVIDENCE')
+        r=bridge_fixture();get(r,'bridge-a')['status']='IN_REVIEW'
+        self.has(r,'INVALID_BRIDGE_LINK')
     def test_validated_bridge_rejects_wrong_context(self):
-        r=route_fixture('VALIDATED_BRIDGE')
-        b=node('EvidenceObject','bridge',status='RECORDED',context_ref='ooc:fixture:other',
-               source_locator_refs=['ooc:fixture:l'],witness_ids=['bridge'])
-        a=node('EvidenceAssessment','bridge-a',status='ADJUDICATED',evidence_ref=b['id'],target_ref='ooc:fixture:r',
-               effect='SUPPORTS',scope={'adapter':'synthetic'})
-        r.extend([b,a]);get(r,'w')['bridge_evidence_refs']=[b['id']]
-        self.has(r,'INVALID_BRIDGE_EVIDENCE')
+        r=bridge_fixture();get(r,'bridge')['context_ref']='ooc:fixture:other'
+        self.has(r,'INVALID_BRIDGE_LINK')
     def test_validated_bridge_with_adjudication_is_allowed(self):
-        r=route_fixture('VALIDATED_BRIDGE')
-        get(r,'e2')['witness_ids']=['system2']
-        b=node('EvidenceObject','bridge',status='RECORDED',context_ref='ooc:fixture:c',
-               source_locator_refs=['ooc:fixture:l'],witness_ids=['bridge'])
-        a=node('EvidenceAssessment','bridge-a',status='ADJUDICATED',evidence_ref=b['id'],target_ref='ooc:fixture:r',
-               effect='SUPPORTS',scope={'adapter':'synthetic'})
-        r.extend([b,a]);get(r,'w')['bridge_evidence_refs']=[b['id']]
-        self.assertEqual(validate_records(r),[])
+        self.assertEqual(validate_records(bridge_fixture()),[])
+    def test_bridge_must_link_adjacent_transitions(self):
+        r=bridge_fixture();get(r,'w')['bridge_links'][0]['from_transition_ref']='ooc:fixture:t2'
+        self.has(r,'UNRELATED_BRIDGE_LINK')
+    def test_bridge_must_bind_declared_witnesses(self):
+        r=bridge_fixture();get(r,'w')['bridge_links'][0]['to_witness_id']='unrelated'
+        self.has(r,'INVALID_BRIDGE_LINK')
+    def test_bridge_must_bind_primary_biological_evidence(self):
+        r=bridge_fixture();get(r,'bridge')['evidence_class']='SYNTHETIC'
+        self.has(r,'INVALID_BRIDGE_LINK')
+    def test_bridge_must_bind_all_disjoint_handoffs(self):
+        r=bridge_fixture();get(r,'w')['bridge_links']=[]
+        self.has(r,'UNBRIDGED_WITNESS_HANDOFF')
+    def test_bridge_cannot_include_unbound_evidence(self):
+        r=bridge_fixture();get(r,'w')['bridge_evidence_refs'].append('ooc:fixture:e1')
+        self.has(r,'UNBOUND_BRIDGE_EVIDENCE')
     def test_empty_common_witness_ids(self):
         r=route_fixture();get(r,'w')['common_witness_ids']=[];self.has(r,'MISSING_COMMON_WITNESS')
     def test_witness_context_mismatch(self):
