@@ -1301,23 +1301,116 @@ def validate_repository(root: Path) -> list[str]:
                     errors.append(f"BROKEN_DOC_LINK:{p}:{target}")
     return sorted(set(errors))
 
+IMMUTABLE_ROOT_TYPES = frozenset({
+    "Result", "Execution", "Verdict", "Decision", "EvidenceObject",
+    "SourceVerification"
+})
+IMMUTABLE_REFERENCES = {
+    "Result": {"subject_ref", "test_ref", "execution_ref", "verification_artifact_ref",
+               "model_instance_ref", "source_locator_refs"},
+    "Execution": {"input_refs", "protocol_ref", "software_ref",
+                  "model_instance_ref", "source_locator_refs"},
+    "Verdict": {"subject_ref", "authority_ref", "assessment_refs", "result_refs",
+                "model_instance_ref", "transfer_decision_ref", "source_locator_refs"},
+    "Decision": {"subject_ref", "authority_ref", "evidence_refs", "source_locator_refs",
+                 "transfer_adapter_refs"},
+    "EvidenceObject": {"source_locator_refs", "source_ref", "context_ref",
+                       "result_ref", "model_instance_ref"},
+    "EvidenceAssessment": {"evidence_ref", "target_ref", "source_locator_refs"},
+    "SourceVerification": {"source_ref", "source_locator_refs"},
+    "ResearchGap": {"source_locator_refs"},
+    "Requirement": {"gap_ref", "source_locator_refs", "satisfaction_evidence_refs"},
+    "Claim": {"assumption_refs", "source_locator_refs"},
+    "SourceLocator": {"source_locator_refs"},
+    "SourceArtifact": {"source_locator_refs"},
+    "Route": {"boundary_ref", "founder_ref", "context_ref", "transition_refs",
+              "witness_bundle_ref", "source_locator_refs"},
+    "Transition": {"source_state_ref", "target_state_ref", "context_ref",
+                   "source_context_ref", "target_context_ref",
+                   "context_transition_assessment_ref", "evidence_assessment_refs"},
+    "FounderEnsemble": {"context_ref", "member_refs", "ancestry_assessment_refs"},
+    "Boundary": {"context_ref", "state_refs", "source_locator_refs"},
+    "Protocol": {"null_refs", "source_locator_refs"},
+    "ModelInstance": {"applicability_ref", "assumption_refs", "context_ref",
+                      "equation_refs", "parameter_refs", "estimand_refs",
+                      "protocol_refs", "state_variable_refs", "software_ref",
+                      "observation_operator_ref", "intervention_operator_refs",
+                      "source_locator_refs"},
+    "MethodApplicability": {"assumption_refs", "domain_ref", "estimand_ref",
+                             "model_class_ref", "source_locator_refs"},
+    "Parameter": {"provenance_ref", "source_locator_refs"},
+    "ParameterProvenance": {"source_locator_refs", "data_use_refs"},
+    "Equation": {"domain_ref", "variable_refs", "assumption_refs", "source_locator_refs"},
+    "NullModel": {"target_claim_ref", "model_class_ref", "source_locator_refs"},
+    "DataUse": {"dataset_ref", "protocol_ref", "independence_evidence_refs",
+                "candidate_set_ref", "source_locator_refs"},
+    "WitnessBundle": {"evidence_refs", "bridge_evidence_refs", "context_ref"},
+}
+
+
+def _locked_scientific_roots(records):
+    for r in records:
+        typ, status = r.get("type"), r.get("status")
+        if (typ in IMMUTABLE_ROOT_TYPES
+            or (typ == "ModelInstance" and status in {"FROZEN", "ADMITTED", "RETIRED"})
+            or (typ == "Protocol" and r.get("frozen") is True)
+            or (typ == "EvidenceAssessment" and status == "ADJUDICATED")
+            or (typ == "DataUse" and status == "ADMITTED")
+            or (typ == "Claim" and status == "FROZEN")
+            or (typ == "Route" and status == "CLOSED")
+            or (typ == "Transition" and status == "SUPPORTED_SCOPED")
+            or (typ == "ResearchGap" and status in {"RESOLVED", "BOUNDED"})
+            or (typ == "Requirement" and status in {"SATISFIED", "BOUNDED"})):
+            yield r["id"]
+
+
+def scientific_dependency_closure(records):
+    """Content-addressed scientific meaning; no reverse associations or prose mentions.
+
+    Cycles in biological mechanism records cannot cause infinite recursion here.
+    Only *existing* historical refs are followed; new scientific references on a
+    successor must use a new ID and their own admission receipt.
+    """
+    index = {r["id"]: r for r in records}
+    pending = list(_locked_scientific_roots(records))
+    locked = set()
+    while pending:
+        ident = pending.pop()
+        if ident in locked:
+            continue
+        record = index.get(ident)
+        if not record:
+            continue
+        locked.add(ident)
+        for field in IMMUTABLE_REFERENCES.get(record.get("type"), {"source_locator_refs"}):
+            val = record.get(field)
+            if isinstance(val, str):
+                pending.append(val)
+            elif isinstance(val, list):
+                pending.extend(item for item in val if isinstance(item, str))
+        if record.get("type") == "WitnessBundle":
+            for link in record.get("bridge_links", []):
+                if isinstance(link, dict):
+                    pending.extend(str(link[k]) for k in (
+                        "from_transition_ref", "to_transition_ref", "assessment_ref",
+                        "evidence_ref") if isinstance(link.get(k), str))
+        # A source locator's path points to a SHA-locked imported source or to
+        # a revisioned authored artifact, not another mutable graph identity.
+    return locked
+
+
 def history_violations(before: list[dict], after: list[dict]) -> list[str]:
-    """Immutable evidence/decisions retain memory; draft claims may still evolve."""
-    new = {r['id']: r for r in after}
+    """Protect exact admitted historical meanings, not unrelated mutable drafts."""
+    old = {r["id"]: r for r in before}
+    new = {r["id"]: r for r in after}
     failures = []
-    immutable = {'Result', 'Execution', 'Verdict', 'Decision', 'EvidenceObject', 'SourceVerification'}
-    for old in before:
-        locked = (old.get('type') in immutable
-                  or (old.get('type') == 'ModelInstance' and old.get('status') in {'FROZEN','ADMITTED','RETIRED'})
-                  or (old.get('type') == 'Protocol' and old.get('frozen') is True)
-                  or (old.get('type') == 'EvidenceAssessment' and old.get('status') == 'ADJUDICATED')
-                  or (old.get('type') == 'DataUse' and old.get('status') == 'ADMITTED'))
-        if not locked: continue
-        if old['id'] not in new:
-            failures.append('DELETED_IMMUTABLE:'+old['id'])
-        elif canonical(old) != canonical(new[old['id']]):
-            failures.append('MUTATED_IMMUTABLE:'+old['id'])
+    for ident in sorted(scientific_dependency_closure(before)):
+        if ident not in new:
+            failures.append("DELETED_ADMITTED_DEPENDENCY:" + ident)
+        elif canonical(old[ident]) != canonical(new[ident]):
+            failures.append("MUTATED_ADMITTED_DEPENDENCY:" + ident)
     return failures
+
 
 MODEL_IDENTITY_FORWARD_REFS = {
     "ModelInstance": {"applicability_ref", "assumption_refs", "context_ref",
