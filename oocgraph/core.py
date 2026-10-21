@@ -418,6 +418,33 @@ def _decision_admission_errors(records, index, decision, subject_ref, scope, eff
     return errors
 
 
+def _witness_keys(evidence):
+    """Witness IDs are meaningful only within the study and biological system."""
+    return {(evidence.get("study_id"),evidence.get("system_id"),value)
+            for value in evidence.get("witness_ids",[])
+            if isinstance(value,str) and evidence.get("study_id") and evidence.get("system_id")}
+
+
+def _founder_context_ok(index, founder_ref, context_ref, seen=None):
+    """Check every nested founder and biological state; reject ancestry cycles."""
+    seen = set() if seen is None else seen
+    if founder_ref in seen:
+        return False
+    seen.add(founder_ref)
+    founder = index.get(founder_ref,{})
+    if founder.get("type") != "FounderEnsemble" or founder.get("context_ref") != context_ref:
+        return False
+    for ref in founder.get("member_refs",[]):
+        member = index.get(ref,{})
+        if member.get("type") == "FounderEnsemble":
+            if not _founder_context_ok(index,ref,context_ref,seen):
+                return False
+        elif member.get("type") == "BiologicalState" and member.get("context_ref") != context_ref:
+            return False
+    seen.remove(founder_ref)
+    return True
+
+
 def _founder_states(index, founder_ref, seen=None):
     """Resolve member states of a potentially cooperative/nested founder ensemble."""
     seen = set() if seen is None else seen
@@ -691,10 +718,12 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             founder = index.get(r.get("founder_ref"), {})
             if boundary.get("context_ref") != r.get("context_ref"):
                 error("ROUTE_BOUNDARY_CONTEXT_MISMATCH", r)
-            if founder.get("context_ref") != r.get("context_ref"):
+            if not _founder_context_ok(index,r.get("founder_ref"),r.get("context_ref")):
                 error("ROUTE_FOUNDER_CONTEXT_MISMATCH", r)
             if transitions:
                 first_state = index.get(transitions[0], {}).get("source_state_ref")
+                if index.get(first_state,{}).get("context_ref") != r.get("context_ref"):
+                    error("ROUTE_INITIAL_STATE_CONTEXT_MISMATCH", r)
                 if first_state not in boundary.get("state_refs", []):
                     error("ROUTE_BOUNDARY_NOT_ANCHORED", r)
                 if first_state not in _founder_states(index, r.get("founder_ref")):
@@ -747,7 +776,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("NONBIOLOGICAL_ROUTE_SUPPORT", r); valid = False
                     if valid:
                         segment_supported = True
-                        witnesses.update(e.get("witness_ids", []))
+                        witnesses.update(_witness_keys(e))
                 if not segment_supported:
                     error("UNSUPPORTED_ROUTE_SEGMENT", r)
                 if any(a.get("type") == "EvidenceAssessment" and a.get("target_ref") == tr
@@ -763,7 +792,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             if mode == "SAME_SYSTEM":
                 common = set.intersection(*segment_witnesses) if segment_witnesses else set()
                 declared = set(wb.get("common_witness_ids", []))
-                if not common or not declared or not declared.issubset(common):
+                if not common or not declared or not declared.issubset({x[2] for x in common}):
                     error("MISSING_COMMON_WITNESS", r)
                 if wb.get("bridge_links") or wb.get("bridge_evidence_refs"):
                     error("BRIDGE_EVIDENCE_NOT_ALLOWED_IN_SAME_SYSTEM", r)
@@ -786,8 +815,10 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     e = index.get(e_ref, {})
                     if not (
                         e_ref in bridge_evidence
-                        and link.get("from_witness_id") in segment_witnesses[i]
-                        and link.get("to_witness_id") in segment_witnesses[i+1]
+                        and any(w[2] == link.get("from_witness_id")
+                                for w in segment_witnesses[i])
+                        and any(w[2] == link.get("to_witness_id")
+                                for w in segment_witnesses[i+1])
                         and {link.get("from_witness_id"), link.get("to_witness_id")}
                             .issubset(set(e.get("witness_ids", [])))
                         and a.get("evidence_ref") == e_ref
@@ -822,7 +853,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     # Ancestry must attach to the *first admitted route segment*
                     # irrespective of whether later transitions require bridges.
                     if not segment_witnesses or not (
-                        set(e.get("witness_ids", [])) & segment_witnesses[0]):
+                        _witness_keys(e) & segment_witnesses[0]):
                         error("ROUTE_ANCESTRY_WITNESS_MISMATCH", r)
         if typ == "Verdict":
             authority = index.get(r.get("authority_ref"), {})
