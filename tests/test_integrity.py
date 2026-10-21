@@ -25,6 +25,7 @@ def evidence_base(cls='SYNTHETIC',scope=None):
     return vbase(scope)+[node('Context','context'),node('SourceLocator','loc',selector={'figure':'synthetic-fixture'}),
       node('EvidenceObject','ev',evidence_class=cls,source_locator_refs=['ooc:fixture:loc'],
            context_ref='ooc:fixture:context',witness_ids=['system-1'],status='RECORDED',
+           claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',study_id='fixture-study',system_id='fixture-system',
            provenance_class='CURATED_SEMANTIC'),
       node('EvidenceAssessment','assessment',evidence_ref='ooc:fixture:ev',target_ref='ooc:fixture:claim',
            effect='SUPPORTS',scope={'adapter':'synthetic'} if scope is None else scope,status='ADJUDICATED',
@@ -37,17 +38,23 @@ def freeze_fixture():
     p=node('Programme','p',kernel_frozen=True)
     loc=node('SourceLocator','freeze-loc',selector={'figure':'freeze-fixture'})
     e=node('EvidenceObject','freeze-e',status='RECORDED',source_locator_refs=[loc['id']],
-           evidence_class='PRIMARY_ANIMAL',provenance_class='CURATED_SEMANTIC')
+           evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
+           study_id='fixture-study',system_id='fixture-system',
+           provenance_class='CURATED_SEMANTIC')
     auth=node('Authority','freeze-auth',axes=['RESEARCH_POLICY'],scope=governance,status='ACTIVE_RULE')
     gd=node('Decision','gap-d',status='RECORDED',authority_ref=auth['id'],
             subject_ref='ooc:fixture:g',evidence_refs=[e['id']],scope=governance,
-            disposition_scope=science,provenance_class='CURATED_SEMANTIC')
-    g=node('ResearchGap','g',priority='CRITICAL',status='RESOLVED',decision_ref=gd['id'])
+            disposition_scope=science,decision_kind='RESEARCH_GAP_DISPOSITION',
+            decision='RESOLVE',provenance_class='CURATED_SEMANTIC')
+    g=node('ResearchGap','g',priority='CRITICAL',status='RESOLVED',decision_ref=gd['id'],
+           obligation_scope=science,obligation_domain='BIOLOGICAL')
     d=node('Decision','freeze-d',status='RECORDED',authority_ref=auth['id'],
            subject_ref='ooc:fixture:q',evidence_refs=[e['id']],scope=governance,
-           disposition_scope=science,provenance_class='CURATED_SEMANTIC')
+           disposition_scope=science,decision_kind='REQUIREMENT_DISPOSITION',
+           decision='SATISFY',provenance_class='CURATED_SEMANTIC')
     q=node('Requirement','q',status='SATISFIED',subject_ref=p['id'],gap_ref=g['id'],
-           decision_ref=d['id'],satisfaction_evidence_refs=[e['id']])
+           decision_ref=d['id'],satisfaction_evidence_refs=[e['id']],
+           obligation_scope=science,obligation_domain='BIOLOGICAL')
     a=node('EvidenceAssessment','freeze-a',status='ADJUDICATED',evidence_ref=e['id'],
            target_ref=q['id'],effect='SUPPORTS',scope=science,provenance_class='CURATED_SEMANTIC')
     ga=node('EvidenceAssessment','gap-a',status='ADJUDICATED',evidence_ref=e['id'],
@@ -288,6 +295,26 @@ class FirewallTests(unittest.TestCase):
             frozen=loads((ROOT/'sources/baseline/research_gaps_91.json').read_text())
             configured=loads((ROOT/'config/project.json').read_text())['critical_gap_ids']
             self.assertEqual(set(configured),{x['legacy_id'] for x in frozen if x['priority']=='CRITICAL'})
+
+    def test_reject_explicitly_negative_decision(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:gap-d')['decision']='REJECT'
+        self.has(rs,'INCOMPATIBLE_DISPOSITION')
+    def test_reject_self_declared_scientific_scope(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:q')['obligation_scope']={'adapter':'elsewhere'}
+        self.has(rs,'INVALID_OBLIGATION_SCOPE')
+    def test_reject_wrong_research_domain(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:q')['obligation_domain']='MATHEMATICAL'
+        self.has(rs,'UNADJUDICATED_DISPOSITION_EVIDENCE')
+    def test_bogus_formal_evidence_ceiling_does_not_close_biology(self):
+        rs=freeze_fixture();e=next(r for r in rs if r['id']=='ooc:fixture:freeze-e')
+        e['evidence_class']='FORMAL';e['claim_ceiling']='MATHEMATICAL_EXACT'
+        self.has(rs,'UNADJUDICATED_DISPOSITION_EVIDENCE')
+    def test_bad_disposition_ref_type_has_clean_error(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:freeze-d')['evidence_refs']=[{'bad':'object'}]
+        self.has(rs,'MALFORMED_DISPOSITION_EVIDENCE')
+    def test_bad_satisfaction_ref_type_has_clean_error(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:q')['satisfaction_evidence_refs']=[{'bad':'object'}]
+        self.has(rs,'MALFORMED_SATISFACTION_EVIDENCE')
 
 class ResolutionTests(unittest.TestCase):
     def test_no_verdict_is_unknown(self):self.assertEqual(resolve([])['missing_verdict_state'],'UNKNOWN')

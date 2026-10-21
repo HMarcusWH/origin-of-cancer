@@ -15,10 +15,12 @@ def route_fixture(mode='SAME_SYSTEM'):
         node('BiologicalState','s1'),node('BiologicalState','s2'),node('BiologicalState','s3'),
         node('SourceLocator','l',selector={'figure':'fixture'}),
         node('EvidenceObject','e1',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l'],
-             context_ref=ctx,status='RECORDED',evidence_class='PRIMARY_ANIMAL',
+             context_ref=ctx,status='RECORDED',evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
+             study_id='fixture-study',system_id='fixture-system',
              provenance_class='CURATED_SEMANTIC'),
         node('EvidenceObject','e2',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l'],
-             context_ref=ctx,status='RECORDED',evidence_class='PRIMARY_ANIMAL',
+             context_ref=ctx,status='RECORDED',evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
+             study_id='fixture-study',system_id='fixture-system',
              provenance_class='CURATED_SEMANTIC'),
         node('EvidenceAssessment','a1',evidence_ref='ooc:fixture:e1',target_ref='ooc:fixture:t1',
              effect='SUPPORTS',scope=scope,status='ADJUDICATED',provenance_class='CURATED_SEMANTIC'),
@@ -44,7 +46,8 @@ def bridge_fixture():
     get(r,'e2')['witness_ids']=['system2']
     b=node('EvidenceObject','bridge',status='RECORDED',context_ref='ooc:fixture:c',
            source_locator_refs=['ooc:fixture:l'],witness_ids=['system1','system2'],
-           evidence_class='PRIMARY_ANIMAL',provenance_class='CURATED_SEMANTIC')
+           evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
+           study_id='fixture-study',system_id='fixture-system',provenance_class='CURATED_SEMANTIC')
     a=node('EvidenceAssessment','bridge-a',status='ADJUDICATED',evidence_ref=b['id'],
            target_ref='ooc:fixture:r',effect='SUPPORTS',scope={'adapter':'synthetic'},
            provenance_class='CURATED_SEMANTIC')
@@ -131,7 +134,8 @@ class RouteTests(unittest.TestCase):
         r=route_fixture();get(r,'e2')['witness_ids']=['system2']
         phantom=node('EvidenceObject','phantom',context_ref='ooc:fixture:c',status='RECORDED',
                      source_locator_refs=['ooc:fixture:l'],evidence_class='PRIMARY_ANIMAL',
-                     witness_ids=['system1','system2'],provenance_class='CURATED_SEMANTIC')
+                     witness_ids=['system1','system2'],claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
+                     study_id='fixture-study',system_id='fixture-system',provenance_class='CURATED_SEMANTIC')
         r.append(phantom);get(r,'w')['evidence_refs'].append(phantom['id'])
         self.has(r,'MISSING_COMMON_WITNESS')
     def test_route_evidence_must_be_active(self):
