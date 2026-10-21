@@ -2579,6 +2579,10 @@
         },
         "type": {
           "const": "MethodApplicability"
+        },
+        "scope": {
+          "type": "object",
+          "minProperties": 1
         }
       },
       "required": [
@@ -2597,7 +2601,8 @@
         "provenance_class",
         "schema_version",
         "status",
-        "type"
+        "type",
+        "scope"
       ],
       "type": "object"
     },
