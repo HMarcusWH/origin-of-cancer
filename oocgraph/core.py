@@ -124,6 +124,8 @@ REF_TYPES = {
     "target_claim_ref": {"Claim"}, "target_estimand_ref": {"Estimand"}, "history_ref": {"Route"},
     "property_ref": {"Estimand", "PersistenceCriterion", "Claim"},
     "result_ref": {"Result"}, "candidate_set_ref": {"CandidateSet"},
+    "source_context_ref": {"Context"}, "target_context_ref": {"Context"},
+    "context_transition_assessment_ref": {"EvidenceAssessment"},
     "verification_artifact_ref": {"SourceArtifact"},
     "conflict_resolution_ref": {"Decision"},
 }
@@ -201,6 +203,9 @@ EVIDENCE_OBLIGATION_POLICY = {
     "PERSISTENCE": ({"BIOLOGICAL_OBSERVATION","BIOLOGICAL_CAUSAL_SCOPED"},
                     {"LONGITUDINAL","MIXED"},{"PERSISTENCE"}),
     "ROUTE": ({"BIOLOGICAL_CAUSAL_SCOPED"},{"PERTURBATION","MIXED"},{"CAUSAL"}),
+    "TRANSITION": ({"BIOLOGICAL_OBSERVATION","BIOLOGICAL_CAUSAL_SCOPED"},
+                   {"OBSERVATIONAL","LONGITUDINAL","LINEAGE","PERTURBATION","MIXED"},
+                   {"TEMPORAL","ANCESTRY","CAUSAL"}),
     "CONSTITUTIVE": ({"BIOLOGICAL_CAUSAL_SCOPED"},{"PERTURBATION","MIXED"},{"CAUSAL"})
 }
 CLOSURE_DECISIONS = {
@@ -462,6 +467,64 @@ def _founder_states(index, founder_ref, seen=None):
     return result
 
 
+def _admitted_transition_assessments(records, index, transition, scope):
+    """Independent support; absence of a Route never promotes a Transition."""
+    return [
+        index.get(ref, {}) for ref in transition.get("evidence_assessment_refs", [])
+        if isinstance(ref, str) and _appropriate_biological_assessment(
+            index, index.get(ref, {}), transition.get("id"), scope, "TRANSITION")
+    ]
+
+
+def _material_scoped_contradictions(records, index, target_refs, scope):
+    """Contradictory evidence is ingested, but must contest *effective* support."""
+    return sorted(
+        a["id"] for a in records
+        if a.get("type") == "EvidenceAssessment"
+        and a.get("target_ref") in set(target_refs)
+        and a.get("effect") in {"CONTRADICTS", "FALSIFIES"}
+        and _qualified_assessment(index, a, a.get("target_ref"), scope,
+                                  effect=a.get("effect"))
+    )
+
+
+def effective_route_state(records, route):
+    """Current projection, not a mutation of immutable historical declarations."""
+    declared = route.get("status", "OPEN")
+    if declared != "CLOSED":
+        return {"declared": declared, "effective": declared, "contradiction_refs": []}
+    index = {r["id"]: r for r in records}
+    targets = [route["id"], route.get("founder_ref")] + list(route.get("transition_refs", []))
+    contradictions = _material_scoped_contradictions(records, index, targets, route.get("scope"))
+    return {"declared": declared,
+            "effective": "CONTESTED" if contradictions else "ADMITTED_CLOSED",
+            "contradiction_refs": contradictions}
+
+
+def _normalized_source_identifiers(raw):
+    """Normalize complete DOI / PMID / PMCID / URL identifiers, never substrings."""
+    from urllib.parse import urlsplit, unquote
+    if not isinstance(raw, str):
+        return set()
+    ids = set()
+    for match in re.finditer(r"https?://[^\s;|<>]+", raw, re.I):
+        url = match.group(0).rstrip(".,);]")
+        parts = urlsplit(url)
+        if parts.hostname and parts.hostname.lower() in {"doi.org", "dx.doi.org"}:
+            doi = unquote(parts.path).strip("/").lower()
+            if re.fullmatch(r"10\.\d{4,9}/\S+", doi):
+                ids.add("doi:" + doi)
+        elif parts.hostname:
+            ids.add("url:" + parts.scheme.lower() + "://" + parts.netloc.lower() + parts.path.rstrip("/") + ("?" + parts.query if parts.query else ""))
+    for match in re.finditer(r"(?<![a-z0-9])10\.\d{4,9}/[^\s;,|<>]+", raw, re.I):
+        ids.add("doi:" + match.group(0).rstrip(".,);]").lower())
+    for match in re.finditer(r"\bPMCID\s*:?[\s]*(PMC\d+)\b|\b(PMC\d+)\b", raw, re.I):
+        ids.add("pmcid:" + (match.group(1) or match.group(2)).upper())
+    for match in re.finditer(r"\bPMID\s*:?\s*(\d+)\b", raw, re.I):
+        ids.add("pmid:" + match.group(1))
+    return ids
+
+
 def _nested_reference_errors(record, index, contract):
     """Every nested reference is typed, including objects not yet admitted."""
     violations = []
@@ -606,7 +669,9 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     and v.get("status") == "VERIFIED"
                     and v.get("source_ref") == r.get("id")
                     and v.get("verification_scope") == "BIBLIOGRAPHIC_METADATA"
-                    and v.get("identifier_checked","").lower() in r.get("identifiers_raw","").lower()
+                    and len(_normalized_source_identifiers(v.get("identifier_checked",""))) == 1
+                    and _normalized_source_identifiers(v.get("identifier_checked","")).issubset(
+                        _normalized_source_identifiers(r.get("identifiers_raw","")))
                     and bool(v.get("canonical_metadata"))
                     and v.get("public_source_url","").startswith("https://")
                     and v.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
@@ -664,6 +729,11 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 selector = index.get(lr, {}).get("selector", {})
                 if "sheet" in selector and selector["sheet"] in {"Anchor Sources", "Theory Queue"}:
                     error("BIBLIOGRAPHY_AS_FINDING", r)
+        if typ == "Transition" and r.get("status") == "SUPPORTED_SCOPED":
+            if not isinstance(r.get("scope"), dict) or not r["scope"]:
+                error("UNSCOPED_SUPPORTED_TRANSITION", r)
+            elif not _admitted_transition_assessments(records, index, r, r["scope"]):
+                error("UNSUPPORTED_STANDALONE_TRANSITION", r)
         if typ == "MethodApplicability" and r.get("assessment") == "APPLICABLE":
             if not r.get("assumption_refs"): error("MISSING_APPLICABILITY_ASSUMPTIONS", r)
             for ar in r.get("assumption_refs", []):
@@ -676,7 +746,9 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             app = index.get(r.get("applicability_ref"), {})
             if r.get("identity_algorithm") != MODEL_IDENTITY_ALGORITHM:
                 error("UNVERSIONED_MODEL_IDENTITY", r)
-            if app.get("assessment") != "APPLICABLE": error("UNLICENSED_MODEL", r)
+            if r.get("status") == "ADMITTED":
+                if app.get("assessment") != "APPLICABLE" or app.get("status") != "ACTIVE":
+                    error("UNLICENSED_MODEL", r)
             if not r.get("frozen_digest") or not re.fullmatch("[0-9a-f]{64}", r["frozen_digest"]):
                 error("MISSING_MODEL_IDENTITY", r)
             else:
@@ -695,6 +767,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("MALFORMED_EQUATION_ASSUMPTIONS", r)
                 else:
                     required_from_equations.update(eq_assumptions)
+            if r.get("status") == "ADMITTED" and app.get("status") != "ACTIVE":
+                error("INACTIVE_MODEL_APPLICABILITY", r)
             if declared is None or applied is None:
                 error("MALFORMED_MODEL_ASSUMPTIONS", r)
             else:
@@ -704,7 +778,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("UNDECLARED_EQUATION_ASSUMPTION", r)
                 for ar in sorted(declared | required_from_equations):
                     assumption = index.get(ar, {})
-                    if (assumption.get("required", True) and
+                    if (r.get("status") == "ADMITTED" and assumption.get("required", True) and
                         (assumption.get("assessment") != "PASS" or assumption.get("status") != "RECORDED")):
                         error("FAILED_OR_UNKNOWN_MODEL_ASSUMPTION", r)
         if typ == "Route" and r.get("status") == "CLOSED":
@@ -743,6 +817,24 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 t = index.get(tr, {})
                 if t.get("context_ref") != r.get("context_ref") or t.get("adapter_ref") != r.get("adapter_ref"):
                     error("ROUTE_CONTEXT_MISMATCH", r)
+                if canonical(t.get("scope")) != canonical(scope):
+                    error("ROUTE_TRANSITION_SCOPE_MISMATCH", r)
+                source = index.get(t.get("source_state_ref"), {})
+                target = index.get(t.get("target_state_ref"), {})
+                sc, tc = source.get("context_ref"), target.get("context_ref")
+                if sc != tc:
+                    a = index.get(t.get("context_transition_assessment_ref"), {})
+                    e = index.get(a.get("evidence_ref"), {})
+                    if not (
+                        t.get("source_context_ref") == sc
+                        and t.get("target_context_ref") == tc
+                        and e.get("context_ref") in {sc, tc}
+                        and _appropriate_biological_assessment(index, a, tr, scope, "TRANSITION")
+                        and a.get("assessment_role") in {"TEMPORAL", "ANCESTRY", "CAUSAL"}
+                    ):
+                        error("UNVALIDATED_CONTEXT_TRANSITION", r)
+                elif sc != r.get("context_ref") or tc != r.get("context_ref"):
+                    error("ROUTE_STATE_CONTEXT_MISMATCH", r)
                 if t.get("status") != "SUPPORTED_SCOPED":
                     error("INACTIVE_ROUTE_TRANSITION", r)
                 if previous is not None and previous != t.get("source_state_ref"):
@@ -771,23 +863,20 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("ROUTE_EVIDENCE_CONTEXT_MISMATCH", r); valid = False
                     if e.get("id") not in witness_evidence:
                         error("ROUTE_EVIDENCE_OUTSIDE_WITNESS", r); valid = False
+                    route_kind = r.get("claim_kind", "CAUSAL")
+                    evidence_kind = "ROUTE" if route_kind == "CAUSAL" else "TRANSITION"
                     if not _appropriate_biological_assessment(
-                            index, a, tr, scope, "ROUTE", context_ref=r.get("context_ref")):
+                            index, a, tr, scope, evidence_kind,
+                            context_ref=(r.get("context_ref") if route_kind == "CAUSAL" else None)):
                         error("NONBIOLOGICAL_ROUTE_SUPPORT", r); valid = False
                     if valid:
                         segment_supported = True
                         witnesses.update(_witness_keys(e))
                 if not segment_supported:
                     error("UNSUPPORTED_ROUTE_SEGMENT", r)
-                if any(a.get("type") == "EvidenceAssessment" and a.get("target_ref") == tr
-                       and canonical(a.get("scope")) == canonical(scope)
-                       and a.get("status") == "ADJUDICATED"
-                       and a.get("effect") in {"CONTRADICTS", "FALSIFIES"}
-                       and index.get(a.get("evidence_ref"), {}).get("status") == "RECORDED"
-                       for a in records):
-                    # Conflicting evidence is not silently ignored. Until a separate
-                    # independently admitted conflict disposition exists, route is open.
-                    error("UNRESOLVED_ROUTE_CONTRADICTION", r)
+                # Scientific contradictions never make incoming evidence structurally
+                # invalid. effective_route_state() projects this claim as CONTESTED.
+                # Historical CLOSED declarations remain visible as historical records.
                 segment_witnesses.append(witnesses)
             if mode == "SAME_SYSTEM":
                 common = set.intersection(*segment_witnesses) if segment_witnesses else set()
