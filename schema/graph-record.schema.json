@@ -4199,6 +4199,21 @@
             "STATISTICAL",
             "METHODOLOGICAL"
           ]
+        },
+        "obligation_claim_kind": {
+          "type": "string",
+          "enum": [
+            "CAPABILITY",
+            "OBSERVATION",
+            "ANCESTRY",
+            "PERSISTENCE",
+            "ROUTE",
+            "CONSTITUTIVE",
+            "CERTIFICATE",
+            "MODEL_VALIDITY",
+            "DATA_INDEPENDENCE",
+            "STUDY_DESIGN"
+          ]
         }
       },
       "required": [
@@ -4311,6 +4326,21 @@
             "MEASUREMENT",
             "STATISTICAL",
             "METHODOLOGICAL"
+          ]
+        },
+        "obligation_claim_kind": {
+          "type": "string",
+          "enum": [
+            "CAPABILITY",
+            "OBSERVATION",
+            "ANCESTRY",
+            "PERSISTENCE",
+            "ROUTE",
+            "CONSTITUTIVE",
+            "CERTIFICATE",
+            "MODEL_VALIDITY",
+            "DATA_INDEPENDENCE",
+            "STUDY_DESIGN"
           ]
         }
       },

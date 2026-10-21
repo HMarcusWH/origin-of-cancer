@@ -189,6 +189,20 @@ SCIENTIFIC_DISPOSITION_CLASSES = BIOLOGICAL_EVIDENCE_CLASSES | frozenset({
 BIOLOGICAL_CEILINGS = frozenset({
     "BIOLOGICAL_OBSERVATION", "BIOLOGICAL_CAUSAL_SCOPED"
 })
+EVIDENCE_OBLIGATION_POLICY = {
+    "CAPABILITY": ({"BIOLOGICAL_OBSERVATION","BIOLOGICAL_CAUSAL_SCOPED"},
+                   {"OBSERVATIONAL","LONGITUDINAL","LINEAGE","PERTURBATION","MIXED"},
+                   {"OBSERVATION","CAUSAL"}),
+    "OBSERVATION": ({"BIOLOGICAL_OBSERVATION","BIOLOGICAL_CAUSAL_SCOPED"},
+                    {"OBSERVATIONAL","LONGITUDINAL","LINEAGE","MIXED"},
+                    {"OBSERVATION"}),
+    "ANCESTRY": ({"BIOLOGICAL_OBSERVATION","BIOLOGICAL_CAUSAL_SCOPED"},
+                  {"LINEAGE","MIXED"},{"ANCESTRY"}),
+    "PERSISTENCE": ({"BIOLOGICAL_OBSERVATION","BIOLOGICAL_CAUSAL_SCOPED"},
+                    {"LONGITUDINAL","MIXED"},{"PERSISTENCE"}),
+    "ROUTE": ({"BIOLOGICAL_CAUSAL_SCOPED"},{"PERTURBATION","MIXED"},{"CAUSAL"}),
+    "CONSTITUTIVE": ({"BIOLOGICAL_CAUSAL_SCOPED"},{"PERTURBATION","MIXED"},{"CAUSAL"})
+}
 CLOSURE_DECISIONS = {
     ("ResearchGap", "RESOLVED"): ("RESEARCH_GAP_DISPOSITION", "RESOLVE"),
     ("ResearchGap", "BOUNDED"): ("RESEARCH_GAP_DISPOSITION", "BOUND"),
@@ -293,10 +307,18 @@ def _verified_result(index, result, subject_ref, scope):
 
 def _admissible_disposition_evidence(index, assessment, target_ref, scope, domain, effect):
     evidence = index.get(assessment.get("evidence_ref"), {})
+    obligation = index.get(target_ref, {})
+    kind = obligation.get("obligation_claim_kind")
     if evidence.get("evidence_class") in BIOLOGICAL_EVIDENCE_CLASSES:
-        if domain == "MATHEMATICAL":
+        if domain == "MATHEMATICAL" or kind not in EVIDENCE_OBLIGATION_POLICY:
             return False
-        return _qualified_assessment(index, assessment, target_ref, scope, effect=effect)
+        ceilings, designs, roles = EVIDENCE_OBLIGATION_POLICY[kind]
+        return bool(
+            evidence.get("design_class") in designs
+            and assessment.get("assessment_role") in roles
+            and _qualified_assessment(index, assessment, target_ref, scope, effect=effect,
+                                      allowed_ceilings=ceilings)
+        )
     if evidence.get("evidence_class") == "FORMAL":
         if domain not in {"MATHEMATICAL", "METHODOLOGICAL", "STATISTICAL"}:
             return False
@@ -338,6 +360,11 @@ def _decision_admission_errors(records, index, decision, subject_ref, scope, eff
         errors.append("BOUND_SCOPE_MISMATCH")
     if obligation_domain not in {"BIOLOGICAL", "MATHEMATICAL", "MEASUREMENT", "STATISTICAL", "METHODOLOGICAL"}:
         errors.append("UNKNOWN_OBLIGATION_DOMAIN")
+    obligation_kind = subject.get("obligation_claim_kind")
+    if obligation_domain == "BIOLOGICAL" and obligation_kind not in EVIDENCE_OBLIGATION_POLICY:
+        errors.append("UNKNOWN_BIOLOGICAL_CLAIM_KIND")
+    if obligation_domain == "MATHEMATICAL" and obligation_kind not in {"CERTIFICATE","MODEL_VALIDITY"}:
+        errors.append("UNKNOWN_MATHEMATICAL_CLAIM_KIND")
     if not (
         decision.get("type") == "Decision"
         and decision.get("status") == "RECORDED"
