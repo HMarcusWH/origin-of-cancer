@@ -123,6 +123,7 @@ REF_TYPES = {
     "classification_source_ref": {"LiteratureSource"}, "source_ref": {"LiteratureSource"},
     "target_claim_ref": {"Claim"}, "target_estimand_ref": {"Estimand"}, "history_ref": {"Route"},
     "property_ref": {"Estimand", "PersistenceCriterion", "Claim"},
+    "result_ref": {"Result"}, "candidate_set_ref": {"CandidateSet"},
 }
 REF_LIST_TYPES = {
     "evidence_refs": {"EvidenceObject"}, "bridge_evidence_refs": {"EvidenceObject"},
@@ -143,7 +144,7 @@ COMMON_SUBJECT_TYPES = {
     "Mechanism", "Transition", "Route", "Estimand", "ModelClass", "ModelInstance",
     "PersistenceCriterion", "ResearchGap", "Workstream", "PathologyEntity", "NullModel",
     "Falsifier", "EvidenceObject", "EvidenceAssessment", "Requirement", "Protocol", "Test",
-    "Result", "MethodApplicability", "Intervention", "Observation",
+    "Result", "MethodApplicability", "Intervention", "Observation", "DataUse",
 }
 OWNER_REF_TYPES = {
     ("Intervention", "operator_ref"): {"InterventionOperator"},
@@ -180,19 +181,52 @@ BIOLOGICAL_EVIDENCE_CLASSES = frozenset({
 SCIENTIFIC_DISPOSITION_CLASSES = BIOLOGICAL_EVIDENCE_CLASSES | frozenset({
     "ANALYTIC", "FORMAL", "NUMERICAL"
 })
+BIOLOGICAL_CEILINGS = frozenset({
+    "BIOLOGICAL_OBSERVATION", "BIOLOGICAL_CAUSAL_SCOPED"
+})
+CLOSURE_DECISIONS = {
+    ("ResearchGap", "RESOLVED"): ("RESEARCH_GAP_DISPOSITION", "RESOLVE"),
+    ("ResearchGap", "BOUNDED"): ("RESEARCH_GAP_DISPOSITION", "BOUND"),
+    ("Requirement", "SATISFIED"): ("REQUIREMENT_DISPOSITION", "SATISFY"),
+    ("Requirement", "BOUNDED"): ("REQUIREMENT_DISPOSITION", "BOUND"),
+}
+MODEL_IDENTITY_ALGORITHM = "ooc-model-digest-v2"
+
 NON_ADMISSIBLE_PROVENANCE = frozenset({
     "TEXTUAL_HINT", "SYNTHETIC", "ENGINEERING"
 })
 
 
+def _valid_ref_list(value):
+    """Return None rather than throwing for malformed/unhashable input."""
+    if not isinstance(value, list) or any(
+            not isinstance(item, str) or not item for item in value):
+        return None
+    return set(value)
+
+
+def _scope_within(parent, child):
+    """An explicit *restriction* of a declared scope, never inferred promotion."""
+    if not isinstance(parent, dict) or not parent or not isinstance(child, dict) or not child:
+        return False
+    for key, value in parent.items():
+        if key not in child:
+            return False
+        sub = child[key]
+        if isinstance(value, list) and isinstance(sub, list):
+            if not all(x in value for x in sub):
+                return False
+        elif value != sub:
+            return False
+    return True
+
+
 def _qualified_assessment(index, assessment, target_ref, scope, *,
                           effect="SUPPORTS", context_ref=None,
-                          allowed_classes=BIOLOGICAL_EVIDENCE_CLASSES):
-    """The same fail-closed evidence contract governs biological verdicts and routes.
-
-    Synthetic test *fixtures* may model these fields; actual synthetic/engineering
-    evidence is ineligible to establish cancer biology.
-    """
+                          allowed_classes=BIOLOGICAL_EVIDENCE_CLASSES,
+                          allowed_ceilings=BIOLOGICAL_CEILINGS,
+                          assessment_role=None):
+    """Independent, scoped evidence assessment: no workflow-status promotion."""
     if not isinstance(assessment, dict):
         return False
     evidence = index.get(assessment.get("evidence_ref"), {})
@@ -203,31 +237,103 @@ def _qualified_assessment(index, assessment, target_ref, scope, *,
         and assessment.get("effect") == effect
         and assessment.get("target_ref") == target_ref
         and canonical(assessment.get("scope")) == canonical(scope)
+        and (assessment_role is None or assessment.get("assessment_role") == assessment_role)
         and evidence.get("type") == "EvidenceObject"
         and evidence.get("status") == "RECORDED"
         and evidence.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
         and evidence.get("evidence_class") in allowed_classes
+        and evidence.get("claim_ceiling") in allowed_ceilings
         and bool(evidence.get("source_locator_refs"))
+        and bool(evidence.get("study_id")) and bool(evidence.get("system_id"))
         and (context_ref is None or evidence.get("context_ref") == context_ref)
     )
 
 
+def _verified_result(index, result, subject_ref, scope):
+    """Formal result certification is separate from successful execution or fit."""
+    if not isinstance(result, dict) or result.get("type") != "Result":
+        return False
+    exe = index.get(result.get("execution_ref"), {})
+    tst = index.get(result.get("test_ref"), {})
+    protocol = index.get(tst.get("protocol_ref"), {})
+    model = index.get(result.get("model_instance_ref"), {})
+    return bool(
+        result.get("status") == "VALIDATED"
+        and result.get("outcome") == "PASS"
+        and result.get("evidence_class") == "FORMAL"
+        and result.get("claim_ceiling") == "MATHEMATICAL_EXACT"
+        and result.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+        and result.get("subject_ref") == subject_ref
+        and canonical(result.get("scope")) == canonical(scope)
+        and tst.get("type") == "Test" and tst.get("status") == "PASSED"
+        and tst.get("subject_ref") == subject_ref
+        and exe.get("type") == "Execution" and exe.get("status") == "COMPLETED"
+        and exe.get("outcome") == "PASS"
+        and exe.get("protocol_ref") == tst.get("protocol_ref")
+        and protocol.get("type") == "Protocol" and protocol.get("frozen") is True
+        and protocol.get("status") == "ACTIVE"
+        and model.get("type") == "ModelInstance"
+        and model.get("status") in {"FROZEN", "ADMITTED"}
+        and result.get("model_instance_ref") == exe.get("model_instance_ref")
+        and result.get("model_instance_ref") is not None
+        and model.get("identity_algorithm") == MODEL_IDENTITY_ALGORITHM
+        and bool(model.get("frozen_digest"))
+        and canonical(model.get("scope")) == canonical(scope)
+    )
+
+
+def _admissible_disposition_evidence(index, assessment, target_ref, scope, domain, effect):
+    evidence = index.get(assessment.get("evidence_ref"), {})
+    if evidence.get("evidence_class") in BIOLOGICAL_EVIDENCE_CLASSES:
+        if domain == "MATHEMATICAL":
+            return False
+        return _qualified_assessment(index, assessment, target_ref, scope, effect=effect)
+    if evidence.get("evidence_class") == "FORMAL":
+        if domain not in {"MATHEMATICAL", "METHODOLOGICAL", "STATISTICAL"}:
+            return False
+        if not _qualified_assessment(
+                index, assessment, target_ref, scope, effect=effect,
+                allowed_classes={"FORMAL"}, allowed_ceilings={"MATHEMATICAL_EXACT"}):
+            return False
+        result = index.get(evidence.get("result_ref"), {})
+        return _verified_result(index, result, target_ref, scope)
+    if evidence.get("evidence_class") == "ANALYTIC":
+        # Analytical metadata alone is not independent freeze evidence.
+        return False
+    return False
+
+
 def _decision_admission_errors(records, index, decision, subject_ref, scope, effects,
                                *, required_evidence_refs=None):
-    """Admit a scientific disposition only with active, scoped authority and
-    per-evidence adjudication for the *specific subject* and scientific scope.
+    """Gate disposition against *independent* obligation and qualified evidence.
 
-    Decision.scope is governance jurisdiction; Decision.disposition_scope
-    is the scientific extent of resolution/bounding. They must never be conflated.
+    Decision.scope is jurisdiction; its disposition_scope cannot create an
+    obligation. Status and Decision.decision have separate enforced semantics.
     """
     errors = []
+    subject = index.get(subject_ref, {})
+    subject_type, status = subject.get("type"), subject.get("status")
+    expected = CLOSURE_DECISIONS.get((subject_type, status))
     authority = index.get(decision.get("authority_ref"), {})
+    if not (expected
+            and decision.get("decision_kind") == expected[0]
+            and decision.get("decision") == expected[1]):
+        errors.append("INCOMPATIBLE_DISPOSITION")
+    obligation_scope = subject.get("obligation_scope")
+    obligation_domain = subject.get("obligation_domain")
+    if not _scope_within(obligation_scope, scope):
+        errors.append("INVALID_OBLIGATION_SCOPE")
+    if status != "BOUNDED" and canonical(obligation_scope) != canonical(scope):
+        errors.append("WRONG_OBLIGATION_SCOPE")
+    if status == "BOUNDED" and canonical(subject.get("bound_scope")) != canonical(scope):
+        errors.append("BOUND_SCOPE_MISMATCH")
+    if obligation_domain not in {"BIOLOGICAL", "MATHEMATICAL", "MEASUREMENT", "STATISTICAL", "METHODOLOGICAL"}:
+        errors.append("UNKNOWN_OBLIGATION_DOMAIN")
     if not (
         decision.get("type") == "Decision"
         and decision.get("status") == "RECORDED"
         and decision.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
         and decision.get("subject_ref") == subject_ref
-        and isinstance(scope, dict) and bool(scope)
         and canonical(decision.get("disposition_scope")) == canonical(scope)
         and authority.get("type") == "Authority"
         and authority.get("status") == "ACTIVE_RULE"
@@ -238,22 +344,23 @@ def _decision_admission_errors(records, index, decision, subject_ref, scope, eff
              or subject_ref in authority.get("subject_refs", []))
     ):
         errors.append("INVALID_AUTHORIZED_DISPOSITION")
-    evidence_refs = decision.get("evidence_refs", [])
-    if not isinstance(evidence_refs, list) or not evidence_refs:
+    evidence_refs = _valid_ref_list(decision.get("evidence_refs"))
+    if evidence_refs is None:
+        errors.append("MALFORMED_DISPOSITION_EVIDENCE")
+        evidence_refs = set()
+    if not evidence_refs:
         errors.append("MISSING_DISPOSITION_EVIDENCE")
-        evidence_refs = []
-    if required_evidence_refs is not None and (
-            set(evidence_refs) != set(required_evidence_refs)):
-        errors.append("DISPOSITION_EVIDENCE_MISMATCH")
-    for evidence_ref in evidence_refs:
-        assessments = (
-            a for a in records
-            if a.get("type") == "EvidenceAssessment"
-            and a.get("evidence_ref") == evidence_ref
-        )
+    if required_evidence_refs is not None:
+        required = _valid_ref_list(required_evidence_refs)
+        if required is None:
+            errors.append("MALFORMED_SATISFACTION_EVIDENCE")
+        elif evidence_refs != required:
+            errors.append("DISPOSITION_EVIDENCE_MISMATCH")
+    for evidence_ref in sorted(evidence_refs):
+        assessments = (a for a in records if a.get("type") == "EvidenceAssessment"
+                       and a.get("evidence_ref") == evidence_ref)
         if not any(
-            _qualified_assessment(index, a, subject_ref, scope,
-                                  effect=effect, allowed_classes=SCIENTIFIC_DISPOSITION_CLASSES)
+            _admissible_disposition_evidence(index, a, subject_ref, scope, obligation_domain, effect)
             for a in assessments for effect in effects
         ):
             errors.append("UNADJUDICATED_DISPOSITION_EVIDENCE")
