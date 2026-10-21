@@ -124,6 +124,7 @@ REF_TYPES = {
     "target_claim_ref": {"Claim"}, "target_estimand_ref": {"Estimand"}, "history_ref": {"Route"},
     "property_ref": {"Estimand", "PersistenceCriterion", "Claim"},
     "result_ref": {"Result"}, "candidate_set_ref": {"CandidateSet"},
+    "verification_artifact_ref": {"SourceArtifact"},
     "conflict_resolution_ref": {"Decision"},
 }
 REF_LIST_TYPES = {
@@ -156,6 +157,7 @@ OWNER_REF_TYPES = {
     ("Verdict", "subject_ref"): COMMON_SUBJECT_TYPES,
     ("EvidenceAssessment", "target_ref"): COMMON_SUBJECT_TYPES,
     ("Falsifier", "target_ref"): COMMON_SUBJECT_TYPES,
+    ("Result", "subject_ref"): COMMON_SUBJECT_TYPES,
 }
 OWNER_REF_LIST_TYPES = {
     ("Authority", "subject_refs"): COMMON_SUBJECT_TYPES,
@@ -258,11 +260,15 @@ def _verified_result(index, result, subject_ref, scope):
     tst = index.get(result.get("test_ref"), {})
     protocol = index.get(tst.get("protocol_ref"), {})
     model = index.get(result.get("model_instance_ref"), {})
+    artifact = index.get(result.get("verification_artifact_ref"), {})
     return bool(
         result.get("status") == "VALIDATED"
         and result.get("outcome") == "PASS"
         and result.get("evidence_class") == "FORMAL"
         and result.get("claim_ceiling") == "MATHEMATICAL_EXACT"
+        and result.get("verification_mode") == "FORMAL_PROOF"
+        and artifact.get("type") == "SourceArtifact"
+        and bool(artifact.get("path"))
         and result.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
         and result.get("subject_ref") == subject_ref
         and canonical(result.get("scope")) == canonical(scope)
@@ -385,6 +391,40 @@ def _founder_states(index, founder_ref, seen=None):
     return result
 
 
+def _nested_reference_errors(record, index, contract):
+    """Every nested reference is typed, including objects not yet admitted."""
+    violations = []
+    type_name = record.get("type")
+    def walk(obj, keypath, contractpath):
+        if isinstance(obj, list):
+            for child in obj:
+                walk(child, keypath+"[]", contractpath+"[].items")
+        elif isinstance(obj, dict):
+            for key, value in obj.items():
+                loc = keypath + "." + key
+                contract_key = contractpath + ".properties." + key
+                if key.endswith("_ref") or key.endswith("_refs"):
+                    allowed = contract.get(type_name + "." + contract_key)
+                    if allowed is None:
+                        violations.append("UNDECLARED_NESTED_REF:"+loc)
+                    else:
+                        refs = value if key.endswith("_refs") else [value]
+                        if not isinstance(refs, list):
+                            violations.append("MALFORMED_NESTED_REF:"+loc)
+                            continue
+                        for ref in refs:
+                            if not isinstance(ref, str) or ref not in index:
+                                violations.append("MISSING_NESTED_REF:"+loc)
+                            elif index[ref].get("type") not in allowed:
+                                violations.append("WRONG_NESTED_REF_TYPE:"+loc)
+                elif isinstance(value,(dict,list)):
+                    walk(value,loc,contract_key)
+    for key,value in record.items():
+        if isinstance(value,(list,dict)):
+            walk(value,key,key)
+    return violations
+
+
 def validate_records(records: list[dict], root: Path | None = None) -> list[str]:
     """Return integrity violations; scientific incompleteness is not a violation."""
     errors = []
@@ -410,15 +450,38 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 elif key.endswith("_refs"):
                     if _allowed_ref_types(schema_type, key, True) is None:
                         errors.append(f"UNDECLARED_REF_TYPE:{schema_type}:{key}")
+        nested_contract = loads((root/"schema/nested_reference_contract.json").read_text())
+        def check_nested_schema(obj, path):
+            if not isinstance(obj, dict):
+                return
+            final = path.rsplit(".",1)[-1]
+            if path.count(".properties.") >= 1 and (
+                    final.endswith("_ref") or final.endswith("_refs")):
+                if obj.get("x-ooc-target-types") != nested_contract.get(path):
+                    errors.append("NESTED_REFERENCE_CONTRACT_DRIFT:"+path)
+            for key, sub in obj.get("properties", {}).items():
+                check_nested_schema(sub, path+".properties."+key)
+            if "items" in obj:
+                check_nested_schema(obj["items"], path+"[].items")
+        for type_name, definition in schema["$defs"].items():
+            for field_name, node in definition.get("properties", {}).items():
+                if "items" in node or "properties" in node:
+                    check_nested_schema(node, type_name+".properties."+field_name)
         for r in records:
             validator = validators.get(r.get("type"))
             if validator is None: errors.append(f"UNKNOWN_TYPE:{r.get('id')}"); continue
             for e in validator.iter_errors(r): errors.append(f"SCHEMA:{r.get('id')}:{list(e.path)}:{e.message}")
+        if errors: return sorted(set(errors))
     else: vocab = None
     def error(code, record): errors.append(f"{code}:{record.get('id')}")
     def check_ref(record, key, value, allowed=None):
         if not isinstance(value, str) or value not in index: error("MISSING_REF:"+key, record)
         elif allowed and index[value]["type"] not in allowed: error("WRONG_REF_TYPE:"+key, record)
+    ref_root = root if root is not None else Path(__file__).resolve().parents[1]
+    nested_contract = loads((ref_root/"schema/nested_reference_contract.json").read_text())
+    for r in records:
+        for violation in _nested_reference_errors(r,index,nested_contract):
+            error(violation,r)
     for r in records:
         typ = r.get("type")
         for key, value in r.items():
@@ -692,6 +755,25 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     if (transfer.get("type") != "Decision" or transfer.get("subject_ref") != r.get("subject_ref")
                         or transfer.get("scope") != r.get("scope") or not transfer.get("evidence_refs")):
                         error("MISSING_CROSS_ADAPTER_DECISION", r)
+            if r.get("decision") == "MATHEMATICALLY_VERIFIED_SCOPED":
+                if r.get("axis") != "MATHEMATICAL_VERIFICATION":
+                    error("MATHEMATICAL_VERDICT_AXIS_MISMATCH", r)
+                if not r.get("model_instance_ref") or not r.get("result_refs"):
+                    error("UNSUPPORTED_MATHEMATICAL_VERDICT", r)
+                qualifying = [index.get(x, {}) for x in r.get("result_refs", []) if isinstance(x, str)]
+                admitting = [index.get(x, {}) for x in r.get("assessment_refs", []) if isinstance(x, str)]
+                if not any(
+                    result.get("model_instance_ref") == r.get("model_instance_ref")
+                    and _verified_result(index, result, r.get("subject_ref"), r.get("scope"))
+                    and any(
+                        index.get(a.get("evidence_ref"), {}).get("result_ref") == result.get("id")
+                        and _qualified_assessment(
+                            index, a, r.get("subject_ref"), r.get("scope"),
+                            allowed_classes={"FORMAL"}, allowed_ceilings={"MATHEMATICAL_EXACT"})
+                        for a in admitting
+                    ) for result in qualifying
+                ):
+                    error("UNVERIFIED_MATHEMATICAL_PROMOTION", r)
             if r.get("decision") in SCIENTIFIC_POSITIVE and r.get("scope", {}).get("domain") == "PROGRAMME_GOVERNANCE":
                 error("GOVERNANCE_AS_SCIENTIFIC_SUPPORT", r)
         if typ == "Programme":

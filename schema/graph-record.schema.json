@@ -4420,6 +4420,19 @@
         "model_instance_ref": {
           "type": "string",
           "minLength": 1
+        },
+        "verification_mode": {
+          "type": "string",
+          "enum": [
+            "FORMAL_PROOF",
+            "NUMERICAL_BOUND",
+            "STATISTICAL_HOLDOUT",
+            "ENGINEERING_TEST"
+          ]
+        },
+        "verification_artifact_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -5601,19 +5614,31 @@
             "properties": {
               "from_transition_ref": {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "x-ooc-target-types": [
+                  "Transition"
+                ]
               },
               "to_transition_ref": {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "x-ooc-target-types": [
+                  "Transition"
+                ]
               },
               "evidence_ref": {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "x-ooc-target-types": [
+                  "EvidenceObject"
+                ]
               },
               "assessment_ref": {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "x-ooc-target-types": [
+                  "EvidenceAssessment"
+                ]
               },
               "from_witness_id": {
                 "type": "string",
