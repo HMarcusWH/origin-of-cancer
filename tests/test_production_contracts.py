@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from jsonschema import Draft202012Validator
 from oocgraph.core import validate_records
-from tests.test_integrity import freeze_fixture
+from tests.test_integrity import freeze_fixture, node
 from tests.test_routes_and_data import route_fixture, bridge_fixture
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -154,6 +154,122 @@ class ProductionValidation(unittest.TestCase):
         rs=route_records()
         next(r for r in rs if r['type']=='FounderEnsemble')['context_ref']='ooc:fixture:wrong'
         self.assert_problem(rs,'ROUTE_FOUNDER_CONTEXT_MISMATCH')
+
+
+
+def mathematical_fixture():
+    """Fully typed formal chain for synthetic math proposition; not a cancer proof."""
+    sc={'adapter':'synthetic-math'}
+    ctx='ooc:fixture:math-context'
+    refs=lambda key:'ooc:fixture:'+key
+    records=[
+        node('Context','math-context'),
+        node('Claim','math-claim',scope=sc,status='PROVISIONAL',
+             statement='Synthetic verification target',claim_kind='CERTIFICATE',
+             modality='ASSERTION',empirical_admission='NOT_ESTABLISHED'),
+        node('Authority','math-auth',status='ACTIVE_RULE',
+             axes=['MATHEMATICAL_VERIFICATION'],scope=sc,empirical_truth_authority=False),
+        node('SourceLocator','math-loc',path='README.md',selector={'fixture':'formal'}),
+        node('SourceArtifact','proof-art',path='README.md',role='SYNTHETIC_PROOF',
+             representation='synthetic'),
+        node('Assumption','assumption',status='RECORDED',assessment='PASS',required=True,
+             statement='Synthetic assumption',basis='test'),
+        node('ModelClass','model-class',status='IMPLEMENTED_REFERENCE',cancer_backend_implemented=False),
+        node('ValidityDomain','math-domain',context_ref=ctx,conditions=[]),
+        node('Estimand','math-estimand',definition_obligation='Synthetic exact theorem'),
+        node('Equation','equation',domain_ref=refs('math-domain'),
+             assumption_refs=[refs('assumption')],variable_refs=[],
+             expression='synthetic',source_locator_refs=[refs('math-loc')]),
+        node('MethodApplicability','app',assessment='APPLICABLE',status='RECORDED',
+             domain_ref=refs('math-domain'),estimand_ref=refs('math-estimand'),
+             model_class_ref=refs('model-class'),assumption_refs=[refs('assumption')],
+             diagnostics=[],numerical_requirements=[],identification='fixture',
+             limitations='synthetic',observation_adequacy='synthetic'),
+        node('ModelInstance','model',status='FROZEN',identity_algorithm='ooc-model-digest-v2',
+             context_ref=ctx,scope=sc,model_class_ref=refs('model-class'),
+             applicability_ref=refs('app'),assumption_refs=[refs('assumption')],
+             equation_refs=[refs('equation')],estimand_refs=[refs('math-estimand')],
+             parameter_refs=[],state_variable_refs=[],boundary_conditions={},
+             initial_conditions={},configuration={}),
+        node('Gate','math-gate'),
+        node('Protocol','math-protocol',status='ACTIVE',frozen=True,
+             metrics=['exact synthetic claim'],null_refs=[],
+             target_refs=[refs('math-claim')],revision_rule='new instance'),
+        node('Test','math-test',status='PASSED',gate_ref=refs('math-gate'),
+             protocol_ref=refs('math-protocol'),subject_ref=refs('math-claim')),
+        node('Software','math-software',path='README.md',sha256='a'*64,
+             runtime_role='REFERENCE_ONLY'),
+        node('Execution','math-execution',status='COMPLETED',outcome='PASS',
+             environment={},input_refs=[refs('model')],protocol_ref=refs('math-protocol'),
+             model_instance_ref=refs('model'),software_ref=refs('math-software'),
+             output_sha256='b'*64),
+        node('Result','math-result',status='VALIDATED',outcome='PASS',
+             claim_ceiling='MATHEMATICAL_EXACT',evidence_class='FORMAL',
+             verification_mode='FORMAL_PROOF',verification_artifact_ref=refs('proof-art'),
+             model_instance_ref=refs('model'),subject_ref=refs('math-claim'),scope=sc,
+             test_ref=refs('math-test'),execution_ref=refs('math-execution'),
+             provenance_class='CURATED_SEMANTIC'),
+        node('EvidenceObject','math-evidence',status='RECORDED',context_ref=ctx,
+             claim_ceiling='MATHEMATICAL_EXACT',evidence_class='FORMAL',
+             finding='Synthetic formal artifact',study_id='synthetic',system_id='math-fixture',
+             uncertainty='Fixture only',result_ref=refs('math-result'),
+             source_locator_refs=[refs('math-loc')],provenance_class='CURATED_SEMANTIC'),
+        node('EvidenceAssessment','math-assessment',status='ADJUDICATED',
+             target_ref=refs('math-claim'),evidence_ref=refs('math-evidence'),
+             effect='SUPPORTS',scope=sc,rationale='Synthetic formal test',
+             limitations='No biological import',provenance_class='CURATED_SEMANTIC'),
+        node('Verdict','math-verdict',status='RECORDED',
+             subject_ref=refs('math-claim'),authority_ref=refs('math-auth'),
+             axis='MATHEMATICAL_VERIFICATION',facet='synthetic',
+             decision='MATHEMATICALLY_VERIFIED_SCOPED',
+             model_instance_ref=refs('model'),scope=sc,
+             result_refs=[refs('math-result')],assessment_refs=[refs('math-assessment')],
+             supersedes_refs=[],rationale='Synthetic exact chain')
+    ]
+    records=fully_typed(records)
+    from oocgraph.core import model_identity_digest
+    model=next(r for r in records if r['id']==refs('model'))
+    model['frozen_digest']=model_identity_digest(records,model)
+    return records
+
+
+class MathematicalAdmissionContracts(ProductionValidation):
+    """Every positive/negative passes the actual schema+semantic check."""
+    def test_production_valid_mathematical_certificate(self):
+        self.assertEqual(self.errors(mathematical_fixture()),[])
+    def test_equation_assumption_missing_from_model_fails(self):
+        records=mathematical_fixture()
+        model=next(r for r in records if r['id']=='ooc:fixture:model')
+        model['assumption_refs']=[]
+        self.assert_problem(records,'UNDECLARED_EQUATION_ASSUMPTION')
+    def test_equation_assumption_unknown_fails(self):
+        records=mathematical_fixture()
+        a=next(r for r in records if r['id']=='ooc:fixture:assumption')
+        a['assessment']='UNKNOWN'
+        self.assert_problem(records,'FAILED_OR_UNKNOWN_MODEL_ASSUMPTION')
+    def test_failed_formal_execution_blocks_mathematical_promotion(self):
+        records=mathematical_fixture()
+        exe=next(r for r in records if r['id']=='ooc:fixture:math-execution')
+        exe['status']='FAILED'
+        self.assert_problem(records,'UNVERIFIED_MATHEMATICAL_PROMOTION')
+    def test_missing_proof_artifact_blocks_mathematical_promotion(self):
+        records=mathematical_fixture()
+        result=next(r for r in records if r['id']=='ooc:fixture:math-result')
+        result.pop('verification_artifact_ref')
+        self.assert_problem(records,'UNVERIFIED_MATHEMATICAL_PROMOTION')
+    def test_null_target_changes_digest(self):
+        from oocgraph.core import model_identity_digest
+        records=mathematical_fixture()
+        target=next(r for r in records if r['id']=='ooc:fixture:math-claim')
+        null=node('NullModel','null',model_class_ref='ooc:fixture:model-class',
+                  target_claim_ref=target['id'],discriminating_prediction='synthetic')
+        records.append(fully_typed([null])[0])
+        proto=next(r for r in records if r['id']=='ooc:fixture:math-protocol')
+        proto['null_refs']=['ooc:fixture:null']
+        model=next(r for r in records if r['id']=='ooc:fixture:model')
+        before=model_identity_digest(records,model)
+        target['statement']='Changed target'
+        self.assertNotEqual(before,model_identity_digest(records,model))
 
 
 if __name__ == '__main__':
