@@ -1142,17 +1142,33 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     if not allowed or not evidence_refs:
                         error("MISSING_CROSS_ADAPTER_DECISION", r)
                     else:
+                        independent_sources = {}
                         for ad in sorted(adapters):
-                            # Distinct tissue adapters need their own source assessment;
-                            # transfer authorization cannot create primary support.
-                            if not any(
-                                a.get("type") == "EvidenceAssessment"
+                            # A distinct scope needs its own primary evidence. A
+                            # single study/system reused under six adapter labels
+                            # does not establish pan-cancer transfer.
+                            eligible = [
+                                index.get(a.get("evidence_ref"), {}) for a in records
+                                if a.get("type") == "EvidenceAssessment"
                                 and a.get("target_ref") == r.get("subject_ref")
                                 and index.get(a.get("evidence_ref"), {}).get("id") in evidence_refs
                                 and _appropriate_biological_assessment(
                                     index, a, r.get("subject_ref"), {"adapter": ad}, kind)
-                                for a in records):
+                            ]
+                            keys = {(e.get("study_id"), e.get("system_id")) for e in eligible}
+                            independent_sources[ad] = keys
+                            if not keys:
                                 error("MISSING_TRANSFER_ADAPTER_SUPPORT", r)
+                        def independent_assignment(remaining, used):
+                            if not remaining:
+                                return True
+                            first = remaining[0]
+                            return any(
+                                key not in used
+                                and independent_assignment(remaining[1:], used | {key})
+                                for key in independent_sources[first])
+                        if not independent_assignment(sorted(adapters), set()):
+                            error("TRANSFER_INDEPENDENCE_NOT_ESTABLISHED", r)
             if r.get("decision") == "MATHEMATICALLY_VERIFIED_SCOPED":
                 if r.get("axis") != "MATHEMATICAL_VERIFICATION":
                     error("MATHEMATICAL_VERDICT_AXIS_MISMATCH", r)
