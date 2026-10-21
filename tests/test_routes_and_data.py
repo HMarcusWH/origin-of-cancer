@@ -33,7 +33,7 @@ def route_fixture(mode='SAME_SYSTEM'):
     for i in (1,2):
         rs.append(node('Transition','t'+str(i),status='SUPPORTED_SCOPED',
                        source_state_ref=f'ooc:fixture:s{i}',target_state_ref=f'ooc:fixture:s{i+1}',
-                       context_ref=ctx,adapter_ref='ooc:fixture:a',
+                       context_ref=ctx,adapter_ref='ooc:fixture:a',scope=scope,
                        evidence_assessment_refs=[f'ooc:fixture:a{i}']))
     rs.append(node('WitnessBundle','w',mode=mode,context_ref=ctx,
                    evidence_refs=['ooc:fixture:e1','ooc:fixture:e2'],common_witness_ids=['system1']))

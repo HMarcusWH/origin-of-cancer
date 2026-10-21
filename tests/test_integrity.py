@@ -189,8 +189,8 @@ class FirewallTests(unittest.TestCase):
         self.has([node('Assumption','s',assessment='UNKNOWN',required=True),node('MethodApplicability','a',assessment='APPLICABLE',assumption_refs=['ooc:fixture:s'])],'FAILED_OR_UNKNOWN_REQUIRED_ASSUMPTION')
     def test_optional_assumption_not_required(self):
         self.assertEqual(validate_records([node('Assumption','s',assessment='UNKNOWN',required=False),node('MethodApplicability','a',assessment='APPLICABLE',assumption_refs=['ooc:fixture:s'])]),[])
-    def test_unlicensed_frozen_model(self):
-        m=node('ModelInstance','m');m['status']='FROZEN';self.has([m],'UNLICENSED_MODEL')
+    def test_unlicensed_admitted_model(self):
+        m=node('ModelInstance','m');m['status']='ADMITTED';self.has([m],'UNLICENSED_MODEL')
     def test_missing_frozen_model_identity(self):
         m=node('ModelInstance','m');m['status']='FROZEN';self.has([m],'MISSING_MODEL_IDENTITY')
     def test_model_and_applicability_assumptions_must_match(self):

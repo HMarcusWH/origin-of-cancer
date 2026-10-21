@@ -143,13 +143,18 @@ class ProductionValidation(unittest.TestCase):
         rs.append(other)
         next(r for r in rs if r['id']=='ooc:fixture:t2')['evidence_assessment_refs'].append(other['id'])
         self.assertEqual(self.errors(rs),[])
-    def test_same_scope_contradiction_blocks_route(self):
+    def test_same_scope_contradiction_is_ingested_and_contests_route(self):
+        from oocgraph.core import effective_route_state
         rs=route_records()
         other=copy.deepcopy(next(r for r in rs if r['id']=='ooc:fixture:a2'))
         other['id']='ooc:fixture:contradiction'
         other['effect']='CONTRADICTS'
         rs.append(other)
-        self.assert_problem(rs,'UNRESOLVED_ROUTE_CONTRADICTION')
+        self.assertEqual(self.errors(rs),[])
+        route=next(r for r in rs if r['type']=='Route')
+        state=effective_route_state(rs,route)
+        self.assertEqual(state['effective'],'CONTESTED')
+        self.assertEqual(state['contradiction_refs'],[other['id']])
     def test_cross_context_founder_rejected(self):
         rs=route_records()
         next(r for r in rs if r['type']=='FounderEnsemble')['context_ref']='ooc:fixture:wrong'
@@ -171,7 +176,9 @@ def mathematical_fixture():
              axes=['MATHEMATICAL_VERIFICATION'],scope=sc,empirical_truth_authority=False),
         node('SourceLocator','math-loc',path='README.md',selector={'fixture':'formal'}),
         node('SourceArtifact','proof-art',path='README.md',role='SYNTHETIC_PROOF',
-             representation='synthetic'),
+             representation='synthetic',
+             sha256=__import__('hashlib').sha256(
+                 'Synthetic fixture — no biological claims\n'.encode('utf-8')).hexdigest()),
         node('Assumption','assumption',status='RECORDED',assessment='PASS',required=True,
              statement='Synthetic assumption',basis='test'),
         node('ModelClass','model-class',status='IMPLEMENTED_REFERENCE',cancer_backend_implemented=False),
@@ -180,7 +187,7 @@ def mathematical_fixture():
         node('Equation','equation',domain_ref=refs('math-domain'),
              assumption_refs=[refs('assumption')],variable_refs=[],
              expression='synthetic',source_locator_refs=[refs('math-loc')]),
-        node('MethodApplicability','app',assessment='APPLICABLE',status='RECORDED',
+        node('MethodApplicability','app',assessment='APPLICABLE',status='ACTIVE',
              domain_ref=refs('math-domain'),estimand_ref=refs('math-estimand'),
              model_class_ref=refs('model-class'),scope=sc,assumption_refs=[refs('assumption')],
              diagnostics=[],numerical_requirements=[],identification='fixture',
@@ -207,6 +214,12 @@ def mathematical_fixture():
         node('Result','math-result',status='VALIDATED',outcome='PASS',
              claim_ceiling='MATHEMATICAL_EXACT',evidence_class='FORMAL',
              verification_mode='FORMAL_PROOF',verification_artifact_ref=refs('proof-art'),
+             verification_receipt={
+                 'statement_sha256':__import__('hashlib').sha256(
+                     'Synthetic verification target'.encode('utf-8')).hexdigest(),
+                 'artifact_sha256':__import__('hashlib').sha256(
+                     'Synthetic fixture — no biological claims\n'.encode('utf-8')).hexdigest(),
+                 'verifier_sha256':'a'*64,'verifier_version':'synthetic-v0','outcome':'PASS'},
              model_instance_ref=refs('model'),subject_ref=refs('math-claim'),scope=sc,
              test_ref=refs('math-test'),execution_ref=refs('math-execution'),
              provenance_class='CURATED_SEMANTIC'),
@@ -258,6 +271,46 @@ class MathematicalAdmissionContracts(ProductionValidation):
         result=next(r for r in records if r['id']=='ooc:fixture:math-result')
         result.pop('verification_artifact_ref')
         self.assert_problem(records,'UNVERIFIED_MATHEMATICAL_PROMOTION')
+    def test_formal_result_protocol_must_belong_to_model(self):
+        records=mathematical_fixture()
+        m=next(r for r in records if r['id']=='ooc:fixture:model')
+        m['protocol_refs']=[]
+        from oocgraph.core import model_identity_digest
+        m['frozen_digest']=model_identity_digest(records,m)
+        self.assert_problem(records,'UNVERIFIED_MATHEMATICAL_PROMOTION')
+
+    def test_formal_protocol_must_target_exact_claim(self):
+        records=mathematical_fixture()
+        p=next(r for r in records if r['id']=='ooc:fixture:math-protocol')
+        p['target_refs']=['ooc:fixture:model']
+        from oocgraph.core import model_identity_digest
+        m=next(r for r in records if r['id']=='ooc:fixture:model')
+        m['frozen_digest']=model_identity_digest(records,m)
+        self.assert_problem(records,'UNVERIFIED_MATHEMATICAL_PROMOTION')
+
+    def test_inactive_applicability_blocks_admitted_model(self):
+        records=mathematical_fixture()
+        m=next(r for r in records if r['id']=='ooc:fixture:model')
+        m['status']='ADMITTED'
+        a=next(r for r in records if r['id']=='ooc:fixture:app')
+        a['status']='RETIRED'
+        from oocgraph.core import model_identity_digest
+        m['frozen_digest']=model_identity_digest(records,m)
+        self.assert_problem(records,'INACTIVE_MODEL_APPLICABILITY')
+
+    def test_frozen_specification_can_retain_unknown_assumption(self):
+        records=mathematical_fixture()
+        records=[r for r in records if r['type'] not in {
+            'Result','Verdict','Test','Execution','EvidenceObject','EvidenceAssessment'}]
+        a=next(r for r in records if r['id']=='ooc:fixture:app')
+        a['assessment']='UNKNOWN';a['status']='DRAFT'
+        assumption=next(r for r in records if r['id']=='ooc:fixture:assumption')
+        assumption['assessment']='UNKNOWN'
+        from oocgraph.core import model_identity_digest
+        m=next(r for r in records if r['id']=='ooc:fixture:model')
+        m['frozen_digest']=model_identity_digest(records,m)
+        self.assertEqual(self.errors(records),[])
+
     def test_null_target_changes_digest(self):
         from oocgraph.core import model_identity_digest
         records=mathematical_fixture()
