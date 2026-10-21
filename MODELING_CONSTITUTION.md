@@ -49,3 +49,12 @@ Only small known-truth finite-chain and birth–death demonstrations are provide
 engineering regression. Their purpose is to distinguish estimands and detect
 representation errors. They are not fitted cancer models, clinical risk calculators,
 or evidence of an origin route. Real cancer backends remain unimplemented/unadmitted.
+
+## Isolated frozen model identity (hardening)
+
+The model identity digest traverses an explicit forward dependency whitelist and
+binds every DataUse owned by the model, including construction and confirmation
+partitions. Shared protocol settings enter each dependent model digest, but
+Protocol.target_refs and Protocol.data_use_refs are reverse memberships; they
+must not import other candidate models or their data into the identity. Malformed
+references produce ordinary integrity errors, not uncaught tracebacks.

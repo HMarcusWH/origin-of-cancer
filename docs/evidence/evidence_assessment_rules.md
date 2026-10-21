@@ -7,3 +7,14 @@ An EvidenceAssessment binds a finding to a target with SUPPORTS, CONTRADICTS, CO
 ## Status and traceability
 
 This document is a baseline working synthesis of the supplied programme/method sources, not a completed source appraisal or a new empirical result. See the root documentation-authority contract and source manifest. Scientific promotion requires explicit graph evidence and scoped adjudication.
+
+## Shared scoped evidence gate
+
+A supported biological claim or origin-route segment requires an ADJUDICATED
+EvidenceAssessment of effect SUPPORTS for the exact target and scientific scope;
+its EvidenceObject must be RECORDED, explicitly located, and a qualified primary
+biological class. TEXTUAL_HINT, SYNTHETIC, ENGINEERING, reviews, mathematical
+simulations and withdrawn evidence cannot establish biological support. Evidence
+for a route segment must also agree with the route context and admitted witness
+bundle. Different studies do not become one path without a separately validated
+common witness or explicit adjudicated bridge link.

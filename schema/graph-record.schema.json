@@ -230,8 +230,12 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "enum": [
+            "ACTIVE_RULE",
+            "DRAFT",
+            "REVOKED",
+            "RETIRED"
+          ]
         },
         "subject_refs": {
           "items": {
@@ -1034,6 +1038,10 @@
         },
         "type": {
           "const": "Decision"
+        },
+        "disposition_scope": {
+          "type": "object",
+          "minProperties": 1
         }
       },
       "required": [
@@ -1698,6 +1706,13 @@
         },
         "type": {
           "const": "FounderEnsemble"
+        },
+        "ancestry_assessment_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
         }
       },
       "required": [
@@ -5402,6 +5417,48 @@
         },
         "type": {
           "const": "WitnessBundle"
+        },
+        "bridge_links": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from_transition_ref",
+              "to_transition_ref",
+              "evidence_ref",
+              "assessment_ref",
+              "from_witness_id",
+              "to_witness_id"
+            ],
+            "properties": {
+              "from_transition_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_transition_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "assessment_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from_witness_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_witness_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
         }
       },
       "required": [

@@ -45,3 +45,19 @@ Import states are REGISTERED_NOT_EXTRACTED, OPEN, PROVISIONAL or REFERENCE_ONLY 
 appropriate; no historical “verified” label is laundered into a new verification receipt.
 All 91 gaps are present. The 43 critical requirements are one gate subset, not the
 entire research programme.
+
+## Admitted biological route closure (hardening)
+
+A CLOSED origin route must use an explicit boundary and founder ensemble in its
+own context, both anchored to the first biological state. A founder can contain
+multiple states or nested cooperative ensembles; a lineage-supporting adjudicated
+assessment is independently required. Per-segment support must use eligible
+primary biological evidence; reviews, synthetic runs and engineering fixtures are
+not qualified cancer evidence.
+
+SAME_SYSTEM checks common witness identifiers across each segment's *admissible*
+evidence rather than across arbitrary files in the bundle. VALIDATED_BRIDGE
+requires an explicit adjacent-transition bridge link, adjudicated primary evidence
+supporting that route, exact scientific scope, matching context, and identifiers
+connecting the two witness sides. Cross-study stitching without such a bridge
+remains OPEN/PARTIAL, never CLOSED.

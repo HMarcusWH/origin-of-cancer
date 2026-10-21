@@ -136,6 +136,7 @@ REF_LIST_TYPES = {
     "state_variable_refs": {"StateVariable"}, "variable_refs": {"StateVariable"},
     "source_variables_refs": {"StateVariable"}, "target_variables_refs": {"StateVariable"},
     "state_refs": {"BiologicalState"}, "required_gate_refs": {"Gate"}, "null_refs": {"NullModel"},
+    "ancestry_assessment_refs": {"EvidenceAssessment"},
 }
 COMMON_SUBJECT_TYPES = {
     "Programme", "Theory", "Adapter", "Claim", "Boundary", "BiologicalState", "FounderEnsemble",
@@ -171,6 +172,110 @@ def _allowed_ref_types(record_type: str, key: str, list_field: bool = False):
     return (REF_LIST_TYPES if list_field else REF_TYPES).get(key)
 
 SCIENTIFIC_POSITIVE = {"SUPPORTED_SCOPED", "MATHEMATICALLY_VERIFIED_SCOPED"}
+
+BIOLOGICAL_EVIDENCE_CLASSES = frozenset({
+    "PRIMARY_HUMAN_LONGITUDINAL", "PRIMARY_HUMAN_CROSS_SECTIONAL",
+    "PRIMARY_ANIMAL", "PRIMARY_ORGANOID", "PRIMARY_IN_VITRO", "HUMAN_CAUSAL"
+})
+SCIENTIFIC_DISPOSITION_CLASSES = BIOLOGICAL_EVIDENCE_CLASSES | frozenset({
+    "ANALYTIC", "FORMAL", "NUMERICAL"
+})
+NON_ADMISSIBLE_PROVENANCE = frozenset({
+    "TEXTUAL_HINT", "SYNTHETIC", "ENGINEERING"
+})
+
+
+def _qualified_assessment(index, assessment, target_ref, scope, *,
+                          effect="SUPPORTS", context_ref=None,
+                          allowed_classes=BIOLOGICAL_EVIDENCE_CLASSES):
+    """The same fail-closed evidence contract governs biological verdicts and routes.
+
+    Synthetic test *fixtures* may model these fields; actual synthetic/engineering
+    evidence is ineligible to establish cancer biology.
+    """
+    if not isinstance(assessment, dict):
+        return False
+    evidence = index.get(assessment.get("evidence_ref"), {})
+    return bool(
+        assessment.get("type") == "EvidenceAssessment"
+        and assessment.get("status") == "ADJUDICATED"
+        and assessment.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+        and assessment.get("effect") == effect
+        and assessment.get("target_ref") == target_ref
+        and canonical(assessment.get("scope")) == canonical(scope)
+        and evidence.get("type") == "EvidenceObject"
+        and evidence.get("status") == "RECORDED"
+        and evidence.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+        and evidence.get("evidence_class") in allowed_classes
+        and bool(evidence.get("source_locator_refs"))
+        and (context_ref is None or evidence.get("context_ref") == context_ref)
+    )
+
+
+def _decision_admission_errors(records, index, decision, subject_ref, scope, effects,
+                               *, required_evidence_refs=None):
+    """Admit a scientific disposition only with active, scoped authority and
+    per-evidence adjudication for the *specific subject* and scientific scope.
+
+    Decision.scope is governance jurisdiction; Decision.disposition_scope
+    is the scientific extent of resolution/bounding. They must never be conflated.
+    """
+    errors = []
+    authority = index.get(decision.get("authority_ref"), {})
+    if not (
+        decision.get("type") == "Decision"
+        and decision.get("status") == "RECORDED"
+        and decision.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+        and decision.get("subject_ref") == subject_ref
+        and isinstance(scope, dict) and bool(scope)
+        and canonical(decision.get("disposition_scope")) == canonical(scope)
+        and authority.get("type") == "Authority"
+        and authority.get("status") == "ACTIVE_RULE"
+        and "RESEARCH_POLICY" in authority.get("axes", [])
+        and canonical(decision.get("scope")) == canonical(authority.get("scope"))
+        and authority.get("scope", {}).get("domain") == "PROGRAMME_GOVERNANCE"
+        and (not authority.get("subject_refs")
+             or subject_ref in authority.get("subject_refs", []))
+    ):
+        errors.append("INVALID_AUTHORIZED_DISPOSITION")
+    evidence_refs = decision.get("evidence_refs", [])
+    if not isinstance(evidence_refs, list) or not evidence_refs:
+        errors.append("MISSING_DISPOSITION_EVIDENCE")
+        evidence_refs = []
+    if required_evidence_refs is not None and (
+            set(evidence_refs) != set(required_evidence_refs)):
+        errors.append("DISPOSITION_EVIDENCE_MISMATCH")
+    for evidence_ref in evidence_refs:
+        assessments = (
+            a for a in records
+            if a.get("type") == "EvidenceAssessment"
+            and a.get("evidence_ref") == evidence_ref
+        )
+        if not any(
+            _qualified_assessment(index, a, subject_ref, scope,
+                                  effect=effect, allowed_classes=SCIENTIFIC_DISPOSITION_CLASSES)
+            for a in assessments for effect in effects
+        ):
+            errors.append("UNADJUDICATED_DISPOSITION_EVIDENCE")
+    return errors
+
+
+def _founder_states(index, founder_ref, seen=None):
+    """Resolve member states of a potentially cooperative/nested founder ensemble."""
+    seen = set() if seen is None else seen
+    if founder_ref in seen:
+        return set()
+    seen.add(founder_ref)
+    founder = index.get(founder_ref, {})
+    result = set()
+    for member_ref in founder.get("member_refs", []):
+        member = index.get(member_ref, {})
+        if member.get("type") == "BiologicalState":
+            result.add(member_ref)
+        elif member.get("type") == "FounderEnsemble":
+            result.update(_founder_states(index, member_ref, seen))
+    return result
+
 
 def validate_records(records: list[dict], root: Path | None = None) -> list[str]:
     """Return integrity violations; scientific incompleteness is not a violation."""
@@ -281,18 +386,35 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("FAILED_OR_UNKNOWN_MODEL_ASSUMPTION", r)
         if typ == "Route" and r.get("status") == "CLOSED":
             if r.get("unresolved_segments"): error("ROUTE_HAS_DEBT", r)
-            if not r.get("transition_refs"): error("EMPTY_CLOSED_ROUTE", r)
+            transitions = r.get("transition_refs", [])
+            if not transitions: error("EMPTY_CLOSED_ROUTE", r)
             if not r.get("founder_ref"): error("MISSING_ROUTE_ANCESTRY", r)
-            if not isinstance(r.get("scope"), dict) or not r.get("scope"): error("MISSING_ROUTE_SCOPE", r)
+            scope = r.get("scope")
+            if not isinstance(scope, dict) or not scope: error("MISSING_ROUTE_SCOPE", r)
+            boundary = index.get(r.get("boundary_ref"), {})
+            founder = index.get(r.get("founder_ref"), {})
+            if boundary.get("context_ref") != r.get("context_ref"):
+                error("ROUTE_BOUNDARY_CONTEXT_MISMATCH", r)
+            if founder.get("context_ref") != r.get("context_ref"):
+                error("ROUTE_FOUNDER_CONTEXT_MISMATCH", r)
+            if transitions:
+                first_state = index.get(transitions[0], {}).get("source_state_ref")
+                if first_state not in boundary.get("state_refs", []):
+                    error("ROUTE_BOUNDARY_NOT_ANCHORED", r)
+                if first_state not in _founder_states(index, r.get("founder_ref")):
+                    error("ROUTE_FOUNDER_NOT_ANCHORED", r)
             wb = index.get(r.get("witness_bundle_ref"), {})
             mode = wb.get("mode")
-            if mode not in {"SAME_SYSTEM", "VALIDATED_BRIDGE"}: error("COMPOSITED_ROUTE", r)
-            if wb.get("context_ref") != r.get("context_ref"): error("WITNESS_CONTEXT_MISMATCH", r)
-            # Segment support always comes from the ordinary witness evidence set.
-            # Bridge evidence has a separate adjudication contract below.
+            if mode not in {"SAME_SYSTEM", "VALIDATED_BRIDGE"}:
+                error("COMPOSITED_ROUTE", r)
+            if wb.get("context_ref") != r.get("context_ref"):
+                error("WITNESS_CONTEXT_MISMATCH", r)
             witness_evidence = set(wb.get("evidence_refs", []))
+            if not witness_evidence:
+                error("EMPTY_WITNESS_EVIDENCE", r)
             previous = None
-            for tr in r.get("transition_refs", []):
+            segment_witnesses = []
+            for tr in transitions:
                 t = index.get(tr, {})
                 if t.get("context_ref") != r.get("context_ref") or t.get("adapter_ref") != r.get("adapter_ref"):
                     error("ROUTE_CONTEXT_MISMATCH", r)
@@ -301,7 +423,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 if previous is not None and previous != t.get("source_state_ref"):
                     error("BROKEN_ROUTE_HANDOFF", r)
                 previous = t.get("target_state_ref")
-                supporting = 0
+                segment_supported = False
+                witnesses = set()
                 refs = t.get("evidence_assessment_refs", [])
                 if not refs: error("UNSUPPORTED_ROUTE_SEGMENT", r)
                 for ar in refs:
@@ -310,8 +433,6 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     valid = True
                     if a.get("status") != "ADJUDICATED":
                         error("UNADJUDICATED_ROUTE_ASSESSMENT", r); valid = False
-                    if a.get("provenance_class") == "TEXTUAL_HINT" or e.get("provenance_class") == "TEXTUAL_HINT":
-                        error("TEXT_HINT_ROUTE_SUPPORT", r); valid = False
                     if a.get("target_ref") != tr:
                         error("ROUTE_ASSESSMENT_TARGET_MISMATCH", r); valid = False
                     if a.get("effect") != "SUPPORTS":
@@ -322,36 +443,78 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("ROUTE_EVIDENCE_CONTEXT_MISMATCH", r); valid = False
                     if e.get("id") not in witness_evidence:
                         error("ROUTE_EVIDENCE_OUTSIDE_WITNESS", r); valid = False
-                    if canonical(a.get("scope")) != canonical(r.get("scope")):
+                    if canonical(a.get("scope")) != canonical(scope):
                         error("ROUTE_ASSESSMENT_SCOPE_MISMATCH", r); valid = False
-                    if valid: supporting += 1
-                if not supporting: error("UNSUPPORTED_ROUTE_SEGMENT", r)
+                    if not _qualified_assessment(index, a, tr, scope, context_ref=r.get("context_ref")):
+                        error("NONBIOLOGICAL_ROUTE_SUPPORT", r); valid = False
+                    if valid:
+                        segment_supported = True
+                        witnesses.update(e.get("witness_ids", []))
+                if not segment_supported:
+                    error("UNSUPPORTED_ROUTE_SEGMENT", r)
+                segment_witnesses.append(witnesses)
             if mode == "SAME_SYSTEM":
-                groups = [set(index.get(x, {}).get("witness_ids", [])) for x in wb.get("evidence_refs", [])]
-                common = set.intersection(*groups) if groups else set()
-                if not common or not set(wb.get("common_witness_ids", [])).issubset(common):
+                common = set.intersection(*segment_witnesses) if segment_witnesses else set()
+                declared = set(wb.get("common_witness_ids", []))
+                if not common or not declared or not declared.issubset(common):
                     error("MISSING_COMMON_WITNESS", r)
-                if not wb.get("common_witness_ids"): error("MISSING_COMMON_WITNESS", r)
+                if wb.get("bridge_links") or wb.get("bridge_evidence_refs"):
+                    error("BRIDGE_EVIDENCE_NOT_ALLOWED_IN_SAME_SYSTEM", r)
             if mode == "VALIDATED_BRIDGE":
-                bridge_refs = wb.get("bridge_evidence_refs", [])
-                if not bridge_refs:
+                bridge_evidence = set(wb.get("bridge_evidence_refs", []))
+                links = wb.get("bridge_links", [])
+                if not bridge_evidence or not links:
                     error("UNSUPPORTED_BRIDGE", r)
-                for er in bridge_refs:
-                    e = index.get(er, {})
-                    if (e.get("status") != "RECORDED" or e.get("context_ref") != r.get("context_ref")
-                        or e.get("provenance_class") == "TEXTUAL_HINT"):
-                        error("INVALID_BRIDGE_EVIDENCE", r)
+                valid_links = set()
+                used_bridge_evidence = set()
+                for link in links:
+                    left, right = link.get("from_transition_ref"), link.get("to_transition_ref")
+                    pair = (left, right)
+                    if pair not in set(zip(transitions, transitions[1:])):
+                        error("UNRELATED_BRIDGE_LINK", r)
                         continue
-                    bridge_assessments = [a for a in records
-                        if a.get("type") == "EvidenceAssessment" and a.get("evidence_ref") == er
-                        and a.get("target_ref") == r.get("id") and a.get("effect") == "SUPPORTS"
-                        and a.get("status") == "ADJUDICATED"
-                        and a.get("provenance_class") != "TEXTUAL_HINT"
-                        and canonical(a.get("scope")) == canonical(r.get("scope"))]
-                    if not bridge_assessments:
-                        error("UNADJUDICATED_BRIDGE_EVIDENCE", r)
+                    i = transitions.index(left)
+                    e_ref, a_ref = link.get("evidence_ref"), link.get("assessment_ref")
+                    a = index.get(a_ref, {})
+                    e = index.get(e_ref, {})
+                    if not (
+                        e_ref in bridge_evidence
+                        and link.get("from_witness_id") in segment_witnesses[i]
+                        and link.get("to_witness_id") in segment_witnesses[i+1]
+                        and {link.get("from_witness_id"), link.get("to_witness_id")}
+                            .issubset(set(e.get("witness_ids", [])))
+                        and a.get("evidence_ref") == e_ref
+                        and _qualified_assessment(index, a, r["id"], scope,
+                                                  context_ref=r.get("context_ref"))
+                    ):
+                        error("INVALID_BRIDGE_LINK", r)
+                    else:
+                        valid_links.add(pair)
+                        used_bridge_evidence.add(e_ref)
+                for i in range(max(0, len(transitions)-1)):
+                    if not (segment_witnesses[i] & segment_witnesses[i+1]):
+                        if (transitions[i], transitions[i+1]) not in valid_links:
+                            error("UNBRIDGED_WITNESS_HANDOFF", r)
+                if not valid_links:
+                    error("UNSUPPORTED_BRIDGE", r)
+                if bridge_evidence != used_bridge_evidence:
+                    error("UNBOUND_BRIDGE_EVIDENCE", r)
+            ancestry_assessments = founder.get("ancestry_assessment_refs", [])
+            if not ancestry_assessments:
+                error("UNSUPPORTED_ROUTE_ANCESTRY", r)
+            for ar in ancestry_assessments:
+                a = index.get(ar, {})
+                e = index.get(a.get("evidence_ref"), {})
+                if (e.get("id") not in witness_evidence or
+                    not _qualified_assessment(index, a, founder.get("id"), scope,
+                                              context_ref=r.get("context_ref"))):
+                    error("INVALID_ROUTE_ANCESTRY_ASSESSMENT", r)
+                elif mode == "SAME_SYSTEM":
+                    if not set(e.get("witness_ids", [])) & set(wb.get("common_witness_ids", [])):
+                        error("ROUTE_ANCESTRY_WITNESS_MISMATCH", r)
         if typ == "Verdict":
             authority = index.get(r.get("authority_ref"), {})
+            if authority.get("status") != "ACTIVE_RULE": error("INACTIVE_VERDICT_AUTHORITY", r)
             if r.get("axis") not in authority.get("axes", []): error("AUTHORITY_AXIS_MISMATCH", r)
             if canonical(r.get("scope")) != canonical(authority.get("scope")):
                 error("AUTHORITY_SCOPE_MISMATCH", r)
@@ -363,13 +526,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 assessments = [index.get(x, {}) for x in r.get("assessment_refs", [])]
                 admissible = []
                 for a in assessments:
-                    e = index.get(a.get("evidence_ref"), {})
-                    if (a.get("status") == "ADJUDICATED" and e.get("status") == "RECORDED"
-                        and a.get("provenance_class") != "TEXTUAL_HINT"
-                        and e.get("provenance_class") != "TEXTUAL_HINT"
-                        and a.get("target_ref") == r.get("subject_ref") and a.get("effect") == "SUPPORTS"
-                        and canonical(a.get("scope")) == canonical(r.get("scope"))
-                        and e.get("evidence_class") in {"PRIMARY_HUMAN_LONGITUDINAL", "PRIMARY_HUMAN_CROSS_SECTIONAL", "PRIMARY_ANIMAL", "PRIMARY_ORGANOID", "PRIMARY_IN_VITRO", "HUMAN_CAUSAL"}):
+                    if _qualified_assessment(index, a, r.get("subject_ref"), r.get("scope")):
                         admissible.append(a)
                 if not admissible: error("NONBIOLOGICAL_PROMOTION", r)
                 # Species and cross-adapter promotion need their own reviewed scope.
@@ -387,7 +544,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 error("GOVERNANCE_AS_SCIENTIFIC_SUPPORT", r)
         if typ == "Programme":
             if r.get("clinical_use"): error("CLINICAL_USE_OUT_OF_SCOPE", r)
-            requirements = [x for x in records if x.get("type") == "Requirement" and x.get("subject_ref") == r["id"]]
+            requirements = [x for x in records if x.get("type") == "Requirement"
+                            and x.get("subject_ref") == r["id"]]
             for gap_ref in sorted(configured_critical_gap_refs):
                 gap = index.get(gap_ref, {})
                 if gap.get("type") != "ResearchGap":
@@ -400,38 +558,47 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             if r.get("kernel_frozen"):
                 if not requirements: error("NO_FREEZE_REQUIREMENTS", r)
                 for q in requirements:
-                    if q.get("status") not in {"SATISFIED", "BOUNDED"} or not q.get("decision_ref"):
-                        error("OPEN_FREEZE_REQUIREMENT", r)
-                    if q.get("status") == "BOUNDED" and not q.get("bound_scope"): error("UNSCOPED_REQUIREMENT_BOUND", q)
-                    decision = index.get(q.get("decision_ref"), {})
-                    authority = index.get(decision.get("authority_ref"), {})
-                    decision_refs = set(decision.get("evidence_refs", []))
-                    satisfaction_refs = set(q.get("satisfaction_evidence_refs", []))
-                    decision_evidence = [index.get(e, {}) for e in decision_refs]
-                    authority_ok = ("RESEARCH_POLICY" in authority.get("axes", [])
-                                    and canonical(decision.get("scope")) == canonical(authority.get("scope"))
-                                    and (not authority.get("subject_refs")
-                                         or decision.get("subject_ref") in authority.get("subject_refs", [])))
-                    if (decision.get("type") != "Decision" or decision.get("status") != "RECORDED"
-                        or decision.get("subject_ref") not in {q.get("id"), q.get("gap_ref")}
-                        or not decision_refs or decision_refs != satisfaction_refs
-                        or any(e.get("status") != "RECORDED" or e.get("provenance_class") == "TEXTUAL_HINT"
-                               for e in decision_evidence)
-                        or not authority_ok):
-                        error("INVALID_FREEZE_DECISION", q)
-                    effects = {"SUPPORTS"} if q.get("status") == "SATISFIED" else {"SUPPORTS", "CONSTRAINS", "DOES_NOT_ESTABLISH"}
-                    for er in decision_refs:
-                        assessments = [a for a in records
-                            if a.get("type") == "EvidenceAssessment" and a.get("evidence_ref") == er
-                            and a.get("target_ref") in {q.get("id"), q.get("gap_ref")}
-                            and a.get("effect") in effects and a.get("status") == "ADJUDICATED"
-                            and a.get("provenance_class") != "TEXTUAL_HINT"
-                            and canonical(a.get("scope")) == canonical(decision.get("scope"))]
-                        if not assessments:
-                            error("UNADJUDICATED_FREEZE_EVIDENCE", q)
                     gap = index.get(q.get("gap_ref"), {})
-                    if q.get("gap_ref") in configured_critical_gap_refs and gap.get("status") not in {"RESOLVED", "BOUNDED", "SUPERSEDED"}:
-                        error("OPEN_CRITICAL_GAP_ON_FREEZE", q)
+                    q_status = q.get("status")
+                    gap_status = gap.get("status")
+                    if q_status not in {"SATISFIED", "BOUNDED"}:
+                        error("OPEN_FREEZE_REQUIREMENT", r)
+                    if q_status == "BOUNDED" and not q.get("bound_scope"):
+                        error("UNSCOPED_REQUIREMENT_BOUND", q)
+                    q_decision = index.get(q.get("decision_ref"), {})
+                    q_scope = (q.get("bound_scope") if q_status == "BOUNDED"
+                               else q_decision.get("disposition_scope"))
+                    allowed_effects = ({"SUPPORTS"} if q_status == "SATISFIED"
+                                       else {"CONSTRAINS", "DOES_NOT_ESTABLISH"})
+                    q_errors = _decision_admission_errors(
+                        records, index, q_decision, q.get("id"), q_scope, allowed_effects,
+                        required_evidence_refs=q.get("satisfaction_evidence_refs", []))
+                    if q_errors:
+                        error("INVALID_FREEZE_DECISION", q)
+                        for issue in q_errors:
+                            error(issue, q)
+                    if q.get("gap_ref") in configured_critical_gap_refs:
+                        if gap_status == "SUPERSEDED":
+                            error("SUPERSEDED_CRITICAL_GAP_ON_FREEZE", q)
+                        if gap_status not in {"RESOLVED", "BOUNDED"}:
+                            error("OPEN_CRITICAL_GAP_ON_FREEZE", q)
+                        if gap_status == "BOUNDED" and (
+                            q_status != "BOUNDED" or
+                            canonical(q.get("bound_scope")) != canonical(gap.get("bound_scope"))):
+                            error("REQUIREMENT_GAP_BOUND_MISMATCH", q)
+                        if gap_status == "RESOLVED" and q_status != "SATISFIED":
+                            error("REQUIREMENT_GAP_DISPOSITION_MISMATCH", q)
+                        gap_decision = index.get(gap.get("decision_ref"), {})
+                        gap_scope = (gap.get("bound_scope") if gap_status == "BOUNDED"
+                                     else gap_decision.get("disposition_scope"))
+                        gap_effects = ({"SUPPORTS"} if gap_status == "RESOLVED"
+                                       else {"CONSTRAINS", "DOES_NOT_ESTABLISH"})
+                        gap_errors = _decision_admission_errors(
+                            records, index, gap_decision, gap.get("id"), gap_scope, gap_effects)
+                        if gap_errors:
+                            error("INVALID_CRITICAL_GAP_DECISION", gap)
+                            for issue in gap_errors:
+                                error(issue, gap)
     uses = [r for r in records if r.get("type") == "DataUse"]
     for i, a in enumerate(uses):
         for b in uses[i+1:]:
@@ -549,26 +716,86 @@ def history_violations(before: list[dict], after: list[dict]) -> list[str]:
             failures.append('MUTATED_IMMUTABLE:'+old['id'])
     return failures
 
-def model_identity_digest(records: list[dict], model: dict) -> str:
-    """Bind model configuration and transitive referenced records, without self-hashing.
+MODEL_IDENTITY_FORWARD_REFS = {
+    "ModelInstance": {"applicability_ref", "assumption_refs", "context_ref",
+        "equation_refs", "estimand_refs", "intervention_operator_refs",
+        "model_class_ref", "observation_operator_ref", "parameter_refs",
+        "software_ref", "state_variable_refs", "source_locator_refs"},
+    "MethodApplicability": {"assumption_refs", "domain_ref", "estimand_ref",
+        "model_class_ref", "source_locator_refs"},
+    "Parameter": {"provenance_ref", "source_locator_refs"},
+    "ParameterProvenance": {"source_locator_refs", "data_use_refs"},
+    "Equation": {"assumption_refs", "domain_ref", "variable_refs", "source_locator_refs"},
+    "ObservationOperator": {"process_ref", "variable_refs", "source_locator_refs"},
+    "InterventionOperator": {"context_ref", "property_ref", "source_locator_refs"},
+    "DataUse": {"dataset_ref", "protocol_ref", "independence_evidence_refs",
+        "source_locator_refs"},
+    "Protocol": {"null_refs", "source_locator_refs"},
+    "Dataset": {"source_locator_refs"},
+    "ModelClass": {"source_locator_refs"},
+    "Assumption": {"source_locator_refs"},
+    "Software": {"source_locator_refs"},
+    "SourceArtifact": {"source_locator_refs"},
+}
 
-    Presentation/status fields are excluded, while state variables, assumption
-    assessments, parameter values, scopes and observation/intervention maps remain.
-    Cyclic reference graphs are traversed once per object, not recursively hashed.
+
+def model_identity_digest(records: list[dict], model: dict) -> str:
+    """Digest only claim-bearing dependencies owned by this model.
+
+    The model binds its own DataUses (including their partitions). Shared Protocol
+    configuration is included, but its reverse data_use_refs/target_refs do *not*
+    import other models. Malformed references raise IntegrityError rather than
+    exceptions escaping validation.
     """
-    index={r['id']:r for r in records}
-    bound_uses = sorted(r['id'] for r in records
-                        if r.get('type') == 'DataUse' and r.get('model_instance_ref') == model['id'])
-    pending=[model['id'], *bound_uses];visited=set();content=[]
-    ignored={'frozen_digest','status','label','notes','doc_path'}
+    if model.get("type") != "ModelInstance":
+        raise IntegrityError("Model identity requires ModelInstance")
+    index = {r["id"]: r for r in records}
+    model_id = model["id"]
+    bound_uses = sorted(r["id"] for r in records
+                        if r.get("type") == "DataUse"
+                        and r.get("model_instance_ref") == model_id)
+    bound_set = set(bound_uses)
+    pending = [model_id, *bound_uses]
+    visited, content = set(), []
+    ignored = {"frozen_digest", "status", "label", "notes", "doc_path"}
     while pending:
-        rid=pending.pop()
-        if rid in visited:continue
-        visited.add(rid)
-        if rid not in index:raise IntegrityError('Missing model identity reference '+rid)
-        record=index[rid]
-        content.append({k:v for k,v in record.items() if k not in ignored})
-        for k,v in record.items():
-            if k.endswith('_ref'):pending.append(v)
-            elif k.endswith('_refs'):pending.extend(v)
-    return sha256(canonical(sorted(content,key=lambda r:r['id'])).encode())
+        ref_id = pending.pop()
+        if not isinstance(ref_id, str):
+            raise IntegrityError("Non-string model identity reference")
+        if ref_id in visited:
+            continue
+        record = index.get(ref_id)
+        if record is None:
+            raise IntegrityError("Missing model identity reference " + ref_id)
+        if record.get("type") == "ModelInstance" and ref_id != model_id:
+            raise IntegrityError("Cross-model identity dependency " + ref_id)
+        if record.get("type") == "DataUse" and record.get("model_instance_ref") != model_id:
+            raise IntegrityError("Cross-model data use dependency " + ref_id)
+        visited.add(ref_id)
+        projection = {}
+        follow = MODEL_IDENTITY_FORWARD_REFS.get(record.get("type"), {"source_locator_refs"})
+        for key, value in record.items():
+            if key.endswith("_refs") and (
+                    not isinstance(value, list)
+                    or any(not isinstance(item, str) for item in value)):
+                raise IntegrityError("Malformed model identity reference list: " + key)
+            if key.endswith("_ref") and not isinstance(value, str):
+                raise IntegrityError("Malformed model identity reference: " + key)
+            if key in ignored:
+                continue
+            # Protocol target memberships and clients are reverse associations.
+            # They are not part of an individual model's frozen specification.
+            if record.get("type") == "Protocol" and key in {"data_use_refs", "target_refs"}:
+                continue
+            if record.get("type") == "ParameterProvenance" and key == "data_use_refs":
+                projection[key] = sorted(x for x in value if x in bound_set)
+                pending.extend(projection[key])
+                continue
+            projection[key] = value
+            if key in follow:
+                if key.endswith("_refs"):
+                    pending.extend(value)
+                elif key.endswith("_ref"):
+                    pending.append(value)
+        content.append(projection)
+    return sha256(canonical(sorted(content, key=lambda item: item["id"])).encode())
