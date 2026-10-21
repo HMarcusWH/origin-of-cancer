@@ -124,6 +124,7 @@ REF_TYPES = {
     "target_claim_ref": {"Claim"}, "target_estimand_ref": {"Estimand"}, "history_ref": {"Route"},
     "property_ref": {"Estimand", "PersistenceCriterion", "Claim"},
     "result_ref": {"Result"}, "candidate_set_ref": {"CandidateSet"},
+    "conflict_resolution_ref": {"Decision"},
 }
 REF_LIST_TYPES = {
     "evidence_refs": {"EvidenceObject"}, "bridge_evidence_refs": {"EvidenceObject"},
@@ -489,6 +490,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("FAILED_OR_UNKNOWN_REQUIRED_ASSUMPTION", r)
         if typ == "ModelInstance" and r.get("status") in {"ADMITTED", "FROZEN"}:
             app = index.get(r.get("applicability_ref"), {})
+            if r.get("identity_algorithm") != MODEL_IDENTITY_ALGORITHM:
+                error("UNVERSIONED_MODEL_IDENTITY", r)
             if app.get("assessment") != "APPLICABLE": error("UNLICENSED_MODEL", r)
             if not r.get("frozen_digest") or not re.fullmatch("[0-9a-f]{64}", r["frozen_digest"]):
                 error("MISSING_MODEL_IDENTITY", r)
@@ -498,12 +501,28 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 except IntegrityError: error("INCOMPLETE_MODEL_IDENTITY",r)
             if app.get("model_class_ref") != r.get("model_class_ref"): error("APPLICABILITY_MODEL_MISMATCH",r)
             if app.get("scope") != r.get("scope"): error("APPLICABILITY_SCOPE_MISMATCH",r)
-            if set(app.get("assumption_refs", [])) != set(r.get("assumption_refs", [])):
-                error("APPLICABILITY_ASSUMPTION_MISMATCH", r)
-            for ar in r.get("assumption_refs", []):
-                assumption = index.get(ar, {})
-                if assumption.get("required", True) and assumption.get("assessment") != "PASS":
-                    error("FAILED_OR_UNKNOWN_MODEL_ASSUMPTION", r)
+            declared = _valid_ref_list(r.get("assumption_refs"))
+            applied = _valid_ref_list(app.get("assumption_refs"))
+            required_from_equations = set()
+            for er in r.get("equation_refs", []):
+                eq = index.get(er, {})
+                eq_assumptions = _valid_ref_list(eq.get("assumption_refs"))
+                if eq_assumptions is None:
+                    error("MALFORMED_EQUATION_ASSUMPTIONS", r)
+                else:
+                    required_from_equations.update(eq_assumptions)
+            if declared is None or applied is None:
+                error("MALFORMED_MODEL_ASSUMPTIONS", r)
+            else:
+                if declared != applied:
+                    error("APPLICABILITY_ASSUMPTION_MISMATCH", r)
+                if not required_from_equations.issubset(declared):
+                    error("UNDECLARED_EQUATION_ASSUMPTION", r)
+                for ar in sorted(declared | required_from_equations):
+                    assumption = index.get(ar, {})
+                    if (assumption.get("required", True) and
+                        (assumption.get("assessment") != "PASS" or assumption.get("status") != "RECORDED")):
+                        error("FAILED_OR_UNKNOWN_MODEL_ASSUMPTION", r)
         if typ == "Route" and r.get("status") == "CLOSED":
             if r.get("unresolved_segments"): error("ROUTE_HAS_DEBT", r)
             transitions = r.get("transition_refs", [])
@@ -549,6 +568,9 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 if not refs: error("UNSUPPORTED_ROUTE_SEGMENT", r)
                 for ar in refs:
                     a = index.get(ar, {})
+                    # Adjudications for other scopes belong to their own claim partition.
+                    if canonical(a.get("scope")) != canonical(scope):
+                        continue
                     e = index.get(a.get("evidence_ref"), {})
                     valid = True
                     if a.get("status") != "ADJUDICATED":
@@ -563,8 +585,6 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("ROUTE_EVIDENCE_CONTEXT_MISMATCH", r); valid = False
                     if e.get("id") not in witness_evidence:
                         error("ROUTE_EVIDENCE_OUTSIDE_WITNESS", r); valid = False
-                    if canonical(a.get("scope")) != canonical(scope):
-                        error("ROUTE_ASSESSMENT_SCOPE_MISMATCH", r); valid = False
                     if not _qualified_assessment(index, a, tr, scope, context_ref=r.get("context_ref")):
                         error("NONBIOLOGICAL_ROUTE_SUPPORT", r); valid = False
                     if valid:
@@ -572,6 +592,15 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         witnesses.update(e.get("witness_ids", []))
                 if not segment_supported:
                     error("UNSUPPORTED_ROUTE_SEGMENT", r)
+                if any(a.get("type") == "EvidenceAssessment" and a.get("target_ref") == tr
+                       and canonical(a.get("scope")) == canonical(scope)
+                       and a.get("status") == "ADJUDICATED"
+                       and a.get("effect") in {"CONTRADICTS", "FALSIFIES"}
+                       and index.get(a.get("evidence_ref"), {}).get("status") == "RECORDED"
+                       for a in records):
+                    # Conflicting evidence is not silently ignored. Until a separate
+                    # independently admitted conflict disposition exists, route is open.
+                    error("UNRESOLVED_ROUTE_CONTRADICTION", r)
                 segment_witnesses.append(witnesses)
             if mode == "SAME_SYSTEM":
                 common = set.intersection(*segment_witnesses) if segment_witnesses else set()
@@ -629,8 +658,11 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     not _qualified_assessment(index, a, founder.get("id"), scope,
                                               context_ref=r.get("context_ref"))):
                     error("INVALID_ROUTE_ANCESTRY_ASSESSMENT", r)
-                elif mode == "SAME_SYSTEM":
-                    if not set(e.get("witness_ids", [])) & set(wb.get("common_witness_ids", [])):
+                else:
+                    # Ancestry must attach to the *first admitted route segment*
+                    # irrespective of whether later transitions require bridges.
+                    if not segment_witnesses or not (
+                        set(e.get("witness_ids", [])) & segment_witnesses[0]):
                         error("ROUTE_ANCESTRY_WITNESS_MISMATCH", r)
         if typ == "Verdict":
             authority = index.get(r.get("authority_ref"), {})
@@ -853,13 +885,15 @@ MODEL_IDENTITY_FORWARD_REFS = {
     "ObservationOperator": {"process_ref", "variable_refs", "source_locator_refs"},
     "InterventionOperator": {"context_ref", "property_ref", "source_locator_refs"},
     "DataUse": {"dataset_ref", "protocol_ref", "independence_evidence_refs",
-        "source_locator_refs"},
+        "candidate_set_ref", "source_locator_refs"},
     "Protocol": {"null_refs", "source_locator_refs"},
     "Dataset": {"source_locator_refs"},
     "ModelClass": {"source_locator_refs"},
     "Assumption": {"source_locator_refs"},
     "Software": {"source_locator_refs"},
     "SourceArtifact": {"source_locator_refs"},
+    "NullModel": {"target_claim_ref", "model_class_ref", "source_locator_refs"},
+    "Claim": {"assumption_refs", "source_locator_refs"},
 }
 
 
@@ -873,6 +907,8 @@ def model_identity_digest(records: list[dict], model: dict) -> str:
     """
     if model.get("type") != "ModelInstance":
         raise IntegrityError("Model identity requires ModelInstance")
+    if model.get("identity_algorithm", MODEL_IDENTITY_ALGORITHM) != MODEL_IDENTITY_ALGORITHM:
+        raise IntegrityError("Unrecognized model digest algorithm")
     index = {r["id"]: r for r in records}
     model_id = model["id"]
     bound_uses = sorted(r["id"] for r in records
