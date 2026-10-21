@@ -4,19 +4,57 @@ from tests.test_integrity import node
 from oocgraph.core import validate_records
 
 def route_fixture(mode='SAME_SYSTEM'):
+    """Synthetic mock objects, not empirical cancer findings."""
     scope={'adapter':'synthetic'}
-    rs=[node('Adapter','a'),node('Context','c'),node('Boundary','b'),node('FounderEnsemble','f'),
+    ctx='ooc:fixture:c'
+    s1='ooc:fixture:s1'
+    rs=[node('Adapter','a'),node('Context','c'),
+        node('Boundary','b',context_ref=ctx,state_refs=[s1]),
+        node('FounderEnsemble','f',context_ref=ctx,member_refs=[s1,'ooc:fixture:s2'],
+             ancestry_assessment_refs=['ooc:fixture:fa']),
         node('BiologicalState','s1'),node('BiologicalState','s2'),node('BiologicalState','s3'),
         node('SourceLocator','l',selector={'figure':'fixture'}),
-        node('EvidenceObject','e1',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l'],context_ref='ooc:fixture:c',status='RECORDED'),
-        node('EvidenceObject','e2',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l'],context_ref='ooc:fixture:c',status='RECORDED'),
-        node('EvidenceAssessment','a1',evidence_ref='ooc:fixture:e1',target_ref='ooc:fixture:t1',effect='SUPPORTS',scope=scope,status='ADJUDICATED'),
-        node('EvidenceAssessment','a2',evidence_ref='ooc:fixture:e2',target_ref='ooc:fixture:t2',effect='SUPPORTS',scope=scope,status='ADJUDICATED')]
+        node('EvidenceObject','e1',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l'],
+             context_ref=ctx,status='RECORDED',evidence_class='PRIMARY_ANIMAL',
+             provenance_class='CURATED_SEMANTIC'),
+        node('EvidenceObject','e2',witness_ids=['system1'],source_locator_refs=['ooc:fixture:l'],
+             context_ref=ctx,status='RECORDED',evidence_class='PRIMARY_ANIMAL',
+             provenance_class='CURATED_SEMANTIC'),
+        node('EvidenceAssessment','a1',evidence_ref='ooc:fixture:e1',target_ref='ooc:fixture:t1',
+             effect='SUPPORTS',scope=scope,status='ADJUDICATED',provenance_class='CURATED_SEMANTIC'),
+        node('EvidenceAssessment','a2',evidence_ref='ooc:fixture:e2',target_ref='ooc:fixture:t2',
+             effect='SUPPORTS',scope=scope,status='ADJUDICATED',provenance_class='CURATED_SEMANTIC'),
+        node('EvidenceAssessment','fa',evidence_ref='ooc:fixture:e1',target_ref='ooc:fixture:f',
+             effect='SUPPORTS',scope=scope,status='ADJUDICATED',provenance_class='CURATED_SEMANTIC')]
     for i in (1,2):
-        rs.append(node('Transition','t'+str(i),status='SUPPORTED_SCOPED',source_state_ref=f'ooc:fixture:s{i}',target_state_ref=f'ooc:fixture:s{i+1}',context_ref='ooc:fixture:c',adapter_ref='ooc:fixture:a',evidence_assessment_refs=[f'ooc:fixture:a{i}']))
-    rs.append(node('WitnessBundle','w',mode=mode,context_ref='ooc:fixture:c',evidence_refs=['ooc:fixture:e1','ooc:fixture:e2'],common_witness_ids=['system1']))
-    rr=node('Route','r',context_ref='ooc:fixture:c',adapter_ref='ooc:fixture:a',boundary_ref='ooc:fixture:b',founder_ref='ooc:fixture:f',transition_refs=['ooc:fixture:t1','ooc:fixture:t2'],witness_bundle_ref='ooc:fixture:w',unresolved_segments=[],scope=scope,status='CLOSED');rs.append(rr)
+        rs.append(node('Transition','t'+str(i),status='SUPPORTED_SCOPED',
+                       source_state_ref=f'ooc:fixture:s{i}',target_state_ref=f'ooc:fixture:s{i+1}',
+                       context_ref=ctx,adapter_ref='ooc:fixture:a',
+                       evidence_assessment_refs=[f'ooc:fixture:a{i}']))
+    rs.append(node('WitnessBundle','w',mode=mode,context_ref=ctx,
+                   evidence_refs=['ooc:fixture:e1','ooc:fixture:e2'],common_witness_ids=['system1']))
+    rs.append(node('Route','r',context_ref=ctx,adapter_ref='ooc:fixture:a',
+                   boundary_ref='ooc:fixture:b',founder_ref='ooc:fixture:f',
+                   transition_refs=['ooc:fixture:t1','ooc:fixture:t2'],
+                   witness_bundle_ref='ooc:fixture:w',unresolved_segments=[],scope=scope,status='CLOSED'))
     return rs
+
+def bridge_fixture():
+    r=route_fixture('VALIDATED_BRIDGE')
+    get(r,'e2')['witness_ids']=['system2']
+    b=node('EvidenceObject','bridge',status='RECORDED',context_ref='ooc:fixture:c',
+           source_locator_refs=['ooc:fixture:l'],witness_ids=['system1','system2'],
+           evidence_class='PRIMARY_ANIMAL',provenance_class='CURATED_SEMANTIC')
+    a=node('EvidenceAssessment','bridge-a',status='ADJUDICATED',evidence_ref=b['id'],
+           target_ref='ooc:fixture:r',effect='SUPPORTS',scope={'adapter':'synthetic'},
+           provenance_class='CURATED_SEMANTIC')
+    r.extend([b,a])
+    get(r,'w')['bridge_evidence_refs']=[b['id']]
+    get(r,'w')['bridge_links']=[{
+        'from_transition_ref':'ooc:fixture:t1','to_transition_ref':'ooc:fixture:t2',
+        'evidence_ref':b['id'],'assessment_ref':a['id'],
+        'from_witness_id':'system1','to_witness_id':'system2'}]
+    return r
 
 def data_fixture():
     return [node('ModelInstance','m'),node('Protocol','p'),node('Dataset','d1',family_id='family'),node('Dataset','d2',family_id='family'),
