@@ -142,6 +142,7 @@ REF_LIST_TYPES = {
     "source_variables_refs": {"StateVariable"}, "target_variables_refs": {"StateVariable"},
     "state_refs": {"BiologicalState"}, "required_gate_refs": {"Gate"}, "null_refs": {"NullModel"},
     "ancestry_assessment_refs": {"EvidenceAssessment"},
+    "transfer_adapter_refs": {"Adapter"},
     "protocol_refs": {"Protocol"},
     "completion_requirement_refs": {"Requirement"},
 }
@@ -282,8 +283,20 @@ def _verified_result(index, result, subject_ref, scope):
     protocol = index.get(tst.get("protocol_ref"), {})
     model = index.get(result.get("model_instance_ref"), {})
     artifact = index.get(result.get("verification_artifact_ref"), {})
+    receipt = result.get("verification_receipt")
+    claim = index.get(subject_ref, {})
+    verifier = index.get(exe.get("software_ref"), {})
+    if not isinstance(receipt, dict):
+        return False
     return bool(
-        result.get("status") == "VALIDATED"
+        receipt.get("outcome") == "PASS"
+        and claim.get("type") == "Claim"
+        and receipt.get("statement_sha256") == sha256(
+            claim.get("statement", "").encode("utf-8"))
+        and receipt.get("artifact_sha256") == artifact.get("sha256")
+        and receipt.get("verifier_sha256") == verifier.get("sha256")
+        and bool(receipt.get("verifier_version"))
+        and result.get("status") == "VALIDATED"
         and result.get("outcome") == "PASS"
         and result.get("evidence_class") == "FORMAL"
         and result.get("claim_ceiling") == "MATHEMATICAL_EXACT"
@@ -300,6 +313,8 @@ def _verified_result(index, result, subject_ref, scope):
         and exe.get("protocol_ref") == tst.get("protocol_ref")
         and protocol.get("type") == "Protocol" and protocol.get("frozen") is True
         and protocol.get("status") == "ACTIVE"
+        and protocol.get("id") in model.get("protocol_refs", [])
+        and subject_ref in protocol.get("target_refs", [])
         and model.get("type") == "ModelInstance"
         and model.get("status") in {"FROZEN", "ADMITTED"}
         and result.get("model_instance_ref") == exe.get("model_instance_ref")
@@ -723,6 +738,20 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("UNSUPPORTED_DOCUMENT_COMPLETION", r)
             if not decision.get("evidence_refs"):
                 error("UNSUPPORTED_DOCUMENT_COMPLETION", r)
+        if typ == "Result" and r.get("verification_mode") == "FORMAL_PROOF":
+            artifact = index.get(r.get("verification_artifact_ref"), {})
+            receipt = r.get("verification_receipt", {})
+            if artifact.get("type") != "SourceArtifact" or not artifact.get("sha256"):
+                error("UNHASHED_PROOF_ARTIFACT", r)
+            if isinstance(receipt, dict) and receipt.get("artifact_sha256") != artifact.get("sha256"):
+                error("PROOF_RECEIPT_ARTIFACT_MISMATCH", r)
+            if root is not None and artifact.get("path"):
+                try:
+                    proof_path = safe_path(root, artifact["path"])
+                    if not proof_path.is_file() or sha256(proof_path.read_bytes()) != artifact.get("sha256"):
+                        error("PROOF_ARTIFACT_BYTE_DRIFT", r)
+                except (IntegrityError, OSError):
+                    error("INVALID_PROOF_ARTIFACT_PATH", r)
         if typ == "EvidenceObject":
             if not r.get("source_locator_refs"): error("UNLOCATED_EVIDENCE", r)
             for lr in r.get("source_locator_refs", []):
@@ -960,15 +989,38 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 error("AUTHORITY_SUBJECT_MISMATCH", r)
             if r.get("decision") in SCIENTIFIC_POSITIVE and not (r.get("assessment_refs") or r.get("result_refs")):
                 error("UNSUPPORTED_PROMOTION", r)
-            if r.get("axis") == "BIOLOGICAL_SUPPORT" and r.get("decision") == "SUPPORTED_SCOPED":
+            if r.get("decision") == "SUPPORTED_SCOPED":
+                allowed_axes = {
+                    "BIOLOGICAL_SUPPORT": None,
+                    "ANCESTRY": "ANCESTRY",
+                    "PERSISTENCE": "PERSISTENCE",
+                    "OBSERVABILITY": "OBSERVATION",
+                    "ROUTE_CLOSURE": "ROUTE",
+                }
+                subject = index.get(r.get("subject_ref"), {})
+                if r.get("axis") not in allowed_axes:
+                    error("UNSUPPORTED_VERDICT_AXIS", r)
+                elif r.get("axis") == "ROUTE_CLOSURE" and (
+                        subject.get("type") != "Route"
+                        or effective_route_state(records, subject)["effective"] != "ADMITTED_CLOSED"):
+                    error("UNQUALIFIED_ROUTE_CLOSURE_VERDICT", r)
+                elif r.get("axis") != "BIOLOGICAL_SUPPORT" and subject.get("type") not in {"Claim", "Route"}:
+                    error("UNQUALIFIED_VERDICT_SUBJECT", r)
+                required_kind = allowed_axes.get(r.get("axis"))
+                if required_kind and subject.get("type") == "Claim" and subject.get("claim_kind") != required_kind:
+                    error("VERDICT_CLAIM_KIND_MISMATCH", r)
+                if subject.get("type") == "Claim" and subject.get("claim_kind") == "CERTIFICATE":
+                    error("CERTIFICATE_NOT_BIOLOGICAL_SUPPORT", r)
                 assessments = [index.get(x, {}) for x in r.get("assessment_refs", [])]
                 admissible = []
                 subject = index.get(r.get("subject_ref"), {})
                 kind = subject.get("claim_kind") if subject.get("type") == "Claim" else None
                 for a in assessments:
+                    gated_kind = required_kind or kind
                     qualified = (
-                        _appropriate_biological_assessment(index,a,r.get("subject_ref"),r.get("scope"),kind)
-                        if kind in EVIDENCE_OBLIGATION_POLICY
+                        _appropriate_biological_assessment(
+                            index,a,r.get("subject_ref"),r.get("scope"),gated_kind)
+                        if gated_kind in EVIDENCE_OBLIGATION_POLICY
                         else _qualified_assessment(index,a,r.get("subject_ref"),r.get("scope"))
                     )
                     if qualified:
@@ -982,9 +1034,40 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("NONHUMAN_TO_HUMAN_PROMOTION", r)
                 if r.get("scope", {}).get("pan_cancer"):
                     transfer = index.get(r.get("transfer_decision_ref"), {})
-                    if (transfer.get("type") != "Decision" or transfer.get("subject_ref") != r.get("subject_ref")
-                        or transfer.get("scope") != r.get("scope") or not transfer.get("evidence_refs")):
+                    authority_t = index.get(transfer.get("authority_ref"), {})
+                    adapters = {ad.get("id") for ad in records if ad.get("type") == "Adapter"}
+                    declared_adapters = _valid_ref_list(transfer.get("transfer_adapter_refs"))
+                    allowed = (
+                        transfer.get("type") == "Decision"
+                        and transfer.get("decision_kind") == "TRANSFER"
+                        and transfer.get("decision") == "ALLOW_TRANSFER"
+                        and transfer.get("status") == "RECORDED"
+                        and transfer.get("subject_ref") == r.get("subject_ref")
+                        and canonical(transfer.get("scope")) == canonical(r.get("scope"))
+                        and authority_t.get("status") == "ACTIVE_RULE"
+                        and ("EVIDENCE_POLICY" in authority_t.get("axes", [])
+                             or "BIOLOGICAL_SUPPORT" in authority_t.get("axes", []))
+                        and canonical(authority_t.get("scope")) == canonical(r.get("scope"))
+                        and (not authority_t.get("subject_refs")
+                             or r.get("subject_ref") in authority_t.get("subject_refs", []))
+                        and declared_adapters is not None and bool(adapters)
+                        and declared_adapters == adapters
+                    )
+                    evidence_refs = _valid_ref_list(transfer.get("evidence_refs"))
+                    if not allowed or not evidence_refs:
                         error("MISSING_CROSS_ADAPTER_DECISION", r)
+                    else:
+                        for ad in sorted(adapters):
+                            # Distinct tissue adapters need their own source assessment;
+                            # transfer authorization cannot create primary support.
+                            if not any(
+                                a.get("type") == "EvidenceAssessment"
+                                and a.get("target_ref") == r.get("subject_ref")
+                                and index.get(a.get("evidence_ref"), {}).get("id") in evidence_refs
+                                and _appropriate_biological_assessment(
+                                    index, a, r.get("subject_ref"), {"adapter": ad}, kind)
+                                for a in records):
+                                error("MISSING_TRANSFER_ADAPTER_SUPPORT", r)
             if r.get("decision") == "MATHEMATICALLY_VERIFIED_SCOPED":
                 if r.get("axis") != "MATHEMATICAL_VERIFICATION":
                     error("MATHEMATICAL_VERDICT_AXIS_MISMATCH", r)
@@ -1052,6 +1135,10 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                             error("REQUIREMENT_GAP_BOUND_MISMATCH", q)
                         if gap_status == "RESOLVED" and q_status != "SATISFIED":
                             error("REQUIREMENT_GAP_DISPOSITION_MISMATCH", q)
+                        if (q.get("obligation_domain") != gap.get("obligation_domain")
+                            or q.get("obligation_claim_kind") != gap.get("obligation_claim_kind")
+                            or canonical(q.get("obligation_scope")) != canonical(gap.get("obligation_scope"))):
+                            error("CRITICAL_GAP_OBLIGATION_MISMATCH", q)
                         gap_decision = index.get(gap.get("decision_ref"), {})
                         gap_scope = (gap.get("bound_scope") if gap_status == "BOUNDED"
                                      else gap_decision.get("disposition_scope"))
