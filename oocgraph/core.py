@@ -305,6 +305,21 @@ def _verified_result(index, result, subject_ref, scope):
     )
 
 
+def _appropriate_biological_assessment(index, assessment, target_ref, scope, claim_kind, *,
+                                       context_ref=None):
+    policy = EVIDENCE_OBLIGATION_POLICY.get(claim_kind)
+    if policy is None:
+        return False
+    ceilings, designs, roles = policy
+    evidence = index.get(assessment.get("evidence_ref"), {})
+    return bool(
+        evidence.get("design_class") in designs
+        and assessment.get("assessment_role") in roles
+        and _qualified_assessment(index, assessment, target_ref, scope,
+                                  context_ref=context_ref, allowed_ceilings=ceilings)
+    )
+
+
 def _admissible_disposition_evidence(index, assessment, target_ref, scope, domain, effect):
     evidence = index.get(assessment.get("evidence_ref"), {})
     obligation = index.get(target_ref, {})
@@ -727,7 +742,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("ROUTE_EVIDENCE_CONTEXT_MISMATCH", r); valid = False
                     if e.get("id") not in witness_evidence:
                         error("ROUTE_EVIDENCE_OUTSIDE_WITNESS", r); valid = False
-                    if not _qualified_assessment(index, a, tr, scope, context_ref=r.get("context_ref")):
+                    if not _appropriate_biological_assessment(
+                            index, a, tr, scope, "ROUTE", context_ref=r.get("context_ref")):
                         error("NONBIOLOGICAL_ROUTE_SUPPORT", r); valid = False
                     if valid:
                         segment_supported = True
@@ -775,8 +791,9 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         and {link.get("from_witness_id"), link.get("to_witness_id")}
                             .issubset(set(e.get("witness_ids", [])))
                         and a.get("evidence_ref") == e_ref
-                        and _qualified_assessment(index, a, r["id"], scope,
-                                                  context_ref=r.get("context_ref"))
+                        and _appropriate_biological_assessment(
+                            index, a, r["id"], scope, "ROUTE",
+                            context_ref=r.get("context_ref"))
                     ):
                         error("INVALID_BRIDGE_LINK", r)
                     else:
@@ -797,8 +814,9 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 a = index.get(ar, {})
                 e = index.get(a.get("evidence_ref"), {})
                 if (e.get("id") not in witness_evidence or
-                    not _qualified_assessment(index, a, founder.get("id"), scope,
-                                              context_ref=r.get("context_ref"))):
+                    not _appropriate_biological_assessment(
+                        index, a, founder.get("id"), scope, "ANCESTRY",
+                        context_ref=r.get("context_ref"))):
                     error("INVALID_ROUTE_ANCESTRY_ASSESSMENT", r)
                 else:
                     # Ancestry must attach to the *first admitted route segment*
@@ -819,8 +837,15 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             if r.get("axis") == "BIOLOGICAL_SUPPORT" and r.get("decision") == "SUPPORTED_SCOPED":
                 assessments = [index.get(x, {}) for x in r.get("assessment_refs", [])]
                 admissible = []
+                subject = index.get(r.get("subject_ref"), {})
+                kind = subject.get("claim_kind") if subject.get("type") == "Claim" else None
                 for a in assessments:
-                    if _qualified_assessment(index, a, r.get("subject_ref"), r.get("scope")):
+                    qualified = (
+                        _appropriate_biological_assessment(index,a,r.get("subject_ref"),r.get("scope"),kind)
+                        if kind in EVIDENCE_OBLIGATION_POLICY
+                        else _qualified_assessment(index,a,r.get("subject_ref"),r.get("scope"))
+                    )
+                    if qualified:
                         admissible.append(a)
                 if not admissible: error("NONBIOLOGICAL_PROMOTION", r)
                 # Species and cross-adapter promotion need their own reviewed scope.
