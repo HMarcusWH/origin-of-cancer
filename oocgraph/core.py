@@ -101,12 +101,15 @@ def resolve(records: Iterable[dict]) -> dict:
         for node in sorted(edges): walk(node)
         active = sorted(v["id"] for v in members if v["id"] not in removed)
         status = verdicts[active[0]]["decision"] if len(active) == 1 else "CONFLICT"
-        if len(active) == 1 and status == "SUPPORTED_SCOPED":
+        if len(active) == 1 and status in SCIENTIFIC_POSITIVE:
             v = verdicts[active[0]]
             index = {r["id"]: r for r in records}
             retracted = _retracted_support_refs(
                 records, index, v.get("assessment_refs", []))
-            if (retracted or _material_scoped_contradictions(
+            subject = index.get(v.get("subject_ref"), {})
+            route_contested = (subject.get("type") == "Route"
+                               and effective_route_state(records, subject)["effective"] == "CONTESTED")
+            if (retracted or route_contested or _material_scoped_contradictions(
                     records, index, [v.get("subject_ref")], v.get("scope"))):
                 status = "CONTESTED"
         output.append({"partition": loads(key), "state": status, "active_verdict_refs": active,
@@ -529,13 +532,46 @@ def _retracted_support_refs(records, index, assessment_refs):
                    if a.get("evidence_ref") in retracted})
 
 
+def _transition_context_valid(index, transition):
+    """Every supported transition needs endpoint and evidence-context continuity."""
+    source = index.get(transition.get("source_state_ref"), {})
+    target = index.get(transition.get("target_state_ref"), {})
+    frame = transition.get("context_ref")
+    sc, tc = source.get("context_ref"), target.get("context_ref")
+    if (source.get("type") != "BiologicalState"
+            or target.get("type") != "BiologicalState"
+            or index.get(sc, {}).get("type") != "Context"
+            or index.get(tc, {}).get("type") != "Context"
+            or index.get(frame, {}).get("type") != "Context"):
+        return False
+    if sc == tc == frame:
+        return True
+    assessment = index.get(transition.get("context_transition_assessment_ref"), {})
+    evidence = index.get(assessment.get("evidence_ref"), {})
+    return bool(
+        transition.get("source_context_ref") == sc
+        and transition.get("target_context_ref") == tc
+        and evidence.get("context_ref") in {sc, tc}
+        and assessment.get("assessment_role") in {"TEMPORAL", "ANCESTRY", "CAUSAL"}
+        and _appropriate_biological_assessment(
+            index, assessment, transition.get("id"), transition.get("scope"),
+            "TRANSITION", context_ref=evidence.get("context_ref"))
+    )
+
+
 def _admitted_transition_assessments(records, index, transition, scope):
-    """Independent support; absence of a Route never promotes a Transition."""
-    return [
-        index.get(ref, {}) for ref in transition.get("evidence_assessment_refs", [])
-        if isinstance(ref, str) and _appropriate_biological_assessment(
-            index, index.get(ref, {}), transition.get("id"), scope, "TRANSITION")
-    ]
+    """Exact scoped primary support; a foreign-context finding cannot certify it."""
+    if not _transition_context_valid(index, transition):
+        return []
+    sc = index.get(transition.get("source_state_ref"), {}).get("context_ref")
+    tc = index.get(transition.get("target_state_ref"), {}).get("context_ref")
+    retired = approved_retractions(records, index)
+    return [index.get(ref, {}) for ref in transition.get("evidence_assessment_refs", [])
+            if isinstance(ref, str)
+            and index.get(index.get(ref, {}).get("evidence_ref"), {}).get("context_ref") in {sc, tc}
+            and index.get(ref, {}).get("evidence_ref") not in retired
+            and _appropriate_biological_assessment(
+                index, index.get(ref, {}), transition.get("id"), scope, "TRANSITION")]
 
 
 def _material_scoped_contradictions(records, index, target_refs, scope):
@@ -846,7 +882,9 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
         if typ == "Transition" and r.get("status") == "SUPPORTED_SCOPED":
             if not isinstance(r.get("scope"), dict) or not r["scope"]:
                 error("UNSCOPED_SUPPORTED_TRANSITION", r)
-            elif not _admitted_transition_assessments(records, index, r, r["scope"]):
+            if not _transition_context_valid(index, r):
+                error("INVALID_STANDALONE_TRANSITION_CONTEXT", r)
+            if not _admitted_transition_assessments(records, index, r, r.get("scope")):
                 error("UNSUPPORTED_STANDALONE_TRANSITION", r)
         if typ == "MethodApplicability" and r.get("assessment") == "APPLICABLE":
             if not r.get("assumption_refs"): error("MISSING_APPLICABILITY_ASSUMPTIONS", r)
@@ -934,6 +972,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("ROUTE_CONTEXT_MISMATCH", r)
                 if canonical(t.get("scope")) != canonical(scope):
                     error("ROUTE_TRANSITION_SCOPE_MISMATCH", r)
+                if not _transition_context_valid(index, t):
+                    error("INVALID_ROUTE_TRANSITION_CONTEXT", r)
                 source = index.get(t.get("source_state_ref"), {})
                 target = index.get(t.get("target_state_ref"), {})
                 sc, tc = source.get("context_ref"), target.get("context_ref")
@@ -1088,9 +1128,17 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("UNSUPPORTED_VERDICT_AXIS", r)
                 elif r.get("axis") == "ROUTE_CLOSURE" and (
                         subject.get("type") != "Route"
-                        or effective_route_state(records, subject)["effective"] != "ADMITTED_CLOSED"):
+                        or subject.get("status") != "CLOSED"
+                        or effective_route_state(records, subject)["effective"]
+                           not in {"ADMITTED_CLOSED", "CONTESTED"}):
                     error("UNQUALIFIED_ROUTE_CLOSURE_VERDICT", r)
-                elif r.get("axis") != "BIOLOGICAL_SUPPORT" and subject.get("type") not in {"Claim", "Route"}:
+                elif r.get("axis") == "BIOLOGICAL_SUPPORT" and (
+                        subject.get("type") != "Claim"
+                        or subject.get("claim_kind") not in EVIDENCE_OBLIGATION_POLICY):
+                    error("UNQUALIFIED_BIOLOGICAL_VERDICT_SUBJECT", r)
+                elif r.get("axis") != "BIOLOGICAL_SUPPORT" and (
+                        (subject.get("type") == "Route" and r.get("axis") != "ROUTE_CLOSURE")
+                        or subject.get("type") not in {"Claim", "Route"}):
                     error("UNQUALIFIED_VERDICT_SUBJECT", r)
                 required_kind = allowed_axes.get(r.get("axis"))
                 if required_kind and subject.get("type") == "Claim" and subject.get("claim_kind") != required_kind:
@@ -1107,7 +1155,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         _appropriate_biological_assessment(
                             index,a,r.get("subject_ref"),r.get("scope"),gated_kind)
                         if gated_kind in EVIDENCE_OBLIGATION_POLICY
-                        else _qualified_assessment(index,a,r.get("subject_ref"),r.get("scope"))
+                        else False
                     )
                     if qualified:
                         admissible.append(a)
@@ -1154,7 +1202,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                                 and a.get("target_ref") == r.get("subject_ref")
                                 and index.get(a.get("evidence_ref"), {}).get("id") in evidence_refs
                                 and _appropriate_biological_assessment(
-                                    index, a, r.get("subject_ref"), {"adapter": ad}, kind)
+                                    index, a, r.get("subject_ref"), {"adapter": ad}, gated_kind)
                             ]
                             keys = {(e.get("study_id"), e.get("system_id")) for e in eligible}
                             independent_sources[ad] = keys
