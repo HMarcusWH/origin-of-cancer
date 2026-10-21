@@ -49,7 +49,12 @@ def bridge_fixture():
     b=node('EvidenceObject','bridge',status='RECORDED',context_ref='ooc:fixture:c',
            source_locator_refs=['ooc:fixture:l'],witness_ids=['system1','system2'],
            evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
-           design_class='MIXED',study_id='fixture-study',system_id='fixture-system',provenance_class='CURATED_SEMANTIC')
+           design_class='MIXED',study_id='fixture-study',system_id='fixture-system',
+           witness_bridge_pairs=[{
+             'from_study_id':'fixture-study','from_system_id':'fixture-system',
+             'from_witness_id':'system1','to_study_id':'fixture-study',
+             'to_system_id':'fixture-system','to_witness_id':'system2'
+           }],provenance_class='CURATED_SEMANTIC')
     a=node('EvidenceAssessment','bridge-a',status='ADJUDICATED',evidence_ref=b['id'],
            target_ref='ooc:fixture:r',effect='SUPPORTS',scope={'adapter':'synthetic'},
            assessment_role='CAUSAL',provenance_class='CURATED_SEMANTIC')
@@ -58,6 +63,8 @@ def bridge_fixture():
     get(r,'w')['bridge_links']=[{
         'from_transition_ref':'ooc:fixture:t1','to_transition_ref':'ooc:fixture:t2',
         'evidence_ref':b['id'],'assessment_ref':a['id'],
+        'from_study_id':'fixture-study','from_system_id':'fixture-system',
+        'to_study_id':'fixture-study','to_system_id':'fixture-system',
         'from_witness_id':'system1','to_witness_id':'system2'}]
     return r
 
@@ -172,6 +179,20 @@ class RouteTests(unittest.TestCase):
         self.has(r,'INVALID_BRIDGE_LINK')
     def test_validated_bridge_with_adjudication_is_allowed(self):
         self.assertEqual(validate_records(bridge_fixture()),[])
+    def test_cross_study_bridge_requires_exact_identity_mapping(self):
+        r=bridge_fixture()
+        get(r,'e2')['study_id']='independent-study'
+        get(r,'w')['bridge_links'][0]['to_study_id']='independent-study'
+        get(r,'bridge')['witness_bridge_pairs'][0]['to_study_id']='independent-study'
+        self.assertEqual(validate_records(r),[])
+    def test_cross_study_bridge_rejects_name_only_matching(self):
+        r=bridge_fixture()
+        get(r,'e2')['study_id']='independent-study'
+        self.has(r,'INVALID_BRIDGE_LINK')
+    def test_bridge_evidence_requires_explicit_pair_mapping(self):
+        r=bridge_fixture()
+        get(r,'bridge')['witness_bridge_pairs']=[]
+        self.has(r,'INVALID_BRIDGE_LINK')
     def test_bridged_route_unrelated_ancestry_witness_rejected(self):
         r=bridge_fixture()
         e=node('EvidenceObject','foreign-ancestry',status='RECORDED',

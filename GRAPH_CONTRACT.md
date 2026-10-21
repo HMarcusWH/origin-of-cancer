@@ -89,3 +89,12 @@ ancestry. Every nested founder state must agree with the route context.
 Origin route closure requires supported causal transition evidence and
 separately supported lineage ancestry. A technically closed route is not
 itself proof of universal malignant causation.
+
+### Qualified witness handoffs
+
+A bridge between distinct witnesses declares full source and destination
+(study_id, system_id, witness_id) triples. Its source EvidenceObject carries
+an explicit witness_bridge_pairs mapping that must exactly match the typed
+bridge link and its adjacent route segments. Matching human-readable labels
+alone is never enough. A successful structural check remains a scoped research
+certificate, not a guarantee of causal or genealogical truth.

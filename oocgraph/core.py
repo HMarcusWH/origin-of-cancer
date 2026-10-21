@@ -813,14 +813,20 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     e_ref, a_ref = link.get("evidence_ref"), link.get("assessment_ref")
                     a = index.get(a_ref, {})
                     e = index.get(e_ref, {})
+                    from_key = (link.get("from_study_id"), link.get("from_system_id"),
+                                link.get("from_witness_id"))
+                    to_key = (link.get("to_study_id"), link.get("to_system_id"),
+                              link.get("to_witness_id"))
+                    bridge_pair = {
+                        "from_study_id": from_key[0], "from_system_id": from_key[1],
+                        "from_witness_id": from_key[2], "to_study_id": to_key[0],
+                        "to_system_id": to_key[1], "to_witness_id": to_key[2]
+                    }
                     if not (
                         e_ref in bridge_evidence
-                        and any(w[2] == link.get("from_witness_id")
-                                for w in segment_witnesses[i])
-                        and any(w[2] == link.get("to_witness_id")
-                                for w in segment_witnesses[i+1])
-                        and {link.get("from_witness_id"), link.get("to_witness_id")}
-                            .issubset(set(e.get("witness_ids", [])))
+                        and from_key in segment_witnesses[i]
+                        and to_key in segment_witnesses[i+1]
+                        and bridge_pair in e.get("witness_bridge_pairs", [])
                         and a.get("evidence_ref") == e_ref
                         and _appropriate_biological_assessment(
                             index, a, r["id"], scope, "ROUTE",

@@ -1513,6 +1513,48 @@
             "NUMERICAL_BENCHMARK",
             "DATA_AUDIT"
           ]
+        },
+        "witness_bridge_pairs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from_study_id",
+              "from_system_id",
+              "from_witness_id",
+              "to_study_id",
+              "to_system_id",
+              "to_witness_id"
+            ],
+            "properties": {
+              "from_study_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from_system_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from_witness_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_study_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_system_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_witness_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
         }
       },
       "required": [
@@ -5665,7 +5707,11 @@
               "evidence_ref",
               "assessment_ref",
               "from_witness_id",
-              "to_witness_id"
+              "to_witness_id",
+              "from_study_id",
+              "from_system_id",
+              "to_study_id",
+              "to_system_id"
             ],
             "properties": {
               "from_transition_ref": {
@@ -5701,6 +5747,22 @@
                 "minLength": 1
               },
               "to_witness_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from_study_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from_system_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_study_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_system_id": {
                 "type": "string",
                 "minLength": 1
               }
