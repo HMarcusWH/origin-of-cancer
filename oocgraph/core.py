@@ -752,20 +752,68 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                             for issue in gap_errors:
                                 error(issue, gap)
     uses = [r for r in records if r.get("type") == "DataUse"]
+    candidate_sets = [r for r in records if r.get("type") == "CandidateSet"]
+    def related_candidates(left, right):
+        lm, rm = left.get("model_instance_ref"), right.get("model_instance_ref")
+        if lm == rm or (left.get("protocol_ref") and left.get("protocol_ref") == right.get("protocol_ref")):
+            return True
+        if (left.get("selection_family_id") and
+            left.get("selection_family_id") == right.get("selection_family_id")):
+            return True
+        if (left.get("candidate_set_ref") and
+            left.get("candidate_set_ref") == right.get("candidate_set_ref")):
+            return True
+        return any(lm in cs.get("member_refs", []) and rm in cs.get("member_refs", [])
+                   for cs in candidate_sets)
+    def documented_partition_pair(left, right, dataset_left, dataset_right):
+        al = _valid_ref_list(left.get("independence_evidence_refs"))
+        ar = _valid_ref_list(right.get("independence_evidence_refs"))
+        if not al or not ar or not (al & ar):
+            return False
+        scoped = {
+            "data_use_refs": sorted([left["id"], right["id"]]),
+            "dataset_refs": sorted([left.get("dataset_ref"), right.get("dataset_ref")]),
+            "dataset_versions": {
+                left["id"]: dataset_left.get("version"),
+                right["id"]: dataset_right.get("version")},
+            "partition_ids": {
+                left["id"]: left.get("partition_id"),
+                right["id"]: right.get("partition_id")}
+        }
+        for er in al & ar:
+            ev = index.get(er, {})
+            if ev.get("design_class") != "DATA_AUDIT":
+                continue
+            if all(any(a.get("type") == "EvidenceAssessment"
+                       and a.get("evidence_ref") == er
+                       and _qualified_assessment(index, a, du["id"], scoped,
+                            allowed_classes={"ANALYTIC"}, allowed_ceilings={"DATA_PARTITION_AUDIT"},
+                            assessment_role="INDEPENDENCE")
+                       for a in records) for du in (left, right)):
+                return True
+        return False
     for i, a in enumerate(uses):
         for b in uses[i+1:]:
-            if a.get("model_instance_ref") != b.get("model_instance_ref"): continue
             roles = {a.get("role"), b.get("role")}
-            if "CONFIRM" not in roles or not roles.intersection({"TRAIN", "SELECT", "CALIBRATION"}): continue
+            if "CONFIRM" not in roles or not roles.intersection({"TRAIN", "SELECT", "CALIBRATION"}):
+                continue
             da, db = index.get(a.get("dataset_ref"), {}), index.get(b.get("dataset_ref"), {})
             same = a.get("dataset_ref") == b.get("dataset_ref")
-            family = da.get("family_id") and da.get("family_id") == db.get("family_id")
-            overlap = bool(set(a.get("unit_keys", [])) & set(b.get("unit_keys", [])))
-            if (same and a.get("partition_id") == b.get("partition_id")) or ((same or family) and overlap):
+            family = bool(da.get("family_id") and da.get("family_id") == db.get("family_id"))
+            if not (same or family):
+                continue
+            au, bu = _valid_ref_list(a.get("unit_keys", [])), _valid_ref_list(b.get("unit_keys", []))
+            if au is None or bu is None:
+                error("MALFORMED_DATA_USE_UNITS", a)
+                continue
+            if (same and a.get("partition_id") == b.get("partition_id")) or (au & bu):
                 error("DATA_USE_LEAKAGE", a)
-            elif (same or family) and b.get("status") == "ADMITTED" and a.get("status") == "ADMITTED":
-                if not (a.get("independence_status") == b.get("independence_status") == "DOCUMENTED_DISJOINT"
-                        and a.get("independence_evidence_refs") and b.get("independence_evidence_refs")):
+                continue
+            if related_candidates(a, b) and a.get("status") == b.get("status") == "ADMITTED":
+                if not (
+                    a.get("independence_status") == b.get("independence_status") == "DOCUMENTED_DISJOINT"
+                    and documented_partition_pair(a, b, da, db)
+                ):
                     error("UNKNOWN_PARTITION_INDEPENDENCE", a)
     try:
         state = resolve(records)
