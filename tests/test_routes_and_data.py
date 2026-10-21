@@ -73,6 +73,23 @@ class RouteTests(unittest.TestCase):
     def test_common_witness_route(self):self.assertEqual(validate_records(route_fixture()),[])
     def test_disjoint_witnesses_rejected(self):
         r=route_fixture();get(r,'e2')['witness_ids']=['system2'];self.has(r,'MISSING_COMMON_WITNESS')
+    def test_same_witness_name_different_system_is_not_continuity(self):
+        r=route_fixture();get(r,'e2')['system_id']='another-system'
+        self.has(r,'MISSING_COMMON_WITNESS')
+    def test_nested_founder_wrong_state_context_rejected(self):
+        r=route_fixture()
+        r.append(node('FounderEnsemble','nested',context_ref='ooc:fixture:c',
+                      member_refs=['ooc:fixture:s1']))
+        get(r,'f')['member_refs']=['ooc:fixture:nested']
+        get(r,'s1')['context_ref']='ooc:fixture:other'
+        self.has(r,'ROUTE_FOUNDER_CONTEXT_MISMATCH')
+    def test_noncausal_observation_cannot_close_route(self):
+        r=route_fixture()
+        get(r,'e2')['claim_ceiling']='BIOLOGICAL_OBSERVATION'
+        get(r,'e2')['design_class']='OBSERVATIONAL'
+        get(r,'a2')['assessment_role']='OBSERVATION'
+        self.has(r,'NONBIOLOGICAL_ROUTE_SUPPORT')
+
     def test_synthesis_is_not_closure(self):self.has(route_fixture('SYNTHESIS_ONLY'),'COMPOSITED_ROUTE')
     def test_bridge_needs_evidence(self):self.has(route_fixture('VALIDATED_BRIDGE'),'UNSUPPORTED_BRIDGE')
     def test_route_debt_blocks(self):
@@ -155,6 +172,17 @@ class RouteTests(unittest.TestCase):
         self.has(r,'INVALID_BRIDGE_LINK')
     def test_validated_bridge_with_adjudication_is_allowed(self):
         self.assertEqual(validate_records(bridge_fixture()),[])
+    def test_bridged_route_unrelated_ancestry_witness_rejected(self):
+        r=bridge_fixture()
+        e=node('EvidenceObject','foreign-ancestry',status='RECORDED',
+               context_ref='ooc:fixture:c',source_locator_refs=['ooc:fixture:l'],
+               evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
+               design_class='LINEAGE',study_id='another-study',system_id='another-system',
+               witness_ids=['system1'],provenance_class='CURATED_SEMANTIC')
+        r.append(e);get(r,'fa')['evidence_ref']=e['id']
+        get(r,'w')['evidence_refs'].append(e['id'])
+        self.has(r,'ROUTE_ANCESTRY_WITNESS_MISMATCH')
+
     def test_bridge_must_link_adjacent_transitions(self):
         r=bridge_fixture();get(r,'w')['bridge_links'][0]['from_transition_ref']='ooc:fixture:t2'
         self.has(r,'UNRELATED_BRIDGE_LINK')
