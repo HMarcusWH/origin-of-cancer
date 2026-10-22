@@ -116,7 +116,16 @@ def resolve(records: Iterable[dict]) -> dict:
                 for du in used_data)
             transfer_contested = (bool(v.get("scope", {}).get("pan_cancer"))
                                   and not _effective_pan_cancer_transfer(records, index, v))
+            origin_contested = (
+                subject.get("type") == "Claim" and subject.get("claim_kind") == "ORIGIN"
+                and (bool(_retracted_support_refs(
+                         records, index, list(subject.get("entry_assessment_refs", []))
+                         + list(subject.get("establishment_assessment_refs", []))))
+                     or effective_route_state(
+                         records, index.get(subject.get("origin_route_ref"), {}))
+                         ["effective"] != "ADMITTED_CLOSED"))
             if (retracted or route_contested or model_data_contested or transfer_contested
+                or origin_contested
                 or _material_scoped_contradictions(
                     records, index, [v.get("subject_ref")], v.get("scope"))):
                 status = "CONTESTED"
@@ -264,6 +273,10 @@ def _scope_within(parent, child):
     """An explicit *restriction* of a declared scope, never inferred promotion."""
     if not isinstance(parent, dict) or not parent or not isinstance(child, dict) or not child:
         return False
+    # An affirmative breadth flag added to a narrower scope is promotion.
+    for key, value in child.items():
+        if key not in parent and isinstance(value, bool) and value:
+            return False
     for key, value in parent.items():
         if key not in child:
             return False
@@ -303,6 +316,18 @@ def _adapter_scientific_scope(scope, adapter):
             "adapter": adapter}
 
 
+def _has_active_source_locator(index, evidence):
+    """Require qualified evidence to have at least one LOCATED provenance anchor."""
+    return any(
+        index.get(ref, {}).get("type") == "SourceLocator"
+        and index[ref].get("status") == "LOCATED"
+        and index[ref].get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+        and bool(index[ref].get("path"))
+        and isinstance(index[ref].get("selector"), dict)
+        and bool(index[ref]["selector"])
+        for ref in evidence.get("source_locator_refs", []))
+
+
 def _qualified_assessment(index, assessment, target_ref, scope, *,
                           effect="SUPPORTS", context_ref=None,
                           allowed_classes=BIOLOGICAL_EVIDENCE_CLASSES,
@@ -325,7 +350,7 @@ def _qualified_assessment(index, assessment, target_ref, scope, *,
         and evidence.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
         and evidence.get("evidence_class") in allowed_classes
         and evidence.get("claim_ceiling") in allowed_ceilings
-        and bool(evidence.get("source_locator_refs"))
+        and _has_active_source_locator(index, evidence)
         and bool(evidence.get("study_id")) and bool(evidence.get("system_id"))
         and (context_ref is None or evidence.get("context_ref") == context_ref)
         and _evidence_matches_scientific_scope(index, evidence, scope)
@@ -666,7 +691,7 @@ def _authorized_retractions(records, index):
             and notice.get("status") == "RECORDED"
             and notice.get("evidence_class") in {"REVIEW", "ANALYTIC"}
             and notice.get("claim_ceiling") == "VERIFICATION_ONLY"
-            and notice.get("source_locator_refs")
+            and _has_active_source_locator(index, notice)
             and notice.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
             and authority.get("type") == "Authority"
             and authority.get("status") == "ACTIVE_RULE"
@@ -698,7 +723,7 @@ def approved_reinstatements(records, index=None):
             and notice.get("status")=="RECORDED"
             and notice.get("claim_ceiling")=="VERIFICATION_ONLY"
             and notice.get("evidence_class") in {"REVIEW","ANALYTIC"}
-            and notice.get("source_locator_refs")
+            and _has_active_source_locator(index, notice)
             and notice.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
             and authority.get("type")=="Authority"
             and authority.get("status")=="ACTIVE_RULE"
@@ -797,8 +822,16 @@ def _material_scoped_contradictions(records, index, target_refs, scope):
         and a.get("target_ref") in set(target_refs)
         and a.get("effect") in {"CONTRADICTS", "FALSIFIES"}
         and a.get("evidence_ref") not in retracted
-        and _qualified_assessment(index, a, a.get("target_ref"), scope,
-                                  effect=a.get("effect"))
+        and _qualified_assessment(
+            index, a, a.get("target_ref"), scope, effect=a.get("effect"),
+            allowed_classes=({"FORMAL"} if (
+                index.get(a.get("target_ref"), {}).get("claim_kind") == "CERTIFICATE"
+                or index.get(a.get("target_ref"), {}).get("obligation_domain") == "MATHEMATICAL")
+                else BIOLOGICAL_EVIDENCE_CLASSES),
+            allowed_ceilings=({"MATHEMATICAL_EXACT"} if (
+                index.get(a.get("target_ref"), {}).get("claim_kind") == "CERTIFICATE"
+                or index.get(a.get("target_ref"), {}).get("obligation_domain") == "MATHEMATICAL")
+                else BIOLOGICAL_CEILINGS))
     )
 
 
@@ -998,7 +1031,9 @@ def effective_transition_state(records, transition):
     contradictions = _material_scoped_contradictions(
         records, index, [transition.get("id")], scope)
     retracted = _retracted_support_refs(
-        records, index, transition.get("evidence_assessment_refs", []))
+        records, index, list(transition.get("evidence_assessment_refs", []))
+        + ([transition["context_transition_assessment_ref"]]
+           if transition.get("context_transition_assessment_ref") else []))
     qualified = _admitted_transition_assessments(records, index, transition, scope)
     effective = ("CONTESTED" if (contradictions or retracted) else
                  "ADMITTED_SUPPORTED_SCOPED" if qualified else "UNADMITTED")
@@ -1016,8 +1051,13 @@ def effective_route_state(records, route):
     contradictions = _material_scoped_contradictions(records, index, targets, route.get("scope"))
     refs = []
     for tr in route.get("transition_refs", []):
-        refs.extend(index.get(tr, {}).get("evidence_assessment_refs", []))
-    refs.extend(index.get(route.get("founder_ref"), {}).get("ancestry_assessment_refs", []))
+        transition = index.get(tr, {})
+        refs.extend(ref for ref in transition.get("evidence_assessment_refs", [])
+                    if canonical(index.get(ref, {}).get("scope")) == canonical(route.get("scope")))
+        if transition.get("context_transition_assessment_ref"):
+            refs.append(transition["context_transition_assessment_ref"])
+    refs.extend(ref for ref in index.get(route.get("founder_ref"), {}).get("ancestry_assessment_refs", [])
+                if canonical(index.get(ref, {}).get("scope")) == canonical(route.get("scope")))
     for link in index.get(route.get("witness_bundle_ref"), {}).get("bridge_links", []):
         if isinstance(link, dict):
             refs.append(link.get("assessment_ref"))

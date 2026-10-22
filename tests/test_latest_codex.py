@@ -121,7 +121,7 @@ class LatestCodexContracts(unittest.TestCase):
         rs=route_records()
         ctx='ooc:fixture:later-context'
         rs.append(fully_typed([node('Context','later-context',status='RECORDED',
-            species='human',tissue='synthetic',stage='malignant',
+            species='synthetic',tissue='synthetic',stage='malignant',
             time_scope='later')])[0])
         next(x for x in rs if x['id']=='ooc:fixture:s3')['context_ref']=ctx
         if admitted:
@@ -131,7 +131,7 @@ class LatestCodexContracts(unittest.TestCase):
             tr['context_transition_assessment_ref']='ooc:fixture:context-assessment'
             evidence=fully_typed([node('EvidenceObject','context-evidence',
                 context_ref=ctx,status='RECORDED',
-                evidence_class='PRIMARY_HUMAN_LONGITUDINAL',
+                evidence_class='PRIMARY_ANIMAL',
                 claim_ceiling='BIOLOGICAL_OBSERVATION',
                 study_id='synthetic-study',system_id='synthetic-system',
                 design_class='LONGITUDINAL',source_locator_refs=['ooc:fixture:l'],

@@ -7,6 +7,72 @@ from tests.test_integrity import node
 
 
 class SystemicRepairs(ProductionValidation):
+
+    def test_withdrawn_locator_does_not_admit_positive_evidence(self):
+        from tests.test_integrity import evidence_base, verdict
+        rs=fully_typed(evidence_base("PRIMARY_ANIMAL")+[
+            verdict(decision="SUPPORTED_SCOPED",
+                    assessment_refs=["ooc:fixture:assessment"])])
+        self.assertEqual(self.errors(rs),[])
+        next(r for r in rs if r["type"]=="SourceLocator")["status"]="WITHDRAWN"
+        self.assertTrue(any("NONBIOLOGICAL_PROMOTION" in x for x in self.errors(rs)))
+
+    def test_retracted_context_handoff_contests_its_route(self):
+        from tests.test_latest_codex import LatestCodexContracts
+        from oocgraph.core import effective_route_state, effective_transition_state
+        rs=LatestCodexContracts.context_transfer(None)
+        self.assertEqual(self.errors(rs),[])
+        route=next(r for r in rs if r["type"]=="Route")
+        tr=next(r for r in rs if r["id"]=="ooc:fixture:t2")
+        rs+=fully_typed([
+            node("Authority","handoff-policy",status="ACTIVE_RULE",
+                 axes=["EVIDENCE_POLICY"],scope={"domain":"corrections"}),
+            node("EvidenceObject","handoff-notice",status="RECORDED",
+                 context_ref="ooc:fixture:later-context",
+                 source_locator_refs=["ooc:fixture:l"],evidence_class="REVIEW",
+                 claim_ceiling="VERIFICATION_ONLY",study_id="notice-study",
+                 system_id="notice",finding="Retracted handoff",uncertainty="fixture",
+                 provenance_class="CURATED_SEMANTIC"),
+            node("EvidenceAssessment","handoff-retraction",status="ADJUDICATED",
+                 effect="RETRACTS",assessment_role="RETRACTION",
+                 target_ref="ooc:fixture:context-evidence",
+                 evidence_ref="ooc:fixture:handoff-notice",
+                 authority_ref="ooc:fixture:handoff-policy",
+                 scope={"domain":"corrections"},rationale="Correction",
+                 limitations="Synthetic",provenance_class="CURATED_SEMANTIC")
+        ])
+        self.assertEqual(self.errors(rs),[])
+        self.assertEqual(effective_transition_state(rs,tr)["effective"],"CONTESTED")
+        self.assertEqual(effective_route_state(rs,route)["effective"],"CONTESTED")
+
+    def test_formal_falsification_contests_mathematical_verdict(self):
+        from oocgraph.core import resolve
+        rs=mathematical_fixture()
+        evidence=copy.deepcopy(next(r for r in rs if r["id"]=="ooc:fixture:math-evidence"))
+        evidence["id"]="ooc:fixture:formal-negative"
+        assessment=copy.deepcopy(next(r for r in rs if r["id"]=="ooc:fixture:math-assessment"))
+        assessment.update(id="ooc:fixture:formal-falsifier",
+                          evidence_ref=evidence["id"],effect="FALSIFIES")
+        rs.extend([evidence,assessment])
+        self.assertEqual(self.errors(rs),[])
+        self.assertEqual(resolve(rs)["partitions"][0]["state"],"CONTESTED")
+
+    def test_narrow_obligation_cannot_promote_pan_cancer(self):
+        from tests.test_production_contracts import freeze_records
+        rs=freeze_records()
+        for r in rs:
+            if r["type"] in {"ResearchGap","Requirement"}:
+                r["status"]="BOUNDED"
+                r["bound_scope"]={"adapter":"synthetic","pan_cancer":True}
+            elif r["type"]=="Decision":
+                r["decision"]="BOUND"
+                r["disposition_scope"]={"adapter":"synthetic","pan_cancer":True}
+            elif r["type"]=="EvidenceAssessment":
+                r["effect"]="CONSTRAINS"
+                r["scope"]={"adapter":"synthetic","pan_cancer":True}
+        errors=self.errors(rs)
+        self.assertTrue(any("INVALID_OBLIGATION_SCOPE" in x for x in errors),errors)
+
     def test_retracted_obligation_downgrades_only_current_freeze(self):
         from oocgraph.core import effective_freeze_eligibility
         from tests.test_production_contracts import freeze_records
