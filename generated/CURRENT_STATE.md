@@ -25,4 +25,4 @@
 
 **GO research; NO-GO cancer kernel freeze.**
 
-All missing scientific evidence remains OPEN or UNKNOWN. Source presence, a documentation card, and a passing engineering test are not empirical validation.
+Engineering completeness is not biological validation.

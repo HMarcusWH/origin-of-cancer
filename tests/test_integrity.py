@@ -10,21 +10,62 @@ from oocgraph.core import (IntegrityError, canonical, loads, safe_path, read_gra
 
 ROOT=Path(__file__).resolve().parents[1]
 def node(typ, name, **kw):
-    return dict(id='ooc:fixture:'+name,type=typ,label=name,status='OPEN',
-                schema_version='0.1.0',provenance_class='SYNTHETIC',**kw)
+    status=kw.pop('status','LOCATED' if typ == 'SourceLocator' else 'OPEN')
+    if typ == 'SourceLocator':
+        # Positive synthetic locators must satisfy the production provenance
+        # contract; fixtures do not imply real scientific source appraisal.
+        kw.setdefault('path', 'README.md')
+        kw.setdefault('selector', {'fixture':'synthetic'})
+        kw.setdefault('provenance_class', 'CURATED_SEMANTIC')
+    provenance=kw.pop('provenance_class','SYNTHETIC')
+    return dict(id='ooc:fixture:'+name,type=typ,label=name,status=status,
+                schema_version='0.1.0',provenance_class=provenance,**kw)
 def verdict(name='v', decision='UNKNOWN', scope=None, **kw):
     return node('Verdict',name,subject_ref='ooc:fixture:claim',axis='BIOLOGICAL_SUPPORT',facet='test',
                 scope={'adapter':'synthetic'} if scope is None else scope,decision=decision,
                 authority_ref='ooc:fixture:authority',**kw)
 def vbase(scope=None):
-    return [node('Claim','claim'),node('Authority','authority',axes=['BIOLOGICAL_SUPPORT'],
-      scope={'adapter':'synthetic'} if scope is None else scope)]
+    return [node('Claim','claim',claim_kind='CAPABILITY'),node('Authority','authority',axes=['BIOLOGICAL_SUPPORT'],
+      scope={'adapter':'synthetic'} if scope is None else scope,status='ACTIVE_RULE')]
 def evidence_base(cls='SYNTHETIC',scope=None):
     return vbase(scope)+[node('Context','context'),node('SourceLocator','loc',selector={'figure':'synthetic-fixture'}),
       node('EvidenceObject','ev',evidence_class=cls,source_locator_refs=['ooc:fixture:loc'],
-           context_ref='ooc:fixture:context',witness_ids=['system-1']),
+           context_ref='ooc:fixture:context',witness_ids=['system-1'],status='RECORDED',
+           claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',study_id='fixture-study',system_id='fixture-system',
+           design_class='OBSERVATIONAL',provenance_class='CURATED_SEMANTIC'),
       node('EvidenceAssessment','assessment',evidence_ref='ooc:fixture:ev',target_ref='ooc:fixture:claim',
-           effect='SUPPORTS',scope={'adapter':'synthetic'} if scope is None else scope)]
+           effect='SUPPORTS',scope={'adapter':'synthetic'} if scope is None else scope,status='ADJUDICATED',
+           assessment_role='OBSERVATION',provenance_class='CURATED_SEMANTIC')]
+
+def freeze_fixture():
+    """Synthetic epistemic fixture, never actual cancer evidence."""
+    governance={'domain':'PROGRAMME_GOVERNANCE'}
+    science={'adapter':'synthetic'}
+    p=node('Programme','p',kernel_frozen=True)
+    loc=node('SourceLocator','freeze-loc',selector={'figure':'freeze-fixture'})
+    e=node('EvidenceObject','freeze-e',status='RECORDED',source_locator_refs=[loc['id']],
+           evidence_class='PRIMARY_ANIMAL',claim_ceiling='BIOLOGICAL_CAUSAL_SCOPED',
+           design_class='PERTURBATION',study_id='fixture-study',system_id='fixture-system',
+           provenance_class='CURATED_SEMANTIC')
+    auth=node('Authority','freeze-auth',axes=['RESEARCH_POLICY'],scope=governance,status='ACTIVE_RULE')
+    gd=node('Decision','gap-d',status='RECORDED',authority_ref=auth['id'],
+            subject_ref='ooc:fixture:g',evidence_refs=[e['id']],scope=governance,
+            disposition_scope=science,decision_kind='RESEARCH_GAP_DISPOSITION',
+            decision='RESOLVE',provenance_class='CURATED_SEMANTIC')
+    g=node('ResearchGap','g',priority='CRITICAL',status='RESOLVED',decision_ref=gd['id'],
+           obligation_scope=science,obligation_domain='BIOLOGICAL',obligation_claim_kind='CONSTITUTIVE')
+    d=node('Decision','freeze-d',status='RECORDED',authority_ref=auth['id'],
+           subject_ref='ooc:fixture:q',evidence_refs=[e['id']],scope=governance,
+           disposition_scope=science,decision_kind='REQUIREMENT_DISPOSITION',
+           decision='SATISFY',provenance_class='CURATED_SEMANTIC')
+    q=node('Requirement','q',status='SATISFIED',subject_ref=p['id'],gap_ref=g['id'],
+           decision_ref=d['id'],satisfaction_evidence_refs=[e['id']],
+           obligation_scope=science,obligation_domain='BIOLOGICAL',obligation_claim_kind='CONSTITUTIVE')
+    a=node('EvidenceAssessment','freeze-a',status='ADJUDICATED',evidence_ref=e['id'],
+           target_ref=q['id'],effect='SUPPORTS',scope=science,assessment_role='CAUSAL',provenance_class='CURATED_SEMANTIC')
+    ga=node('EvidenceAssessment','gap-a',status='ADJUDICATED',evidence_ref=e['id'],
+            target_ref=g['id'],effect='SUPPORTS',scope=science,assessment_role='CAUSAL',provenance_class='CURATED_SEMANTIC')
+    return [p,loc,e,auth,gd,g,d,q,a,ga]
 
 class StrictIO(unittest.TestCase):
     def test_duplicate_json_keys(self):
@@ -47,6 +88,9 @@ class StrictIO(unittest.TestCase):
         with self.assertRaises(IntegrityError):safe_path(ROOT,'C:\\secrets')
     def test_reject_null_path(self):
         with self.assertRaises(IntegrityError):safe_path(ROOT,'a\0b')
+    def test_reject_empty_posix_components(self):
+        with self.assertRaises(IntegrityError):safe_path(ROOT,'.')
+        with self.assertRaises(IntegrityError):safe_path(ROOT,'./')
     def test_symlink_escape(self):
         with tempfile.TemporaryDirectory() as td:
             d=Path(td);(d/'escape').symlink_to('/tmp')
@@ -107,6 +151,8 @@ class FirewallTests(unittest.TestCase):
         x=node('Claim','c');x.update(status='CLOSED',provenance_class='TEXTUAL_HINT');self.has([x],'TEXT_HINT_PROMOTION')
     def test_wrong_ref_type(self):
         self.has([node('Claim','c'),node('Test','t',gate_ref='ooc:fixture:c')],'WRONG_REF_TYPE')
+    def test_owner_specific_ref_type(self):
+        self.has([node('Claim','c'),node('Boundary','b',state_refs=['ooc:fixture:c'])],'WRONG_REF_TYPE:state_refs')
     def test_unassessed_support_edge(self):
         self.has([node('Claim','c'),node('Claim','d'),node('Relation','r',source='ooc:fixture:c',target='ooc:fixture:d',kind='SUPPORTS')],'UNASSESSED_EVIDENCE_EDGE')
     def test_mismatched_assessment(self):
@@ -117,6 +163,15 @@ class FirewallTests(unittest.TestCase):
     def test_review_is_not_primary(self):self.has(evidence_base('REVIEW')+[verdict(decision='SUPPORTED_SCOPED',assessment_refs=['ooc:fixture:assessment'])],'NONBIOLOGICAL_PROMOTION')
     def test_primary_scoped_assessment_accepted(self):
         self.assertEqual(validate_records(evidence_base('PRIMARY_ANIMAL')+[verdict(decision='SUPPORTED_SCOPED',assessment_refs=['ooc:fixture:assessment'])]),[])
+    def test_in_review_assessment_cannot_promote(self):
+        rs=evidence_base('PRIMARY_ANIMAL');next(r for r in rs if r['type']=='EvidenceAssessment')['status']='IN_REVIEW'
+        self.has(rs+[verdict(decision='SUPPORTED_SCOPED',assessment_refs=['ooc:fixture:assessment'])],'NONBIOLOGICAL_PROMOTION')
+    def test_withdrawn_evidence_cannot_promote(self):
+        rs=evidence_base('PRIMARY_ANIMAL');next(r for r in rs if r['type']=='EvidenceObject')['status']='WITHDRAWN'
+        self.has(rs+[verdict(decision='SUPPORTED_SCOPED',assessment_refs=['ooc:fixture:assessment'])],'NONBIOLOGICAL_PROMOTION')
+    def test_textual_hint_cannot_promote(self):
+        rs=evidence_base('PRIMARY_ANIMAL');next(r for r in rs if r['type']=='EvidenceObject')['provenance_class']='TEXTUAL_HINT'
+        self.has(rs+[verdict(decision='SUPPORTED_SCOPED',assessment_refs=['ooc:fixture:assessment'])],'NONBIOLOGICAL_PROMOTION')
     def test_animal_to_human_not_automatic(self):
         scope={'species':'human'};self.has(evidence_base('PRIMARY_ANIMAL',scope)+[verdict(scope=scope,decision='SUPPORTED_SCOPED',assessment_refs=['ooc:fixture:assessment'])],'NONHUMAN_TO_HUMAN_PROMOTION')
     def test_one_scope_not_pan_cancer(self):
@@ -140,10 +195,134 @@ class FirewallTests(unittest.TestCase):
         self.has([node('Assumption','s',assessment='UNKNOWN',required=True),node('MethodApplicability','a',assessment='APPLICABLE',assumption_refs=['ooc:fixture:s'])],'FAILED_OR_UNKNOWN_REQUIRED_ASSUMPTION')
     def test_optional_assumption_not_required(self):
         self.assertEqual(validate_records([node('Assumption','s',assessment='UNKNOWN',required=False),node('MethodApplicability','a',assessment='APPLICABLE',assumption_refs=['ooc:fixture:s'])]),[])
-    def test_unlicensed_frozen_model(self):
-        m=node('ModelInstance','m');m['status']='FROZEN';self.has([m],'UNLICENSED_MODEL')
+    def test_unlicensed_admitted_model(self):
+        m=node('ModelInstance','m');m['status']='ADMITTED';self.has([m],'UNLICENSED_MODEL')
     def test_missing_frozen_model_identity(self):
         m=node('ModelInstance','m');m['status']='FROZEN';self.has([m],'MISSING_MODEL_IDENTITY')
+    def test_model_and_applicability_assumptions_must_match(self):
+        from oocgraph.core import model_identity_digest
+        a1=node('Assumption','a1',assessment='PASS',required=True)
+        a2=node('Assumption','a2',assessment='PASS',required=True)
+        mc=node('ModelClass','mc')
+        app=node('MethodApplicability','app',assessment='APPLICABLE',assumption_refs=[a1['id']],
+                 model_class_ref=mc['id'],scope={'adapter':'synthetic'})
+        m=node('ModelInstance','m',status='FROZEN',applicability_ref=app['id'],model_class_ref=mc['id'],
+               assumption_refs=[a2['id']],scope={'adapter':'synthetic'})
+        rs=[a1,a2,mc,app,m];m['frozen_digest']=model_identity_digest(rs,m)
+        self.has(rs,'APPLICABILITY_ASSUMPTION_MISMATCH')
+    def test_critical_gap_must_target_programme_gate(self):
+        p=node('Programme','p',kernel_frozen=False)
+        g=node('ResearchGap','g',priority='CRITICAL')
+        c=node('Claim','c')
+        q=node('Requirement','q',gap_ref=g['id'],subject_ref=c['id'])
+        self.has([p,g,c,q],'MISSING_CRITICAL_PROGRAMME_REQUIREMENT')
+    def test_configured_critical_priority_cannot_be_downgraded(self):
+        rs=copy.deepcopy(BaselineTests.records)
+        next(r for r in rs if r.get('id')=='ooc:gap:RG-001')['priority']='HIGH'
+        errors=validate_records(rs,ROOT)
+        self.assertTrue(any('CRITICAL_GAP_PRIORITY_DRIFT' in x for x in errors),errors)
+    def test_valid_freeze_fixture(self):
+        self.assertEqual(validate_records(freeze_fixture()),[])
+    def test_freeze_authority_subject_allowlist_enforced(self):
+        rs=freeze_fixture();auth=next(r for r in rs if r['id']=='ooc:fixture:freeze-auth')
+        auth['subject_refs']=['ooc:fixture:g']
+        self.has(rs,'INVALID_FREEZE_DECISION')
+    def test_freeze_authority_scope_enforced(self):
+        rs=freeze_fixture();d=next(r for r in rs if r['id']=='ooc:fixture:freeze-d')
+        d['scope']={'domain':'OTHER'}
+        self.has(rs,'INVALID_FREEZE_DECISION')
+    def test_freeze_decision_evidence_must_equal_satisfaction_evidence(self):
+        rs=freeze_fixture();q=next(r for r in rs if r['id']=='ooc:fixture:q')
+        q['satisfaction_evidence_refs']=[]
+        self.has(rs,'INVALID_FREEZE_DECISION')
+    def test_freeze_evidence_requires_adjudicated_binding(self):
+        rs=freeze_fixture();a=next(r for r in rs if r['id']=='ooc:fixture:freeze-a')
+        a['status']='IN_REVIEW'
+        self.has(rs,'UNADJUDICATED_DISPOSITION_EVIDENCE')
+
+    def test_revoked_authority_never_freezes(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:freeze-auth')['status']='REVOKED'
+        self.has(rs,'INVALID_FREEZE_DECISION')
+        self.has(rs,'INVALID_CRITICAL_GAP_DECISION')
+    def test_invalid_gap_decision_does_not_close_critical(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:gap-d')['evidence_refs']=[]
+        self.has(rs,'INVALID_CRITICAL_GAP_DECISION')
+    def test_gap_requires_its_own_adjudication(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:gap-a')['status']='IN_REVIEW'
+        self.has(rs,'INVALID_CRITICAL_GAP_DECISION')
+    def test_superseded_critical_gap_does_not_satisfy_freeze(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:g')['status']='SUPERSEDED'
+        self.has(rs,'SUPERSEDED_CRITICAL_GAP_ON_FREEZE')
+    def bounded_fixture(self):
+        rs=freeze_fixture()
+        for name in ('g','q'):
+            x=next(r for r in rs if r['id']=='ooc:fixture:'+name)
+            x['status']='BOUNDED';x['bound_scope']={'adapter':'synthetic'}
+        for name in ('freeze-a','gap-a'):
+            next(r for r in rs if r['id']=='ooc:fixture:'+name)['effect']='CONSTRAINS'
+        for name in ('freeze-d','gap-d'):
+            next(r for r in rs if r['id']=='ooc:fixture:'+name)['decision']='BOUND'
+        return rs
+    def test_bounded_freeze_with_exact_scientific_scope(self):
+        self.assertEqual(validate_records(self.bounded_fixture()),[])
+    def test_bounded_requirement_evidence_scope_must_match(self):
+        rs=self.bounded_fixture()
+        next(r for r in rs if r['id']=='ooc:fixture:freeze-a')['scope']={'adapter':'different'}
+        self.has(rs,'INVALID_FREEZE_DECISION')
+    def test_bounded_requirement_decision_scope_must_match(self):
+        rs=self.bounded_fixture()
+        next(r for r in rs if r['id']=='ooc:fixture:freeze-d')['disposition_scope']={'adapter':'different'}
+        self.has(rs,'INVALID_FREEZE_DECISION')
+    def test_bounded_gap_scope_must_match_requirement(self):
+        rs=self.bounded_fixture()
+        next(r for r in rs if r['id']=='ooc:fixture:g')['bound_scope']={'adapter':'different'}
+        self.has(rs,'REQUIREMENT_GAP_BOUND_MISMATCH')
+    def test_engineering_result_does_not_close_scientific_freeze(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:freeze-e')['evidence_class']='ENGINEERING'
+        self.has(rs,'INVALID_FREEZE_DECISION')
+
+    def test_gap_cannot_claim_resolution_before_kernel_freeze(self):
+        rs=freeze_fixture()
+        next(r for r in rs if r['id']=='ooc:fixture:p')['kernel_frozen']=False
+        next(r for r in rs if r['id']=='ooc:fixture:gap-a')['status']='IN_REVIEW'
+        self.has(rs,'INVALID_SCIENTIFIC_DISPOSITION')
+    def test_requirement_cannot_claim_satisfaction_before_kernel_freeze(self):
+        rs=freeze_fixture()
+        next(r for r in rs if r['id']=='ooc:fixture:p')['kernel_frozen']=False
+        next(r for r in rs if r['id']=='ooc:fixture:freeze-a')['status']='IN_REVIEW'
+        self.has(rs,'INVALID_SCIENTIFIC_DISPOSITION')
+    def test_critical_configuration_matches_frozen_import(self):
+        from pathlib import Path
+        import shutil
+        with tempfile.TemporaryDirectory() as d:
+            scratch=Path(d)
+            (scratch/'config').mkdir()
+            (scratch/'sources/baseline').mkdir(parents=True)
+            shutil.copy(ROOT/'config/project.json',scratch/'config/project.json')
+            # Frozen list must correspond to the original RG corpus, not mutable labels.
+            frozen=loads((ROOT/'sources/baseline/research_gaps_91.json').read_text())
+            configured=loads((ROOT/'config/project.json').read_text())['critical_gap_ids']
+            self.assertEqual(set(configured),{x['legacy_id'] for x in frozen if x['priority']=='CRITICAL'})
+
+    def test_reject_explicitly_negative_decision(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:gap-d')['decision']='REJECT'
+        self.has(rs,'INCOMPATIBLE_DISPOSITION')
+    def test_reject_self_declared_scientific_scope(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:q')['obligation_scope']={'adapter':'elsewhere'}
+        self.has(rs,'INVALID_OBLIGATION_SCOPE')
+    def test_reject_wrong_research_domain(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:q')['obligation_domain']='MATHEMATICAL'
+        self.has(rs,'UNADJUDICATED_DISPOSITION_EVIDENCE')
+    def test_bogus_formal_evidence_ceiling_does_not_close_biology(self):
+        rs=freeze_fixture();e=next(r for r in rs if r['id']=='ooc:fixture:freeze-e')
+        e['evidence_class']='FORMAL';e['claim_ceiling']='MATHEMATICAL_EXACT'
+        self.has(rs,'UNADJUDICATED_DISPOSITION_EVIDENCE')
+    def test_bad_disposition_ref_type_has_clean_error(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:freeze-d')['evidence_refs']=[{'bad':'object'}]
+        self.has(rs,'MALFORMED_DISPOSITION_EVIDENCE')
+    def test_bad_satisfaction_ref_type_has_clean_error(self):
+        rs=freeze_fixture();next(r for r in rs if r['id']=='ooc:fixture:q')['satisfaction_evidence_refs']=[{'bad':'object'}]
+        self.has(rs,'MALFORMED_SATISFACTION_EVIDENCE')
 
 class ResolutionTests(unittest.TestCase):
     def test_no_verdict_is_unknown(self):self.assertEqual(resolve([])['missing_verdict_state'],'UNKNOWN')
@@ -178,12 +357,37 @@ class HistoryTests(unittest.TestCase):
         a=verdict();b={**a,'decision':'SUPPORTED_SCOPED'};self.assertTrue(history_violations([a],[b]))
     def test_frozen_model_mutation_fails(self):
         a=node('ModelInstance','m');a['status']='FROZEN';b={**a,'label':'renamed'};self.assertTrue(history_violations([a],[b]))
+    def test_frozen_protocol_mutation_fails(self):
+        a=node('Protocol','p',frozen=True);b={**a,'metrics':['changed']};self.assertTrue(history_violations([a],[b]))
+    def test_adjudicated_assessment_mutation_fails(self):
+        a=node('EvidenceAssessment','a',status='ADJUDICATED');b={**a,'effect':'CONTRADICTS'};self.assertTrue(history_violations([a],[b]))
+    def test_admitted_result_gate_criterion_cannot_be_rewritten(self):
+        gate=node('Gate','g',criterion='Original mathematical obligation')
+        test=node('Test','t',gate_ref=gate['id'])
+        result=node('Result','r',test_ref=test['id'])
+        old=[gate,test,result]
+        new=[{**gate,'criterion':'Altered obligation'},test,result]
+        self.assertTrue(any('MUTATED_ADMITTED_DEPENDENCY' in e
+                            for e in history_violations(old,new)))
+    def test_closed_route_state_variable_cannot_be_rewritten(self):
+        variable=node('StateVariable','v',definition='Original biological descriptor')
+        state=node('BiologicalState','s',variable_refs=[variable['id']])
+        transition=node('Transition','t',source_state_ref=state['id'],
+                        target_state_ref=state['id'])
+        route=node('Route','r',status='CLOSED',transition_refs=[transition['id']])
+        old=[variable,state,transition,route]
+        new=[{**variable,'definition':'Retconned descriptor'},state,transition,route]
+        self.assertTrue(any('MUTATED_ADMITTED_DEPENDENCY' in e
+                            for e in history_violations(old,new)))
+    def test_unrelated_draft_still_mutable(self):
+        old=[node('Claim','unrelated',statement='Draft'),
+             node('Result','r')]
+        new=[{**old[0],'statement':'Revised draft'},old[1]]
+        self.assertEqual(history_violations(old,new),[])
     def test_draft_claim_may_evolve(self):
         a=node('Claim','x');b={**a,'label':'revised claim'};self.assertEqual(history_violations([a],[b]),[])
     def test_append_only_evidence_allowed(self):
         a=node('EvidenceObject','a');b=node('EvidenceObject','b');self.assertEqual(history_violations([a],[a,b]),[])
-
-if __name__=='__main__':unittest.main()
 
 class ModelIdentityTests(unittest.TestCase):
     def test_parameter_change_changes_identity(self):
@@ -206,3 +410,52 @@ class ModelIdentityTests(unittest.TestCase):
     def test_forged_digest_rejected(self):
         m=node('ModelInstance','m',frozen_digest='0'*64);m['status']='FROZEN'
         self.assertTrue(any('MODEL_IDENTITY_MISMATCH' in x for x in validate_records([m])))
+    def test_data_use_change_changes_identity(self):
+        from oocgraph.core import model_identity_digest
+        m=node('ModelInstance','m')
+        d=node('Dataset','d')
+        p=node('Protocol','p')
+        u=node('DataUse','u',model_instance_ref=m['id'],dataset_ref=d['id'],protocol_ref=p['id'],
+               role='TRAIN',partition_id='train',unit_keys=['A'])
+        rs=[m,d,p,u];before=model_identity_digest(rs,m);u['unit_keys']=['B']
+        self.assertNotEqual(before,model_identity_digest(rs,m))
+
+    def test_shared_protocol_does_not_import_other_model(self):
+        from oocgraph.core import model_identity_digest
+        m1=node('ModelInstance','m1');m2=node('ModelInstance','m2')
+        data=node('Dataset','d')
+        u1=node('DataUse','u1',model_instance_ref=m1['id'],protocol_ref='ooc:fixture:p',
+                dataset_ref=data['id'],role='TRAIN',partition_id='train1',unit_keys=['unit1'])
+        u2=node('DataUse','u2',model_instance_ref=m2['id'],protocol_ref='ooc:fixture:p',
+                dataset_ref=data['id'],role='TRAIN',partition_id='train2',unit_keys=['unit2'])
+        protocol=node('Protocol','p',metrics=['metric-A'],data_use_refs=[u1['id'],u2['id']],
+                      target_refs=[m1['id'],m2['id']])
+        rs=[m1,m2,data,u1,u2,protocol]
+        original=model_identity_digest(rs,m1)
+        u2['unit_keys']=['different-units']
+        self.assertEqual(model_identity_digest(rs,m1),original)
+        m2['configuration']={'different':True}
+        self.assertEqual(model_identity_digest(rs,m1),original)
+        protocol['metrics']=['metric-B']
+        self.assertNotEqual(model_identity_digest(rs,m1),original)
+    def test_bad_bound_data_use_refs_produces_integrity_error(self):
+        from oocgraph.core import model_identity_digest
+        m=node('ModelInstance','m',status='FROZEN',frozen_digest='0'*64)
+        p=node('Protocol','p');d=node('Dataset','d')
+        u=node('DataUse','u',model_instance_ref=m['id'],protocol_ref=p['id'],
+               dataset_ref=d['id'],role='TRAIN',partition_id='x',unit_keys=['A'])
+        u['independence_evidence_refs']='ooc:fixture:d'
+        rs=[m,p,d,u]
+        with self.assertRaises(IntegrityError): model_identity_digest(rs,m)
+        self.assertTrue(any('INCOMPLETE_MODEL_IDENTITY' in x for x in validate_records(rs)))
+
+class QueryToolTests(unittest.TestCase):
+    def test_relation_neighbor_expansion_includes_endpoints(self):
+        from tools.query import expand_neighbors
+        a=node('Claim','qa');b=node('Claim','qb')
+        e=node('Relation','qe',source=a['id'],target=b['id'],kind='REQUIRES')
+        got=expand_neighbors([a,b,e],[e])
+        self.assertEqual({r['id'] for r in got},{a['id'],b['id'],e['id']})
+
+if __name__=='__main__':
+    unittest.main()

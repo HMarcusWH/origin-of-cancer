@@ -45,3 +45,97 @@ Import states are REGISTERED_NOT_EXTRACTED, OPEN, PROVISIONAL or REFERENCE_ONLY 
 appropriate; no historical “verified” label is laundered into a new verification receipt.
 All 91 gaps are present. The 43 critical requirements are one gate subset, not the
 entire research programme.
+
+## Admitted biological route closure (hardening)
+
+A CLOSED origin route must use an explicit boundary and founder ensemble in its
+own context, both anchored to the first biological state. A founder can contain
+multiple states or nested cooperative ensembles; a lineage-supporting adjudicated
+assessment is independently required. Per-segment support must use eligible
+primary biological evidence; reviews, synthetic runs and engineering fixtures are
+not qualified cancer evidence.
+
+SAME_SYSTEM checks common witness identifiers across each segment's *admissible*
+evidence rather than across arbitrary files in the bundle. VALIDATED_BRIDGE
+requires an explicit adjacent-transition bridge link, adjudicated primary evidence
+supporting that route, exact scientific scope, matching context, and identifiers
+connecting the two witness sides. Cross-study stitching without such a bridge
+remains OPEN/PARTIAL, never CLOSED.
+
+## Typed reference and admission law
+
+Nested references are validated for all statuses, including OPEN witness bundles,
+under `schema/nested_reference_contract.json`. Root-schema validation happens
+before semantic interpretation. A schema-invalid record never enters digest,
+admission, or scientific-state projection.
+
+Every scientific Decision has a `decision_kind` and controlled outcome; a
+RESOLVED gap requires RESOLVE, a SATISFIED Requirement requires SATISFY, and
+a BOUNDED record requires BOUND. A Decision does not define its own scientific
+obligation. Independent `obligation_scope` and `obligation_domain` on
+Requirement/ResearchGap are compared with the adjudicated scientific scope.
+A conflicting decision, evidence target, or scope fails closed.
+
+EvidenceObject.claim_ceiling is a controlled maximum capability, not a
+reviewer's confidence scalar. An ADJUDICATED assessment must support an exact
+target, polarity and scope, with a compatible evidence class and active source
+locator. An authored Relation never provides a shortcut to scientific admission.
+
+## Study-scoped witness identity
+
+Witness labels are keyed by (study_id, system_id, witness_id), not by
+a naked string. Identical labels in unrelated studies do not imply common
+ancestry. Every nested founder state must agree with the route context.
+Origin route closure requires supported causal transition evidence and
+separately supported lineage ancestry. A technically closed route is not
+itself proof of universal malignant causation.
+
+### Qualified witness handoffs
+
+A bridge between distinct witnesses declares full source and destination
+(study_id, system_id, witness_id) triples. Its source EvidenceObject carries
+an explicit witness_bridge_pairs mapping that must exactly match the typed
+bridge link and its adjacent route segments. Matching human-readable labels
+alone is never enough. A successful structural check remains a scoped research
+certificate, not a guarantee of causal or genealogical truth.
+
+## Declared status versus current admitted state
+
+`Transition.status=SUPPORTED_SCOPED` is never a permission to skip independent
+evidence qualification. A supported Transition declares its exact scientific scope
+and must have target-matched adjudicated primary evidence even when no Route
+references it. Scoped Verdicts use a decision/axis/claim-kind compatibility gate.
+
+A historical Route marked CLOSED remains a preserved declaration. New admissible
+contradictory evidence or an authorized retraction is **ingested without rewriting
+history**. The current effective Route/Transition status then becomes CONTESTED;
+`generated/route_atlas.json` exposes both the declaration and effective status.
+This separation is required for honest, continuously updated research.
+
+Every stage/context handoff must declare both source and target contexts and
+adjudicated evidence linking them. Stage progression must not be silently
+equated with migration to an unrelated lineage or biological system.
+
+## Semantic history
+
+Admitted Decisions, Results, EvidenceObjects, Verdicts, active model specifications,
+and their load-bearing Claims, Requirements, ResearchGaps, SourceLocators and proof
+artifacts form a directed, typed immutable dependency closure. Changing one of
+these records in-place is not scientific revision: author a successor and preserve
+the historical object. Legitimate draft Claims and OPEN obligations remain editable.
+The history gate checks both referenced graph meaning and admitted file bytes.
+
+
+### Historical certification versus current scientific state
+
+A previously admitted Transition, Route, or Verdict retains its immutable
+historical certificate when qualifying evidence is later contradicted or
+retracted. The effective current scientific state is separately projected as
+CONTESTED. New contradictions and retractions must be ingestible without
+rewriting prior support or forcing removal of negative evidence.
+
+Standalone SUPPORTED_SCOPED transitions must independently qualify both state
+endpoints, the biological frame, their evidence context, and any declared
+context handoff. BIOLOGICAL_SUPPORT Verdicts require claim-compatible Claim
+subjects. ROUTE_CLOSURE and adapter transfers use their explicitly scoped
+route-specific evidential contract.

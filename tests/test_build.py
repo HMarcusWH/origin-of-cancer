@@ -43,5 +43,5 @@ class BuildTests(unittest.TestCase):
     def test_no_frozen_backend(self):
         s=json.loads(self.products['generated/model_applicability.json']);self.assertEqual(len(s['instances']),sum(r['type']=='ModelInstance' for r in read_graph(ROOT)));self.assertFalse(s['universal_backend_selected'])
     def test_blockers_not_hidden(self):
-        s=json.loads(self.products['generated/blockers.json']);expected=[r['id'] for r in read_graph(ROOT) if r['type']=='ResearchGap' and r['priority']=='CRITICAL' and r['status'] not in {'RESOLVED','BOUNDED','SUPERSEDED'}];self.assertEqual(s['critical_open'],expected);self.assertFalse(s['kernel_freeze_allowed'] and bool(expected))
+        s=json.loads(self.products['generated/blockers.json']);expected=[r['id'] for r in read_graph(ROOT) if r['type']=='ResearchGap' and r['priority']=='CRITICAL' and r['status'] not in {'RESOLVED','BOUNDED'}];self.assertEqual(s['critical_open'],expected);self.assertFalse(s['kernel_freeze_allowed'] and bool(expected))
 if __name__=='__main__':unittest.main()

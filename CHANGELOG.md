@@ -20,3 +20,42 @@ Source locks correctly failed; source hashes were not changed to accept altered
 bytes. `sources/** -text` preserves originals in the Git index and checkout. A
 real Git round-trip regression test now checks this boundary. The optional
 Python-version-dependent typing-extensions dependency is pinned explicitly.
+
+## Unmerged PR #2 — admission integrity hardening
+
+Typed scientific Decisions, independently declared obligation scopes,
+biological claim ceilings, ancestry-first witness linkage, nested bridge
+reference validation, equation-assumption closure, exact mathematical
+result admission, null-model semantic hashing, and pair-specific
+selection/confirmation audit rules. Schema-valid synthetic integration
+fixtures supplement intentionally minimal unit tests. No previously
+registered research gap, cancer evidence, source snapshot or model
+has been scientifically advanced.
+
+## Additional adversarial closure hardening
+
+Added independent claim-kind policy, study/system-scoped witness identity,
+transitively checked nested founder contexts, primary-support roles for
+causal/lineage claims, and explicit ModelInstance protocol ownership.
+Both minimal unit tests and production-schema positive fixtures are
+retained. No original source snapshot or research status was changed.
+
+## PR #2 follow-up — scientific-state admission and history
+
+Independent scoped Transition/positive Verdict admission, explicit biological
+context handoffs, historically immutable semantic dependency closure, exact
+proof-protocol/target/verifier/output identity, active applicability for admitted
+models, exact bibliography identifiers, critical-gap obligation matching,
+append-only authorized retractions, and declared/effective scientific views.
+Production fixtures remain synthetic; the original scientific baseline and all
+43 OPEN critical gaps remain unchanged.
+
+
+### Independent review hardening — resumed pass
+
+Repairs Codex's current-head findings concerning transition context,
+axis/subject compatibility, contested route/mathematical verdict history,
+output-transcript bytes, mathematical obligation-to-Claim certification,
+historical dependency closure and withdrawn independence audits.
+Includes production-valid negative controls and extended append-only
+historical checks. No original scientific source or gap disposition changes.
