@@ -555,7 +555,8 @@
             "PERSISTENCE",
             "CONSTITUTIVE",
             "OBSERVATION",
-            "CERTIFICATE"
+            "CERTIFICATE",
+            "ORIGIN"
           ]
         },
         "doc_path": {
@@ -642,6 +643,34 @@
         },
         "type": {
           "const": "Claim"
+        },
+        "origin_route_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "malignant_state_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "persistence_criterion_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entry_assessment_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "establishment_assessment_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
         }
       },
       "required": [

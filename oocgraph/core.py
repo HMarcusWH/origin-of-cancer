@@ -149,9 +149,14 @@ REF_TYPES = {
     "obligation_claim_ref": {"Claim"},
     "conflict_resolution_ref": {"Decision"},
     "previous_event_ref": {"AuthorizationEvent"},
+    "origin_route_ref": {"Route"},
+    "malignant_state_ref": {"BiologicalState"},
+    "persistence_criterion_ref": {"PersistenceCriterion"},
 }
 REF_LIST_TYPES = {
-    "basis_refs": {"ResearchGap", "Requirement", "Decision", "EvidenceObject"},
+    "basis_refs": {"ResearchGap", "Requirement", "Decision", "EvidenceObject", "ModelInstance"},
+    "entry_assessment_refs": {"EvidenceAssessment"},
+    "establishment_assessment_refs": {"EvidenceAssessment"},
     "evidence_refs": {"EvidenceObject"}, "bridge_evidence_refs": {"EvidenceObject"},
     "satisfaction_evidence_refs": {"EvidenceObject"}, "independence_evidence_refs": {"EvidenceObject"},
     "source_locator_refs": {"SourceLocator"}, "transition_refs": {"Transition"},
@@ -397,6 +402,44 @@ def _appropriate_biological_assessment(index, assessment, target_ref, scope, cla
         and _qualified_assessment(index, assessment, target_ref, scope,
                                   context_ref=context_ref, allowed_ceilings=ceilings)
     )
+
+
+def _admitted_origin_claim(records, index, claim):
+    """An end-to-end route is not first entry or malignant establishment."""
+    if claim.get("type") != "Claim" or claim.get("claim_kind") != "ORIGIN":
+        return False
+    route = index.get(claim.get("origin_route_ref"), {})
+    state = index.get(claim.get("malignant_state_ref"), {})
+    criterion = index.get(claim.get("persistence_criterion_ref"), {})
+    if not (route.get("type") == "Route"
+            and route.get("status") == "CLOSED"
+            and effective_route_state(records, route)["effective"] == "ADMITTED_CLOSED"
+            and canonical(route.get("scope")) == canonical(claim.get("scope"))
+            and route.get("transition_refs")
+            and state.get("type") == "BiologicalState"
+            and index.get(route["transition_refs"][-1], {}).get("target_state_ref") == state.get("id")
+            and bool(state.get("variable_refs"))
+            and criterion.get("type") == "PersistenceCriterion"
+            and criterion.get("context_ref") == state.get("context_ref")
+            and criterion.get("preregistration_status") in {"REGISTERED", "PRE_REGISTERED"}):
+        return False
+    witness = index.get(route.get("witness_bundle_ref"), {})
+    eligible_refs = set(witness.get("evidence_refs", []))
+    def admission(refs, role, designs):
+        return bool(refs) and all(
+            e.get("id") in eligible_refs
+            and e.get("context_ref") == state.get("context_ref")
+            and e.get("design_class") in designs
+            and _qualified_assessment(
+                index, a, claim.get("id"), claim.get("scope"),
+                assessment_role=role, allowed_ceilings=BIOLOGICAL_CEILINGS)
+            for ref in refs for a in [index.get(ref, {})]
+            for e in [index.get(a.get("evidence_ref"), {})])
+    return (
+        admission(claim.get("entry_assessment_refs", []), "TEMPORAL",
+                  {"LONGITUDINAL", "LINEAGE", "MIXED"})
+        and admission(claim.get("establishment_assessment_refs", []), "PERSISTENCE",
+                      {"LONGITUDINAL", "MIXED"}))
 
 
 def _admissible_disposition_evidence(index, assessment, target_ref, scope, domain, effect):
@@ -1518,7 +1561,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("UNQUALIFIED_ROUTE_CLOSURE_VERDICT", r)
                 elif r.get("axis") == "BIOLOGICAL_SUPPORT" and (
                         subject.get("type") != "Claim"
-                        or subject.get("claim_kind") not in EVIDENCE_OBLIGATION_POLICY):
+                        or subject.get("claim_kind") not in
+                        (set(EVIDENCE_OBLIGATION_POLICY) | {"ORIGIN"})):
                     error("UNQUALIFIED_BIOLOGICAL_VERDICT_SUBJECT", r)
                 elif r.get("axis") != "BIOLOGICAL_SUPPORT" and (
                         (subject.get("type") == "Route" and r.get("axis") != "ROUTE_CLOSURE")
@@ -1539,10 +1583,13 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 for a in assessments:
                     gated_kind = required_kind or kind
                     qualified = (
+                        _admitted_origin_claim(records, index, subject)
+                        and _appropriate_biological_assessment(
+                            index,a,r.get("subject_ref"),r.get("scope"),"PERSISTENCE")
+                        if gated_kind == "ORIGIN" else
                         _appropriate_biological_assessment(
                             index,a,r.get("subject_ref"),r.get("scope"),gated_kind)
-                        if gated_kind in EVIDENCE_OBLIGATION_POLICY
-                        else False
+                        if gated_kind in EVIDENCE_OBLIGATION_POLICY else False
                     )
                     if qualified:
                         admissible.append(a)
