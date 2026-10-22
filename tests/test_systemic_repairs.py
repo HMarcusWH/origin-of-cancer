@@ -1,12 +1,44 @@
 """Synthetic regressions of PR #2 scientific admission and history repairs."""
 import copy
-from oocgraph.core import history_violations, model_identity_digest
+from oocgraph.core import history_violations, model_identity_digest, validate_records
 from tests.test_production_contracts import ProductionValidation, mathematical_fixture, route_records, fully_typed
 from tests.test_transfer_review import example as transfer_example
 from tests.test_integrity import node
 
 
 class SystemicRepairs(ProductionValidation):
+    def test_retracted_obligation_downgrades_only_current_freeze(self):
+        from oocgraph.core import effective_freeze_eligibility
+        from tests.test_production_contracts import freeze_records
+        rs=freeze_records()
+        original=effective_freeze_eligibility(rs,["ooc:fixture:g"])
+        self.assertTrue(original["eligible"])
+        rs+=fully_typed([
+            node("Authority","ret-auth",status="ACTIVE_RULE",
+                 axes=["EVIDENCE_POLICY"],scope={"domain":"audit"}),
+            node("EvidenceObject","notice",status="RECORDED",
+                 evidence_class="REVIEW",claim_ceiling="VERIFICATION_ONLY",
+                 context_ref="ooc:fixture:context",source_locator_refs=["ooc:fixture:freeze-loc"],
+                 study_id="fixture",system_id="notice",uncertainty="synthetic",
+                 finding="Retracted support",provenance_class="CURATED_SEMANTIC"),
+            node("EvidenceAssessment","retract",status="ADJUDICATED",
+                 target_ref="ooc:fixture:freeze-e",evidence_ref="ooc:fixture:notice",
+                 authority_ref="ooc:fixture:ret-auth",effect="RETRACTS",
+                 assessment_role="RETRACTION",scope={"domain":"audit"},
+                 rationale="Synthetic correction",limitations="Synthetic only",
+                 provenance_class="CURATED_SEMANTIC")
+        ])
+        self.assertEqual(self.errors(rs),[])
+        effective=effective_freeze_eligibility(rs,["ooc:fixture:g"])
+        self.assertFalse(effective["eligible"])
+        self.assertEqual(effective["gap_states"]["ooc:fixture:g"]["effective"],"CONTESTED")
+
+    def test_proposed_data_leakage_may_be_documented(self):
+        from tests.test_routes_and_data import data_fixture, get
+        rs=data_fixture()
+        get(rs,"u2")["unit_keys"]=["A"]
+        self.assertEqual(validate_records(rs),[])
+
     def test_test_must_bind_result_execution(self):
         records=mathematical_fixture()
         t=next(r for r in records if r["type"]=="Test")

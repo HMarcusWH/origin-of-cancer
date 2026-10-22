@@ -6,7 +6,7 @@ from pathlib import Path
 from .core import (canonical, loads, read_graph, resolve, sha256, file_inventory,
                    file_class, subject_digest, effective_route_state, effective_transition_state,
                    effective_data_use_state,
-                   approved_retractions)
+                   approved_retractions, effective_freeze_eligibility)
 
 PRODUCTS = [
  'generated/graph.json','generated/ooc-graph.jsonld','generated/current_state.json',
@@ -43,9 +43,16 @@ def make_views(root: Path) -> dict[str, str]:
     graph_hash=sha256(canonical(records).encode())
     resolver=resolve(records)
     critical=[r for r in items('ResearchGap') if r['priority']=='CRITICAL']
-    opencrit=[r for r in critical if r['status'] not in {'RESOLVED','BOUNDED'}]
+    freeze=effective_freeze_eligibility(records, project.get("critical_gap_ids", []))
+    opencrit=[r for r in critical if r["id"] in freeze["blocking_gap_refs"]]
     required=loads((root/'config/documentation_contract.json').read_text())['required_documents']
-    state={'stage':project['scientific_stage'],'kernel_frozen':project['kernel_frozen'],
+    state={'stage':project['scientific_stage'],
+           'kernel_frozen':freeze['effective_kernel_frozen'],
+           'kernel_frozen_declared':project['kernel_frozen'],
+           'kernel_freeze_eligible':freeze['eligible'],
+           'contested_critical_gaps':sum(
+               freeze["gap_states"].get(g["id"],{}).get("effective")=="CONTESTED"
+               for g in critical),
            'clinical_use_authorized':False,'source_rows':counts['LiteratureSource'],
            'source_identifier_groups':len({r['identifiers_raw'].split('; PMID')[0].strip().lower() for r in items('LiteratureSource')}),
            'bibliographic_verifications':counts['SourceVerification'],
@@ -68,16 +75,20 @@ def make_views(root: Path) -> dict[str, str]:
       'baseline_date':project['baseline_date'],'authority':'GENERATED_NON_SCIENTIFIC',
       'source_base_commit':project['source_repository_base_commit'],'subject_sha256':digest,
       'graph_sha256':graph_hash,'nodes':len(nodes),'relations':len(edges),
-      'generated_products':PRODUCTS,'kernel_frozen':project['kernel_frozen'],'clinical_use_authorized':False,
+      'generated_products':PRODUCTS,'kernel_frozen':state['kernel_frozen'],'clinical_use_authorized':False,
       'commit_identity':'Bound by repository checkout/PR/tag, never embedded into its own source hash.'})
-    out['generated/CURRENT_STATE.md']='# Current recorded state\n\n> Generated; no independent scientific authority.\n\n'+table(['Field','State'],[(k,state[k]) for k in ['stage','kernel_frozen','source_rows','source_identifier_groups','bibliographic_verifications','completed_paper_extractions','theory_cards','completed_theory_cards','workstreams','research_gaps','critical_gaps','open_critical_gaps','adapters','completed_adapter_dossiers','model_instances','evidence_objects','evidence_assessments','cancer_empirical_runs']])+'\n**GO research; NO-GO cancer kernel freeze.**\n\nAll missing scientific evidence remains OPEN or UNKNOWN. Source presence, a documentation card, and a passing engineering test are not empirical validation.\n'
+    out['generated/CURRENT_STATE.md']='# Current recorded state\n\n> Generated; no independent scientific authority.\n\n'+table(['Field','State'],[(k,state[k]) for k in ['stage','kernel_frozen','source_rows','source_identifier_groups','bibliographic_verifications','completed_paper_extractions','theory_cards','completed_theory_cards','workstreams','research_gaps','critical_gaps','open_critical_gaps','adapters','completed_adapter_dossiers','model_instances','evidence_objects','evidence_assessments','cancer_empirical_runs']])+'\n**'+('Kernel freeze eligible for independent review; not clinical authorization.' if freeze['eligible'] else 'GO research; NO-GO cancer kernel freeze.')+'**\n\nEngineering completeness is not biological validation.\n'
     out['generated/research_gaps.md']='# Research gaps\n\n'+table(['ID','Question','Priority','Status','Dossier'],[(r['legacy_id'],r['question'],r['priority'],r['status'],f"[read](../{r['doc_path']})") for r in items('ResearchGap')])
     out['generated/workstreams.md']='# Research workstreams\n\n'+table(['ID','Layer','Workstream','Status','Dossier'],[(r['legacy_id'],r['layer'],r['label'],r['status'],f"[read](../{r['doc_path']})") for r in items('Workstream')])
     out['generated/theory_comparison.md']='# Theory-family intake and comparison\n\nThese are registered OPEN research cards, not completed literature reviews.\n\n'+table(['ID','Family','Status','Card complete','Decision','Card'],[(r['legacy_id'],r['label'],r['status'],r['card_complete'],r['adoption_decision'],f"[read](../{r['doc_path']})") for r in items('Theory')])
     out['generated/adapter_matrix.md']='# Adapter matrix\n\n'+table(['Adapter','Status','Dossier complete','Read'],[(r['label'],r['status'],r['dossier_complete'],f"[dossier](../{r['doc_path']})") for r in items('Adapter')])
     out['generated/source_coverage.md']='# Source coverage\n\nBibliographic registration is separate from metadata verification, extraction, appraisal and independent study evidence.\n\n'+table(['ID','Registered citation','Verification','Extraction','Duplicate identifier','Intake'],[(r['legacy_id'],r['label'],r['bibliographic_verification'],r['extraction_status'],r.get('same_identifier_as',''),f"[read](../{r['doc_path']})") for r in items('LiteratureSource')])
-    out['generated/blockers.md']='# Critical kernel-freeze blockers\n\n'+table(['ID','Question','Status'],[(r['legacy_id'],r['question'],r['status']) for r in opencrit])
-    out['generated/blockers.json']=dump({'critical_open':[r['id'] for r in opencrit],'requirements':items('Requirement'),'kernel_freeze_allowed':project['kernel_frozen'] and not opencrit})
+    out['generated/blockers.md']='# Critical kernel-freeze blockers\n\n'+table(['ID','Question','Status'],[(r['legacy_id'],r['question'],freeze['gap_states'].get(r['id'],{}).get('effective',r['status'])) for r in opencrit])
+    out['generated/blockers.json']=dump({'critical_open':[r['id'] for r in opencrit],
+      'requirements':items('Requirement'), 'kernel_freeze_allowed':freeze['eligible'],
+      'kernel_freeze_effective':freeze['effective_kernel_frozen'],
+      'effective_gap_states':freeze['gap_states'],
+      'effective_requirement_states':freeze['requirement_states']})
     out['generated/authority_map.json']=dump({'authorities':items('Authority'),'resolution':resolver,'empirical_truth_ownership':False})
     out['generated/evidence_map.json']=dump({
         'evidence':items('EvidenceObject'),
@@ -115,7 +126,8 @@ def make_views(root: Path) -> dict[str, str]:
     out['generated/model_applicability.json']=dump({'estimands':items('Estimand'),'classes':items('ModelClass'),'instances':items('ModelInstance'),'applicability':items('MethodApplicability'),'universal_backend_selected':False})
     out['generated/README.md']='# Generated views\n\nDo not edit these files. Run `python tools/build.py --write` after an authored change. The graph, resolver, tables and static explorer are projections; they do not create scientific authority. Full graph exports are deterministic and carry no build-time clock.\n'
     payload=canonical({'nodes':nodes,'relations':edges}).replace('<','\\u003c').replace('&','\\u0026')
-    out['generated/explorer.html']=EXPLORER.replace('PAYLOAD_JSON',payload)
+    out['generated/explorer.html']=EXPLORER.replace('PAYLOAD_JSON',payload).replace(
+        'SCIENTIFIC_STAGE_TEXT',html.escape(project['scientific_stage']))
     assert set(out)==set(PRODUCTS)
     return out
 
@@ -123,7 +135,7 @@ EXPLORER='''<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Origin of Cancer — research graph</title>
 <style>body{font:16px/1.5 system-ui;margin:0;background:#f5f7fa;color:#152333}header{padding:24px;background:#152333;color:white}main{display:grid;grid-template-columns:minmax(260px,38%) 1fr;gap:20px;padding:20px}input,select,button{font:inherit;padding:8px;border:1px solid #c1ccd8;border-radius:4px}input{width:55%}article,aside{background:white;border:1px solid #d8e0ea;border-radius:6px;padding:16px}.card{padding:10px;margin:8px 0;border:1px solid #c1ccd8;cursor:pointer}.card:hover{background:#edf3f8}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}svg{width:100%;height:250px;background:#f7f9fb}svg text{font:10px system-ui}a{color:#175792}small{display:block} @media(max-width:850px){main{display:block}aside{margin-bottom:16px}}</style>
-<header><h1>Origin of Cancer · research graph</h1><p>PRE-FORMALIZATION · no admitted cancer model or biological validation. This view is generated, not an authority.</p><input id="query" placeholder="Search ID, theory, source, gap…"><select id="types"><option value="">All object types</option></select><small id="count"></small></header>
+<header><h1>Origin of Cancer · research graph</h1><p>SCIENTIFIC_STAGE_TEXT · this view is generated, not a scientific authority or clinical authorization.</p><input id="query" placeholder="Search ID, theory, source, gap…"><select id="types"><option value="">All object types</option></select><small id="count"></small></header>
 <main><aside><div id="list"></div></aside><article><h2 id="title">Select a research object</h2><p id="notice">Browse the graph, inspect typed relations and open the complete local documentation. No external service or network request is needed.</p><svg id="picture" role="img" aria-label="Selected object's immediate graph neighborhood"></svg><div id="links"></div><h3>Exact record</h3><pre id="detail"></pre><h3>Incoming and outgoing relations</h3><div id="edges"></div></article></main>
 <script type="application/json" id="data">PAYLOAD_JSON</script>
 <script>

@@ -649,6 +649,90 @@ def _material_scoped_contradictions(records, index, target_refs, scope):
     )
 
 
+def effective_obligation_state(records, obligation, retractions=None):
+    """Historical disposition remains; present evidential license can disappear."""
+    raw = obligation.get("status", "OPEN")
+    if raw not in {"RESOLVED", "SATISFIED", "BOUNDED"}:
+        return {"declared": raw, "effective": raw,
+                "retracted_support_refs": [], "contradiction_refs": []}
+    index = {r["id"]: r for r in records}
+    decision = index.get(obligation.get("decision_ref"), {})
+    scope = (obligation.get("bound_scope") if raw == "BOUNDED"
+             else decision.get("disposition_scope"))
+    effects = ({"CONSTRAINS", "DOES_NOT_ESTABLISH"} if raw == "BOUNDED"
+               else {"SUPPORTS"})
+    issues = _decision_admission_errors(
+        records, index, decision, obligation.get("id"), scope, effects,
+        required_evidence_refs=(obligation.get("satisfaction_evidence_refs", [])
+                                if obligation.get("type") == "Requirement" else None))
+    retractions = approved_retractions(records, index) if retractions is None else retractions
+    revoked = sorted(set(decision.get("evidence_refs", [])) & set(retractions))
+    contradictions = _material_scoped_contradictions(
+        records, index, [obligation.get("id")], scope)
+    effective = ("UNADMITTED" if issues else
+                 "CONTESTED" if revoked or contradictions else
+                 "ADMITTED_" + raw)
+    return {"declared": raw, "effective": effective,
+            "retracted_support_refs": revoked, "contradiction_refs": contradictions,
+            "historical_admission_issues": issues}
+
+
+def effective_freeze_eligibility(records, critical_gap_ids=None):
+    """Require CURRENT supported dispositions for all configured freeze burdens."""
+    index = {r["id"]: r for r in records}
+    programmes = [r for r in records if r.get("type") == "Programme"]
+    programme = programmes[0] if len(programmes) == 1 else {}
+    gaps = ([("ooc:gap:" + x if not x.startswith("ooc:") else x)
+             for x in critical_gap_ids]
+            if critical_gap_ids is not None else
+            [r["id"] for r in records if r.get("type") == "ResearchGap"
+             and r.get("priority") == "CRITICAL"])
+    retractions = approved_retractions(records, index)
+    requirement_states, gap_states, blockers = {}, {}, []
+    for gap_ref in sorted(set(gaps)):
+        gap = index.get(gap_ref, {})
+        matching = [r for r in records if r.get("type") == "Requirement"
+                    and r.get("gap_ref") == gap_ref
+                    and r.get("subject_ref") == programme.get("id")]
+        if gap.get("type") != "ResearchGap" or len(matching) != 1:
+            blockers.append(gap_ref)
+            continue
+        req = matching[0]
+        gs = effective_obligation_state(records, gap, retractions)
+        qs = effective_obligation_state(records, req, retractions)
+        gap_states[gap_ref] = gs
+        requirement_states[req["id"]] = qs
+        matches = (
+            gap.get("status") in {"RESOLVED", "BOUNDED"}
+            and req.get("status") in {"SATISFIED", "BOUNDED"}
+            and (gap.get("status") == "RESOLVED") == (req.get("status") == "SATISFIED")
+            and canonical(gap.get("obligation_scope")) == canonical(req.get("obligation_scope"))
+            and gap.get("obligation_domain") == req.get("obligation_domain")
+            and gap.get("obligation_claim_kind") == req.get("obligation_claim_kind")
+            and (gap.get("status") != "BOUNDED" or
+                 canonical(gap.get("bound_scope")) == canonical(req.get("bound_scope")))
+        )
+        if not (matches and gs["effective"].startswith("ADMITTED_")
+                and qs["effective"].startswith("ADMITTED_")):
+            blockers.append(gap_ref)
+    # Additional programme requirements may be stricter than the critical subset.
+    for req in records:
+        if (req.get("type") == "Requirement"
+                and req.get("subject_ref") == programme.get("id")
+                and req.get("gap_ref") not in set(gaps)):
+            qs = effective_obligation_state(records, req, retractions)
+            requirement_states[req["id"]] = qs
+            if not qs["effective"].startswith("ADMITTED_"):
+                blockers.append(req.get("gap_ref", req["id"]))
+    return {"eligible": bool(programme) and bool(gaps) and not blockers,
+            "blocking_gap_refs": sorted(set(blockers)),
+            "gap_states": gap_states,
+            "requirement_states": requirement_states,
+            "declared_kernel_frozen": bool(programme.get("kernel_frozen")),
+            "effective_kernel_frozen": bool(programme.get("kernel_frozen"))
+                                         and not blockers}
+
+
 def effective_transition_state(records, transition):
     """The current scoped admission of a biological transition, not its raw label."""
     declared = transition.get("status", "OPEN")
@@ -1479,7 +1563,10 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 error("MALFORMED_DATA_USE_UNITS", a)
                 continue
             if (same and a.get("partition_id") == b.get("partition_id")) or (au & bu):
-                error("DATA_USE_LEAKAGE", a)
+                # A rejected/proposed contaminated plan is historical research data,
+                # not an admitted independent confirmation.
+                if a.get("status") == b.get("status") == "ADMITTED":
+                    error("DATA_USE_LEAKAGE", a)
                 continue
             if related_candidates(a, b) and a.get("status") == b.get("status") == "ADMITTED":
                 if not (

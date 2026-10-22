@@ -225,22 +225,25 @@ class RouteTests(unittest.TestCase):
         r=route_fixture();get(r,'w')['context_ref']='ooc:fixture:b';self.has(r,'WITNESS_CONTEXT_MISMATCH')
 
 class DataUseTests(unittest.TestCase):
+    def admitted(self, rs):
+        get(rs,'u1')['status']=get(rs,'u2')['status']='ADMITTED'
+        return rs
     def test_disjoint_proposed_use_allowed(self):self.assertEqual(validate_records(data_fixture()),[])
     def test_unit_overlap_across_family(self):
-        r=data_fixture();get(r,'u2')['unit_keys']=['A'];self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
+        r=self.admitted(data_fixture());get(r,'u2')['unit_keys']=['A'];self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
     def test_same_partition_leakage(self):
-        r=data_fixture();get(r,'u2').update(dataset_ref='ooc:fixture:d1',partition_id='train');self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
+        r=self.admitted(data_fixture());get(r,'u2').update(dataset_ref='ooc:fixture:d1',partition_id='train');self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
     def test_unknown_independence_blocks_admission(self):
         r=data_fixture();get(r,'u1')['status']=get(r,'u2')['status']='ADMITTED';self.assertTrue(any('UNKNOWN_PARTITION_INDEPENDENCE' in x for x in validate_records(r)))
     def test_calibration_counts_as_construction(self):
-        r=data_fixture();get(r,'u1')['role']='CALIBRATION';get(r,'u2')['unit_keys']=['A'];self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
+        r=self.admitted(data_fixture());get(r,'u1')['role']='CALIBRATION';get(r,'u2')['unit_keys']=['A'];self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
     def test_selection_counts_as_construction(self):
-        r=data_fixture();get(r,'u1')['role']='SELECT';get(r,'u2')['unit_keys']=['A'];self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
+        r=self.admitted(data_fixture());get(r,'u1')['role']='SELECT';get(r,'u2')['unit_keys']=['A'];self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
     def test_protocol_change_does_not_reset_data_independence(self):
-        r=data_fixture();r.append(node('Protocol','p2'));get(r,'u2')['protocol_ref']='ooc:fixture:p2';get(r,'u2')['unit_keys']=['A']
+        r=self.admitted(data_fixture());r.append(node('Protocol','p2'));get(r,'u2')['protocol_ref']='ooc:fixture:p2';get(r,'u2')['unit_keys']=['A']
         self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
     def test_cross_candidate_confirm_reuse_is_not_independent(self):
-        r=data_fixture();r.append(node('ModelInstance','other'))
+        r=self.admitted(data_fixture());r.append(node('ModelInstance','other'))
         get(r,'u2')['model_instance_ref']='ooc:fixture:other';get(r,'u2')['unit_keys']=['A']
         self.assertTrue(any('DATA_USE_LEAKAGE' in x for x in validate_records(r)))
 
