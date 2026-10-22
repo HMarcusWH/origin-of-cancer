@@ -257,6 +257,19 @@ class SystemicRepairs(ProductionValidation):
         self.assertNotIn("ooc:fixture:e1",approved_retractions(rs))
         self.assertIn(prior["id"],approved_reinstatements(rs))
 
+    def test_production_proof_requires_external_trust_anchor(self):
+        import json
+        root=self.root
+        (root/"config").mkdir(exist_ok=True)
+        (root/"config/project.json").write_text(json.dumps({"critical_gap_ids":[]}))
+        (root/"config/trusted_proof_checkers.json").write_text('{"trusted_checkers":[]}')
+        try:
+            rs=mathematical_fixture()
+            self.assertTrue(any("UNTRUSTED_FORMAL_PROOF" in x for x in self.errors(rs)))
+        finally:
+            (root/"config/project.json").unlink()
+            (root/"config/trusted_proof_checkers.json").unlink()
+
     def test_test_must_bind_result_execution(self):
         records=mathematical_fixture()
         t=next(r for r in records if r["type"]=="Test")

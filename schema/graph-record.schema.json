@@ -4626,6 +4626,14 @@
             "execution_output_sha256": {
               "type": "string",
               "pattern": "^[0-9a-f]{64}$"
+            },
+            "attestation_signer_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "attestation_signature_b64": {
+              "type": "string",
+              "minLength": 1
             }
           }
         }

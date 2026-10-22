@@ -332,6 +332,57 @@ def _qualified_assessment(index, assessment, target_ref, scope, *,
     )
 
 
+def trusted_proof_receipt(root, index, result):
+    """Verify a *trusted signer* actually attested the exact formal checker chain.
+
+    Matching hashes and a self-reported PASS are not strong verification.
+    The production trust registry begins empty; approval requires external governance.
+    """
+    from base64 import b64decode
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+    from cryptography.exceptions import InvalidSignature
+    try:
+        receipt = result.get("verification_receipt", {})
+        source = loads((root/"config/trusted_proof_checkers.json").read_text())
+        test = index.get(result.get("test_ref"), {})
+        exe = index.get(result.get("execution_ref"), {})
+        model = index.get(result.get("model_instance_ref"), {})
+        claim = index.get(result.get("subject_ref"), {})
+        proof = index.get(result.get("verification_artifact_ref"), {})
+        software = index.get(exe.get("software_ref"), {})
+        signer_id = receipt.get("attestation_signer_id")
+        keys = [r for r in source.get("trusted_checkers", [])
+                if r.get("id") == signer_id
+                and r.get("verifier_sha256") == software.get("sha256")
+                and r.get("verifier_version") == receipt.get("verifier_version")]
+        if len(keys) != 1:
+            return False
+        signature = b64decode(receipt.get("attestation_signature_b64", ""), validate=True)
+        if len(signature) != 64:
+            return False
+        msg = canonical({
+            "statement_sha256": sha256(claim.get("statement", "").encode("utf-8")),
+            "proof_sha256": proof.get("sha256"),
+            "checker_sha256": software.get("sha256"),
+            "checker_version": receipt.get("verifier_version"),
+            "execution_output_sha256": exe.get("output_sha256"),
+            "model_digest": model.get("frozen_digest"),
+            "model_instance_ref": model.get("id"),
+            "subject_ref": claim.get("id"),
+            "scope": result.get("scope"),
+            "protocol_ref": test.get("protocol_ref"),
+            "test_ref": test.get("id"),
+            "execution_ref": exe.get("id"),
+        }).encode("utf-8")
+        Ed25519PublicKey.from_public_bytes(
+            b64decode(keys[0].get("public_key_base64", ""),validate=True)
+        ).verify(signature, msg)
+        return True
+    except (InvalidSignature, ValueError, TypeError, KeyError, OSError,
+            IntegrityError, ImportError, AttributeError):
+        return False
+
+
 def _verified_result(index, result, subject_ref, scope):
     """Formal result certification is separate from successful execution or fit."""
     if not isinstance(result, dict) or result.get("type") != "Result":
@@ -1207,6 +1258,12 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             elif action in {"RETIRE_MODEL", "UNFREEZE_KERNEL"}:
                 error("MISSING_AUTHORIZATION_PREDECESSOR", r)
             if action == "ADMIT_MODEL":
+                if (root is not None and (root/"config/project.json").is_file()
+                    and any(index.get(ref,{}).get("evidence_class") == "FORMAL"
+                            and not trusted_proof_receipt(
+                                root,index,index.get(index.get(ref,{}).get("result_ref"),{}))
+                            for ref in r.get("evidence_refs", []))):
+                    error("UNTRUSTED_FORMAL_MODEL_ADMISSION", r)
                 if not _historical_model_license_admission(records, index, r):
                     error("UNQUALIFIED_MODEL_ADMISSION", r)
             if action == "RETIRE_MODEL" and (
@@ -1301,6 +1358,17 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("UNSUPPORTED_DOCUMENT_COMPLETION", r)
             if not decision.get("evidence_refs"):
                 error("UNSUPPORTED_DOCUMENT_COMPLETION", r)
+        if (typ in {"ResearchGap", "Requirement"}
+                and r.get("status") in {"RESOLVED", "SATISFIED", "BOUNDED"}
+                and r.get("obligation_domain") == "MATHEMATICAL"
+                and root is not None and (root/"config/project.json").is_file()):
+            decision = index.get(r.get("decision_ref"), {})
+            proofs = [index.get(index.get(e, {}).get("result_ref"), {})
+                      for e in decision.get("evidence_refs", [])]
+            if not proofs or not all(
+                    x.get("type") == "Result" and trusted_proof_receipt(root,index,x)
+                    for x in proofs):
+                error("UNTRUSTED_MATHEMATICAL_DISPOSITION", r)
         if typ == "Result" and r.get("verification_mode") == "FORMAL_PROOF":
             artifact = index.get(r.get("verification_artifact_ref"), {})
             receipt = r.get("verification_receipt", {})
@@ -1709,6 +1777,11 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                                 for key in independent_sources[first])
                         if not independent_assignment(sorted(adapters), set()):
                             error("TRANSFER_INDEPENDENCE_NOT_ESTABLISHED", r)
+            if (r.get("decision") == "MATHEMATICALLY_VERIFIED_SCOPED"
+                    and root is not None and (root/"config/project.json").is_file()
+                    and not any(trusted_proof_receipt(root,index,index.get(i,{}))
+                                for i in r.get("result_refs", []))):
+                error("UNTRUSTED_FORMAL_PROOF", r)
             if r.get("decision") == "MATHEMATICALLY_VERIFIED_SCOPED":
                 if r.get("axis") != "MATHEMATICAL_VERIFICATION":
                     error("MATHEMATICAL_VERDICT_AXIS_MISMATCH", r)
