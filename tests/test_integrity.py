@@ -16,6 +16,7 @@ def node(typ, name, **kw):
         # contract; fixtures do not imply real scientific source appraisal.
         kw.setdefault('path', 'README.md')
         kw.setdefault('selector', {'fixture':'synthetic'})
+        kw.setdefault('provenance_class', 'CURATED_SEMANTIC')
     provenance=kw.pop('provenance_class','SYNTHETIC')
     return dict(id='ooc:fixture:'+name,type=typ,label=name,status=status,
                 schema_version='0.1.0',provenance_class=provenance,**kw)
