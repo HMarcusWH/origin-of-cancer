@@ -6,7 +6,8 @@ from pathlib import Path
 from .core import (canonical, loads, read_graph, resolve, sha256, file_inventory,
                    file_class, subject_digest, effective_route_state, effective_transition_state,
                    effective_data_use_state,
-                   approved_retractions, effective_freeze_eligibility, effective_model_state)
+                   approved_retractions, effective_freeze_eligibility, effective_model_state,
+                   effective_source_verification_state)
 
 PRODUCTS = [
  'generated/graph.json','generated/ooc-graph.jsonld','generated/current_state.json',
@@ -56,6 +57,9 @@ def make_views(root: Path) -> dict[str, str]:
            'clinical_use_authorized':False,'source_rows':counts['LiteratureSource'],
            'source_identifier_groups':len({r['identifiers_raw'].split('; PMID')[0].strip().lower() for r in items('LiteratureSource')}),
            'bibliographic_verifications':counts['SourceVerification'],
+           'currently_verified_sources':sum(
+               effective_source_verification_state(records, s)['effective']=='VERIFIED'
+               for s in items('LiteratureSource')),
            'completed_paper_extractions':sum(r['extraction_status']=='EXTRACTED' for r in items('LiteratureSource')),
            'theory_cards':counts['Theory'],'completed_theory_cards':sum(r['card_complete'] for r in items('Theory')),
            'workstreams':counts['Workstream'],'research_gaps':counts['ResearchGap'],
@@ -82,7 +86,7 @@ def make_views(root: Path) -> dict[str, str]:
     out['generated/workstreams.md']='# Research workstreams\n\n'+table(['ID','Layer','Workstream','Status','Dossier'],[(r['legacy_id'],r['layer'],r['label'],r['status'],f"[read](../{r['doc_path']})") for r in items('Workstream')])
     out['generated/theory_comparison.md']='# Theory-family intake and comparison\n\nThese are registered OPEN research cards, not completed literature reviews.\n\n'+table(['ID','Family','Status','Card complete','Decision','Card'],[(r['legacy_id'],r['label'],r['status'],r['card_complete'],r['adoption_decision'],f"[read](../{r['doc_path']})") for r in items('Theory')])
     out['generated/adapter_matrix.md']='# Adapter matrix\n\n'+table(['Adapter','Status','Dossier complete','Read'],[(r['label'],r['status'],r['dossier_complete'],f"[dossier](../{r['doc_path']})") for r in items('Adapter')])
-    out['generated/source_coverage.md']='# Source coverage\n\nBibliographic registration is separate from metadata verification, extraction, appraisal and independent study evidence.\n\n'+table(['ID','Registered citation','Verification','Extraction','Duplicate identifier','Intake'],[(r['legacy_id'],r['label'],r['bibliographic_verification'],r['extraction_status'],r.get('same_identifier_as',''),f"[read](../{r['doc_path']})") for r in items('LiteratureSource')])
+    out['generated/source_coverage.md']='# Source coverage\n\nBibliographic registration is separate from metadata verification, extraction, appraisal and independent study evidence.\n\n'+table(['ID','Registered citation','Current verification','Historical declaration','Extraction','Duplicate identifier','Intake'],[(r['legacy_id'],r['label'],effective_source_verification_state(records,r)['effective'],r['bibliographic_verification'],r['extraction_status'],r.get('same_identifier_as',''),f"[read](../{r['doc_path']})") for r in items('LiteratureSource')])
     out['generated/blockers.md']='# Critical kernel-freeze blockers\n\n'+table(['ID','Question','Status'],[(r['legacy_id'],r['question'],freeze['gap_states'].get(r['id'],{}).get('effective',r['status'])) for r in opencrit])
     out['generated/blockers.json']=dump({'critical_open':[r['id'] for r in opencrit],
       'requirements':items('Requirement'), 'kernel_freeze_allowed':freeze['eligible'],
@@ -95,7 +99,10 @@ def make_views(root: Path) -> dict[str, str]:
         'assessments':items('EvidenceAssessment'),
         'sources_are_not_evidence':True,
         'reported_adjudication_is_not_independent_verification':True,
-        'retracted_evidence':approved_retractions(records)})
+        'retracted_evidence':approved_retractions(records),
+        'retracted_source_verifications':{
+            k:v for k,v in approved_retractions(records).items()
+            if any(s['id']==k for s in items('SourceVerification'))}})
     out['generated/impact_graph.json']=dump({'scope':'EXPLICIT_DEPENDENCY_EDGES_ONLY','relations':[r for r in edges if r['kind'] in {'BLOCKS','REQUIRES','PART_OF'}],'causal_path_claim':False})
     out['generated/repository_coverage.json']=dump({'files':coverage,'file_count':len(files),'unindexed':[],'unclassified':[],'subject_sha256':digest})
     out['generated/documentation_coverage.json']=dump({'required_documents':required,'missing':[p for p in required if not (root/p).is_file()],'document_presence_is_science_complete':False})

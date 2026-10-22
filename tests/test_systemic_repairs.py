@@ -8,6 +8,55 @@ from tests.test_integrity import node
 
 class SystemicRepairs(ProductionValidation):
 
+
+    def test_bibliographic_retraction_downgrades_current_not_historical(self):
+        from oocgraph.core import effective_source_verification_state
+        loc="ooc:fixture:source-loc"
+        source="ooc:fixture:source"
+        receipt="ooc:fixture:source-receipt"
+        rs=fully_typed([
+            node("Context","source-context",species="synthetic",tissue="synthetic",
+                 stage="source",time_scope="past"),
+            node("SourceLocator","source-loc",path="README.md",
+                 selector={"record":"verification"}),
+            node("LiteratureSource","source",status="REGISTERED_NOT_EXTRACTED",
+                 identifiers_raw="10.1000/xyz123",bibliographic_verification="VERIFIED",
+                 extraction_status="REGISTERED_NOT_EXTRACTED",
+                 verification_refs=[receipt]),
+            node("SourceVerification","source-receipt",status="VERIFIED",
+                 source_ref=source,identifier_checked="10.1000/xyz123",
+                 verification_scope="BIBLIOGRAPHIC_METADATA",
+                 canonical_metadata={"doi":"10.1000/xyz123"},
+                 public_source_url="https://doi.org/10.1000/xyz123",
+                 provenance_class="CURATED_SEMANTIC"),
+            node("Authority","source-policy",status="ACTIVE_RULE",
+                 axes=["EVIDENCE_POLICY"],scope={"domain":"sources"}),
+            node("EvidenceObject","source-notice",status="RECORDED",
+                 context_ref="ooc:fixture:source-context",source_locator_refs=[loc],
+                 evidence_class="REVIEW",claim_ceiling="VERIFICATION_ONLY",
+                 finding="Withdrawn metadata verification",study_id="registrar",
+                 system_id="notice",uncertainty="fixture",
+                 provenance_class="CURATED_SEMANTIC"),
+            node("EvidenceAssessment","source-retraction",status="ADJUDICATED",
+                 target_ref=receipt,evidence_ref="ooc:fixture:source-notice",
+                 authority_ref="ooc:fixture:source-policy",effect="RETRACTS",
+                 assessment_role="RETRACTION",scope={"domain":"sources"},
+                 rationale="Verification withdrawn",limitations="Synthetic",
+                 provenance_class="CURATED_SEMANTIC")
+        ])
+        self.assertEqual(self.errors(rs),[])
+        s=next(r for r in rs if r["id"]==source)
+        state=effective_source_verification_state(rs,s)
+        self.assertEqual(state["declared"],"VERIFIED")
+        self.assertEqual(state["effective"],"CONTESTED")
+        self.assertEqual(state["retracted_verification_refs"],[receipt])
+        other=copy.deepcopy(next(r for r in rs if r["id"]==receipt))
+        other["id"]="ooc:fixture:second-source-receipt"
+        rs.append(other)
+        s["verification_refs"].append(other["id"])
+        self.assertEqual(self.errors(rs),[])
+        self.assertEqual(effective_source_verification_state(rs,s)["effective"],"VERIFIED")
+
     def test_withdrawn_locator_does_not_admit_positive_evidence(self):
         from tests.test_integrity import evidence_base, verdict
         rs=fully_typed(evidence_base("PRIMARY_ANIMAL")+[

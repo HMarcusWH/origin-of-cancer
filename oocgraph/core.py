@@ -1126,6 +1126,40 @@ def _normalized_source_identifiers(raw):
     return ids
 
 
+def effective_source_verification_state(records, source, retractions=None):
+    """A historical VERIFIED source is not CURRENTLY verified after revocation.
+
+    Multiple independent valid receipts can survive retraction of one receipt.
+    Registered citations and metadata verification are not paper extraction.
+    """
+    raw = source.get("bibliographic_verification", "UNVERIFIED")
+    if raw != "VERIFIED":
+        return {"declared": raw, "effective": raw,
+                "active_verification_refs": [], "retracted_verification_refs": []}
+    index = {r["id"]: r for r in records}
+    retractions = approved_retractions(records, index) if retractions is None else retractions
+    candidate = [index.get(ref, {}) for ref in source.get("verification_refs", [])]
+    verified = [
+        v["id"] for v in candidate
+        if v.get("type") == "SourceVerification"
+        and v.get("status") == "VERIFIED"
+        and v.get("source_ref") == source.get("id")
+        and v.get("verification_scope") == "BIBLIOGRAPHIC_METADATA"
+        and len(_normalized_source_identifiers(v.get("identifier_checked", ""))) == 1
+        and _normalized_source_identifiers(v.get("identifier_checked", "")).issubset(
+            _normalized_source_identifiers(source.get("identifiers_raw", "")))
+        and bool(v.get("canonical_metadata"))
+        and v.get("public_source_url", "").startswith("https://")
+        and v.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+    ]
+    current = sorted(ref for ref in verified if ref not in retractions)
+    revoked = sorted(ref for ref in verified if ref in retractions)
+    return {"declared": raw,
+            "effective": "VERIFIED" if current else "CONTESTED",
+            "active_verification_refs": current,
+            "retracted_verification_refs": revoked}
+
+
 def _nested_reference_errors(record, index, contract):
     """Every nested reference is typed, including objects not yet admitted."""
     violations = []
