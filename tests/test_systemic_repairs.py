@@ -159,6 +159,83 @@ class SystemicRepairs(ProductionValidation):
                             if "adapter" in r["scope"] else scope)
         self.assertEqual(self.errors(rs),[])
 
+    def test_independent_origin_entry_and_establishment(self):
+        rs=route_records()
+        scope={"adapter":"synthetic"}
+        rs+=fully_typed([
+            node("StateVariable","malignancy-readout",definition="Independent measure",
+                 history_role="BIOLOGICAL",observable_status="OBSERVED",units="synthetic"),
+            node("PersistenceCriterion","origin-persistence",
+                 context_ref="ooc:fixture:c",estimand_ref="ooc:fixture:origin-estimand",
+                 horizon="H",metric="established",preregistration_status="REGISTERED",
+                 rationale="Prospective synthetic endpoint",units="time"),
+            node("Estimand","origin-estimand",definition_obligation="Residence time"),
+            node("Claim","origin-claim",claim_kind="ORIGIN",scope=scope,status="PROVISIONAL",
+                 statement="Synthetic first entry and establishment",
+                 modality="ASSERTION",empirical_admission="NOT_ESTABLISHED",
+                 origin_route_ref="ooc:fixture:r",malignant_state_ref="ooc:fixture:s3",
+                 persistence_criterion_ref="ooc:fixture:origin-persistence",
+                 entry_assessment_refs=["ooc:fixture:origin-entry"],
+                 establishment_assessment_refs=["ooc:fixture:origin-establishment"]),
+            node("Authority","origin-authority",status="ACTIVE_RULE",
+                 axes=["BIOLOGICAL_SUPPORT"],scope=scope,empirical_truth_authority=False),
+            node("EvidenceAssessment","origin-entry",status="ADJUDICATED",
+                 effect="SUPPORTS",assessment_role="TEMPORAL",
+                 target_ref="ooc:fixture:origin-claim",evidence_ref="ooc:fixture:e1",
+                 scope=scope,rationale="Synthetic entry",limitations="Synthetic",
+                 provenance_class="CURATED_SEMANTIC"),
+            node("EvidenceAssessment","origin-establishment",status="ADJUDICATED",
+                 effect="SUPPORTS",assessment_role="PERSISTENCE",
+                 target_ref="ooc:fixture:origin-claim",evidence_ref="ooc:fixture:e2",
+                 scope=scope,rationale="Synthetic establishment",limitations="Synthetic",
+                 provenance_class="CURATED_SEMANTIC"),
+            node("Verdict","origin-verdict",status="RECORDED",
+                 axis="BIOLOGICAL_SUPPORT",facet="malignant-origin",
+                 decision="SUPPORTED_SCOPED",scope=scope,
+                 subject_ref="ooc:fixture:origin-claim",
+                 authority_ref="ooc:fixture:origin-authority",
+                 assessment_refs=["ooc:fixture:origin-establishment"],
+                 result_refs=[],supersedes_refs=[],rationale="Synthetic combined origin")
+        ])
+        next(r for r in rs if r["id"]=="ooc:fixture:s3")["variable_refs"]=["ooc:fixture:malignancy-readout"]
+        next(r for r in rs if r["id"]=="ooc:fixture:e2")["design_class"]="MIXED"
+        self.assertEqual(self.errors(rs),[])
+        claim=next(r for r in rs if r["id"]=="ooc:fixture:origin-claim")
+        claim["entry_assessment_refs"]=[]
+        self.assertTrue(any("NONBIOLOGICAL_PROMOTION" in e for e in self.errors(rs)))
+
+    def test_positive_model_license_uses_separate_event(self):
+        from oocgraph.core import effective_model_state
+        rs=mathematical_fixture()
+        m=next(r for r in rs if r["type"]=="ModelInstance")
+        next(r for r in rs if r["id"]=="ooc:fixture:math-auth")["axes"].append("EVIDENCE_POLICY")
+        rs.append(fully_typed([node("EvidenceAssessment","model-license-assessment",
+            status="ADJUDICATED",target_ref=m["id"],
+            evidence_ref="ooc:fixture:math-evidence",effect="SUPPORTS",
+            assessment_role="MODEL",scope=m["scope"],
+            rationale="Synthetic validation",limitations="Not biological evidence",
+            provenance_class="CURATED_SEMANTIC")])[0])
+        before=copy.deepcopy(rs)
+        event=fully_typed([node("AuthorizationEvent","model-license",
+            status="RECORDED",action="ADMIT_MODEL",subject_ref=m["id"],
+            authority_ref="ooc:fixture:math-auth",scope=m["scope"],
+            basis_refs=[m["id"]],basis_digest=m["frozen_digest"],
+            evidence_refs=["ooc:fixture:math-evidence"],
+            provenance_class="CURATED_SEMANTIC")])[0]
+        rs.append(event)
+        self.assertEqual(self.errors(rs),[])
+        self.assertEqual(effective_model_state(rs,m)["effective"],"ADMITTED")
+        self.assertEqual(history_violations(before,rs),[])
+        retirement=fully_typed([node("AuthorizationEvent","model-retirement",
+            status="RECORDED",action="RETIRE_MODEL",subject_ref=m["id"],
+            authority_ref="ooc:fixture:math-auth",scope=m["scope"],
+            previous_event_ref=event["id"],basis_refs=[m["id"]],
+            basis_digest=m["frozen_digest"],evidence_refs=[],
+            provenance_class="CURATED_SEMANTIC")])[0]
+        rs.append(retirement)
+        self.assertEqual(self.errors(rs),[])
+        self.assertEqual(effective_model_state(rs,m)["effective"],"RETIRED")
+
     def test_test_must_bind_result_execution(self):
         records=mathematical_fixture()
         t=next(r for r in records if r["type"]=="Test")
