@@ -84,3 +84,17 @@ and their content-bearing source bytes are historical semantic dependencies.
 Any change to their scientific meaning requires revision/supersession,
 not silent in-place mutation. Reassessment or retraction changes current
 admission, not the historical record.
+
+### Append-only freeze and model authorization
+
+A recorded authorization event binds the exact model specification or a declared
+critical-gap/Requirement disposition basis. Authorized license and kernel freeze
+status are projected from event history and **current** evidence, not obtained by
+rewriting a frozen ModelInstance or Programme. The original decisions and basis
+remain immutable if subsequent evidence is withdrawn or contested.
+
+Formal proof evidence may discharge only an exact mathematical CERTIFICATE or
+MODEL_VALIDITY obligation. Statistical DATA_INDEPENDENCE requires an actual
+pair-scoped data audit. Other statistical/methodological obligations remain OPEN
+pending a separately defined qualification contract; arbitrary formal certificates
+cannot be repurposed into empirical study validation.

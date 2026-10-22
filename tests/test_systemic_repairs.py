@@ -88,6 +88,77 @@ class SystemicRepairs(ProductionValidation):
         rs.extend([e,{**e,"id":"ooc:fixture:e2"}])
         self.assertTrue(any("AUTHORIZATION_HISTORY" in x for x in self.errors(rs)))
 
+
+    def test_retracted_contradiction_ceases_contesting_current_route(self):
+        from oocgraph.core import effective_route_state
+        rs=route_records()
+        route=next(r for r in rs if r["type"]=="Route")
+        e=copy.deepcopy(next(r for r in rs if r["id"]=="ooc:fixture:e2"))
+        e["id"]="ooc:fixture:contradicting-study"
+        a=copy.deepcopy(next(r for r in rs if r["id"]=="ooc:fixture:a2"))
+        a.update(id="ooc:fixture:contradiction",target_ref=route["id"],
+                 evidence_ref=e["id"],effect="CONTRADICTS")
+        rs.extend([e,a])
+        self.assertEqual(effective_route_state(rs,route)["effective"],"CONTESTED")
+        rs+=fully_typed([
+            node("Authority","retraction-authority",status="ACTIVE_RULE",
+                 axes=["EVIDENCE_POLICY"],scope={"domain":"corrections"}),
+            node("EvidenceObject","notice-e",status="RECORDED",
+                 context_ref="ooc:fixture:c",source_locator_refs=["ooc:fixture:l"],
+                 evidence_class="REVIEW",claim_ceiling="VERIFICATION_ONLY",
+                 finding="Retraction",study_id="paper",system_id="notice",
+                 uncertainty="synthetic",provenance_class="CURATED_SEMANTIC"),
+            node("EvidenceAssessment","retract-contradiction",status="ADJUDICATED",
+                 target_ref=e["id"],evidence_ref="ooc:fixture:notice-e",
+                 authority_ref="ooc:fixture:retraction-authority",
+                 effect="RETRACTS",assessment_role="RETRACTION",
+                 scope={"domain":"corrections"},
+                 rationale="Corrected study",limitations="Synthetic only",
+                 provenance_class="CURATED_SEMANTIC")
+        ])
+        self.assertEqual(self.errors(rs),[])
+        self.assertEqual(effective_route_state(rs,route)["effective"],"ADMITTED_CLOSED")
+
+    def test_retracted_adapter_evidence_contests_pan_cancer_transfer(self):
+        from oocgraph.core import resolve
+        rs=transfer_example()
+        self.assertEqual(resolve(rs)["partitions"][0]["state"],"SUPPORTED_SCOPED")
+        rs+=fully_typed([
+            node("Authority","retraction-authority",status="ACTIVE_RULE",
+                 axes=["EVIDENCE_POLICY"],scope={"domain":"corrections"}),
+            node("EvidenceObject","correction-notice",status="RECORDED",
+                 context_ref="ooc:fixture:cross-context",
+                 source_locator_refs=["ooc:fixture:cross-loc"],
+                 evidence_class="REVIEW",claim_ceiling="VERIFICATION_ONLY",
+                 finding="Retraction",study_id="paper",system_id="notice",
+                 uncertainty="synthetic",provenance_class="CURATED_SEMANTIC"),
+            node("EvidenceAssessment","retract-adapter-3",status="ADJUDICATED",
+                 target_ref="ooc:fixture:cross-ev-3",
+                 evidence_ref="ooc:fixture:correction-notice",
+                 authority_ref="ooc:fixture:retraction-authority",
+                 effect="RETRACTS",assessment_role="RETRACTION",
+                 scope={"domain":"corrections"},
+                 rationale="Retract one independent adapter",
+                 limitations="Synthetic only",provenance_class="CURATED_SEMANTIC")
+        ])
+        self.assertEqual(self.errors(rs),[])
+        self.assertEqual(resolve(rs)["partitions"][0]["state"],"CONTESTED")
+
+    def test_all_human_adapters_can_support_human_transfer(self):
+        rs=transfer_example()
+        scope={"pan_cancer":True,"species":"human"}
+        for r in rs:
+            if r["type"]=="Context":
+                r["species"]="human"
+            if r["type"]=="EvidenceObject":
+                r["evidence_class"]="PRIMARY_HUMAN_LONGITUDINAL"
+            if r["type"] in {"Authority","Decision","Verdict"}:
+                r["scope"]=scope
+            if r["type"]=="EvidenceAssessment":
+                r["scope"]=({"adapter":r["scope"]["adapter"],"species":"human"}
+                            if "adapter" in r["scope"] else scope)
+        self.assertEqual(self.errors(rs),[])
+
     def test_test_must_bind_result_execution(self):
         records=mathematical_fixture()
         t=next(r for r in records if r["type"]=="Test")

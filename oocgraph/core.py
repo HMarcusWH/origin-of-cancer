@@ -404,7 +404,7 @@ def _admissible_disposition_evidence(index, assessment, target_ref, scope, domai
     obligation = index.get(target_ref, {})
     kind = obligation.get("obligation_claim_kind")
     if evidence.get("evidence_class") in BIOLOGICAL_EVIDENCE_CLASSES:
-        if domain == "MATHEMATICAL" or kind not in EVIDENCE_OBLIGATION_POLICY:
+        if domain not in {"BIOLOGICAL", "MEASUREMENT"} or kind not in EVIDENCE_OBLIGATION_POLICY:
             return False
         ceilings, designs, roles = EVIDENCE_OBLIGATION_POLICY[kind]
         return bool(
@@ -413,8 +413,15 @@ def _admissible_disposition_evidence(index, assessment, target_ref, scope, domai
             and _qualified_assessment(index, assessment, target_ref, scope, effect=effect,
                                       allowed_ceilings=ceilings)
         )
+    if (domain == "STATISTICAL" and kind == "DATA_INDEPENDENCE"
+            and evidence.get("evidence_class") == "ANALYTIC"
+            and evidence.get("design_class") == "DATA_AUDIT"):
+        return _qualified_assessment(
+            index, assessment, target_ref, scope, effect=effect,
+            allowed_classes={"ANALYTIC"}, allowed_ceilings={"DATA_PARTITION_AUDIT"},
+            assessment_role="INDEPENDENCE")
     if evidence.get("evidence_class") == "FORMAL":
-        if domain not in {"MATHEMATICAL", "METHODOLOGICAL", "STATISTICAL"}:
+        if domain != "MATHEMATICAL" or kind not in {"CERTIFICATE", "MODEL_VALIDITY"}:
             return False
         if not _qualified_assessment(
                 index, assessment, target_ref, scope, effect=effect,
@@ -607,6 +614,14 @@ def _transition_context_valid(index, transition):
             or index.get(sc, {}).get("type") != "Context"
             or index.get(tc, {}).get("type") != "Context"
             or index.get(frame, {}).get("type") != "Context"):
+        return False
+    sc_context = index.get(sc, {})
+    tc_context = index.get(tc, {})
+    # A biological ancestry/transition never crosses organisms/species by
+    # renaming its frame. Cross-species experiments are comparative evidence,
+    # not a single continuous biological route.
+    if str(sc_context.get("species", "")).strip().lower() != str(
+            tc_context.get("species", "")).strip().lower():
         return False
     if sc == tc == frame:
         return True
