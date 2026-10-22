@@ -11,6 +11,11 @@ from oocgraph.core import (IntegrityError, canonical, loads, safe_path, read_gra
 ROOT=Path(__file__).resolve().parents[1]
 def node(typ, name, **kw):
     status=kw.pop('status','LOCATED' if typ == 'SourceLocator' else 'OPEN')
+    if typ == 'SourceLocator':
+        # Positive synthetic locators must satisfy the production provenance
+        # contract; fixtures do not imply real scientific source appraisal.
+        kw.setdefault('path', 'README.md')
+        kw.setdefault('selector', {'fixture':'synthetic'})
     provenance=kw.pop('provenance_class','SYNTHETIC')
     return dict(id='ooc:fixture:'+name,type=typ,label=name,status=status,
                 schema_version='0.1.0',provenance_class=provenance,**kw)
