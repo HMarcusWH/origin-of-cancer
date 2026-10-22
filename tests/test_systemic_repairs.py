@@ -233,7 +233,7 @@ class SystemicRepairs(ProductionValidation):
                  history_role="BIOLOGICAL",observable_status="OBSERVED",units="synthetic"),
             node("PersistenceCriterion","origin-persistence",
                  context_ref="ooc:fixture:c",estimand_ref="ooc:fixture:origin-estimand",
-                 horizon="H",metric="established",preregistration_status="REGISTERED",
+                 horizon=1,metric="established",preregistration_status="REGISTERED",
                  rationale="Prospective synthetic endpoint",units="time"),
             node("Estimand","origin-estimand",definition_obligation="Residence time"),
             node("Claim","origin-claim",claim_kind="ORIGIN",scope=scope,status="PROVISIONAL",
