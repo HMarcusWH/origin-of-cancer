@@ -1133,12 +1133,12 @@ def effective_source_verification_state(records, source, retractions=None):
     Registered citations and metadata verification are not paper extraction.
     """
     raw = source.get("bibliographic_verification", "UNVERIFIED")
-    if raw != "VERIFIED":
-        return {"declared": raw, "effective": raw,
-                "active_verification_refs": [], "retracted_verification_refs": []}
     index = {r["id"]: r for r in records}
     retractions = approved_retractions(records, index) if retractions is None else retractions
-    candidate = [index.get(ref, {}) for ref in source.get("verification_refs", [])]
+    # Reverse receipt lookup is append-only: a later verification must not edit
+    # a LiteratureSource frozen as a dependency of an earlier receipt.
+    candidate = [r for r in records if r.get("type") == "SourceVerification"
+                 and r.get("source_ref") == source.get("id")]
     verified = [
         v["id"] for v in candidate
         if v.get("type") == "SourceVerification"
@@ -1155,7 +1155,8 @@ def effective_source_verification_state(records, source, retractions=None):
     current = sorted(ref for ref in verified if ref not in retractions)
     revoked = sorted(ref for ref in verified if ref in retractions)
     return {"declared": raw,
-            "effective": "VERIFIED" if current else "CONTESTED",
+            "effective": ("VERIFIED" if current else
+                          "CONTESTED" if revoked or raw == "VERIFIED" else raw),
             "active_verification_refs": current,
             "retracted_verification_refs": revoked}
 
@@ -1367,6 +1368,21 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         records, sorted(expected_gaps), historical=True)
                     if not historic["eligible"]:
                         error("UNQUALIFIED_KERNEL_FREEZE", r)
+        if typ == "SourceVerification" and r.get("status") == "VERIFIED":
+            # A verified receipt must stand on its own, including receipts
+            # appended after the original LiteratureSource was frozen.
+            source = index.get(r.get("source_ref"), {})
+            identifiers = _normalized_source_identifiers(r.get("identifier_checked", ""))
+            if not (
+                source.get("type") == "LiteratureSource"
+                and len(identifiers) == 1
+                and identifiers.issubset(
+                    _normalized_source_identifiers(source.get("identifiers_raw", "")))
+                and r.get("verification_scope") == "BIBLIOGRAPHIC_METADATA"
+                and bool(r.get("canonical_metadata"))
+                and r.get("public_source_url", "").startswith("https://")
+                and r.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE):
+                error("UNBACKED_VERIFICATION_CERTIFICATE", r)
         if typ == "LiteratureSource":
             if r.get("bibliographic_verification") == "VERIFIED":
                 verifications = [

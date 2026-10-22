@@ -52,10 +52,24 @@ class SystemicRepairs(ProductionValidation):
         self.assertEqual(state["retracted_verification_refs"],[receipt])
         other=copy.deepcopy(next(r for r in rs if r["id"]==receipt))
         other["id"]="ooc:fixture:second-source-receipt"
+        before=copy.deepcopy(rs)
         rs.append(other)
-        s["verification_refs"].append(other["id"])
+        # The original LiteratureSource and retraction record are immutable.
+        self.assertEqual(history_violations(before,rs),[])
         self.assertEqual(self.errors(rs),[])
         self.assertEqual(effective_source_verification_state(rs,s)["effective"],"VERIFIED")
+        unrelated=copy.deepcopy(s)
+        unrelated["id"]="ooc:fixture:unverified-new-source"
+        unrelated["verification_refs"]=[]
+        unrelated["bibliographic_verification"]="UNVERIFIED"
+        rs.append(unrelated)
+        self.assertEqual(effective_source_verification_state(rs,unrelated)["effective"],"UNVERIFIED")
+        candidate=copy.deepcopy(other)
+        candidate["id"]="ooc:fixture:initial-verification-append"
+        candidate["source_ref"]=unrelated["id"]
+        rs.append(candidate)
+        self.assertEqual(self.errors(rs),[])
+        self.assertEqual(effective_source_verification_state(rs,unrelated)["effective"],"VERIFIED")
 
     def test_withdrawn_locator_does_not_admit_positive_evidence(self):
         from tests.test_integrity import evidence_base, verdict
