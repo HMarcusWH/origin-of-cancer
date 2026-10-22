@@ -209,7 +209,8 @@ def mathematical_fixture():
              metrics=['exact synthetic claim'],null_refs=[],
              target_refs=[refs('math-claim')],revision_rule='new instance'),
         node('Test','math-test',status='PASSED',gate_ref=refs('math-gate'),
-             protocol_ref=refs('math-protocol'),subject_ref=refs('math-claim')),
+             protocol_ref=refs('math-protocol'),subject_ref=refs('math-claim'),
+             execution_ref=refs('math-execution')),
         node('Software','math-software',path='README.md',
              sha256=__import__('hashlib').sha256(
                  'Synthetic fixture — no biological claims\n'.encode('utf-8')).hexdigest(),

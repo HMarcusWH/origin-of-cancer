@@ -114,7 +114,9 @@ def resolve(records: Iterable[dict]) -> dict:
             model_data_contested = any(
                 effective_data_use_state(records, du)["effective"] == "CONTESTED"
                 for du in used_data)
-            if (retracted or route_contested or model_data_contested
+            transfer_contested = (bool(v.get("scope", {}).get("pan_cancer"))
+                                  and not _effective_pan_cancer_transfer(records, index, v))
+            if (retracted or route_contested or model_data_contested or transfer_contested
                 or _material_scoped_contradictions(
                     records, index, [v.get("subject_ref")], v.get("scope"))):
                 status = "CONTESTED"
@@ -222,6 +224,8 @@ EVIDENCE_OBLIGATION_POLICY = {
     "PERSISTENCE": ({"BIOLOGICAL_OBSERVATION","BIOLOGICAL_CAUSAL_SCOPED"},
                     {"LONGITUDINAL","MIXED"},{"PERSISTENCE"}),
     "ROUTE": ({"BIOLOGICAL_CAUSAL_SCOPED"},{"PERTURBATION","MIXED"},{"CAUSAL"}),
+    "HISTORICAL_ROUTE": ({"BIOLOGICAL_OBSERVATION","BIOLOGICAL_CAUSAL_SCOPED"},
+                         {"LINEAGE","LONGITUDINAL","MIXED"},{"ANCESTRY","TEMPORAL"}),
     "TRANSITION": ({"BIOLOGICAL_OBSERVATION","BIOLOGICAL_CAUSAL_SCOPED"},
                    {"OBSERVATIONAL","LONGITUDINAL","LINEAGE","PERTURBATION","MIXED"},
                    {"TEMPORAL","ANCESTRY","CAUSAL"}),
@@ -264,6 +268,33 @@ def _scope_within(parent, child):
     return True
 
 
+def _evidence_matches_scientific_scope(index, evidence, scope):
+    """Biological restrictions must survive every evidence handoff."""
+    if not isinstance(scope, dict) or not isinstance(evidence, dict):
+        return False
+    ctx = index.get(evidence.get("context_ref"), {})
+    if "species" in scope:
+        species = str(scope["species"]).strip().lower()
+        if str(ctx.get("species", "")).strip().lower() != species:
+            return False
+        if species == "human" and evidence.get("evidence_class") not in {
+                "PRIMARY_HUMAN_LONGITUDINAL", "PRIMARY_HUMAN_CROSS_SECTIONAL",
+                "HUMAN_CAUSAL"}:
+            return False
+    for key in ("tissue", "population", "time_scope"):
+        if key in scope and scope[key] != ctx.get(key):
+            return False
+    return True
+
+
+def _adapter_scientific_scope(scope, adapter):
+    """Never discard species, population or temporal restrictions on transfer."""
+    if not isinstance(scope, dict):
+        return {}
+    return {**{k: v for k, v in scope.items() if k != "pan_cancer"},
+            "adapter": adapter}
+
+
 def _qualified_assessment(index, assessment, target_ref, scope, *,
                           effect="SUPPORTS", context_ref=None,
                           allowed_classes=BIOLOGICAL_EVIDENCE_CLASSES,
@@ -289,6 +320,7 @@ def _qualified_assessment(index, assessment, target_ref, scope, *,
         and bool(evidence.get("source_locator_refs"))
         and bool(evidence.get("study_id")) and bool(evidence.get("system_id"))
         and (context_ref is None or evidence.get("context_ref") == context_ref)
+        and _evidence_matches_scientific_scope(index, evidence, scope)
     )
 
 
@@ -331,6 +363,7 @@ def _verified_result(index, result, subject_ref, scope):
         and canonical(result.get("scope")) == canonical(scope)
         and tst.get("type") == "Test" and tst.get("status") == "PASSED"
         and tst.get("subject_ref") == subject_ref
+        and tst.get("execution_ref") == result.get("execution_ref")
         and exe.get("type") == "Execution" and exe.get("status") == "COMPLETED"
         and exe.get("outcome") == "PASS"
         and exe.get("protocol_ref") == tst.get("protocol_ref")
@@ -603,12 +636,14 @@ def _admitted_transition_assessments(records, index, transition, scope):
 
 
 def _material_scoped_contradictions(records, index, target_refs, scope):
-    """Contradictory evidence is ingested, but must contest *effective* support."""
+    """Retracted negative evidence survives in history but not current support."""
+    retracted = approved_retractions(records, index)
     return sorted(
         a["id"] for a in records
         if a.get("type") == "EvidenceAssessment"
         and a.get("target_ref") in set(target_refs)
         and a.get("effect") in {"CONTRADICTS", "FALSIFIES"}
+        and a.get("evidence_ref") not in retracted
         and _qualified_assessment(index, a, a.get("target_ref"), scope,
                                   effect=a.get("effect"))
     )
@@ -651,6 +686,41 @@ def effective_route_state(records, route):
     return {"declared": declared,
             "effective": "CONTESTED" if (contradictions or retracted) else "ADMITTED_CLOSED",
             "contradiction_refs": contradictions, "retracted_support_refs": retracted}
+
+
+def _effective_pan_cancer_transfer(records, index, verdict):
+    """Recheck independent surviving support for every transfer adapter."""
+    transfer = index.get(verdict.get("transfer_decision_ref"), {})
+    if transfer.get("type") != "Decision" or transfer.get("decision") != "ALLOW_TRANSFER":
+        return False
+    refs = set(transfer.get("evidence_refs", []))
+    retracted = approved_retractions(records, index)
+    adapters = {r["id"] for r in records if r.get("type") == "Adapter"}
+    if not adapters or set(transfer.get("transfer_adapter_refs", [])) != adapters:
+        return False
+    subject = index.get(verdict.get("subject_ref"), {})
+    kind = ("HISTORICAL_ROUTE" if subject.get("type") == "Route"
+            and subject.get("claim_kind") == "HISTORICAL" else
+            "ROUTE" if subject.get("type") == "Route" else subject.get("claim_kind"))
+    options = {}
+    for adapter in adapters:
+        scope = _adapter_scientific_scope(verdict.get("scope"), adapter)
+        options[adapter] = {
+            (e.get("study_id"), e.get("system_id"))
+            for a in records if a.get("type") == "EvidenceAssessment"
+            for e in [index.get(a.get("evidence_ref"), {})]
+            if e.get("id") in refs and e.get("id") not in retracted
+            and _appropriate_biological_assessment(
+                index, a, verdict.get("subject_ref"), scope, kind)
+        }
+        if not options[adapter]:
+            return False
+    def independent(remaining, used):
+        if not remaining:
+            return True
+        return any(k not in used and independent(remaining[1:], used | {k})
+                   for k in options[remaining[0]])
+    return independent(sorted(adapters), set())
 
 
 def _normalized_source_identifiers(raw):
@@ -933,7 +1003,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 assumption = index.get(ar, {})
                 if assumption.get("required", True) and assumption.get("assessment") != "PASS":
                     error("FAILED_OR_UNKNOWN_REQUIRED_ASSUMPTION", r)
-        if typ == "ModelInstance" and r.get("status") in {"ADMITTED", "FROZEN"}:
+        if typ == "ModelInstance" and r.get("status") in {"ADMITTED", "FROZEN", "RETIRED"}:
             if not r.get("protocol_refs"):
                 error("UNBOUND_MODEL_PROTOCOL", r)
             app = index.get(r.get("applicability_ref"), {})
@@ -1061,7 +1131,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     if e.get("id") not in witness_evidence:
                         error("ROUTE_EVIDENCE_OUTSIDE_WITNESS", r); valid = False
                     route_kind = r.get("claim_kind", "CAUSAL")
-                    evidence_kind = "ROUTE" if route_kind == "CAUSAL" else "TRANSITION"
+                    evidence_kind = "ROUTE" if route_kind == "CAUSAL" else "HISTORICAL_ROUTE"
                     if not _appropriate_biological_assessment(
                             index, a, tr, scope, evidence_kind):
                         error("NONBIOLOGICAL_ROUTE_SUPPORT", r); valid = False
@@ -1132,8 +1202,11 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             ancestry_assessments = founder.get("ancestry_assessment_refs", [])
             if not ancestry_assessments:
                 error("UNSUPPORTED_ROUTE_ANCESTRY", r)
+            admitted_ancestry = False
             for ar in ancestry_assessments:
                 a = index.get(ar, {})
+                if canonical(a.get("scope")) != canonical(scope):
+                    continue
                 e = index.get(a.get("evidence_ref"), {})
                 if (e.get("id") not in witness_evidence or
                     not _appropriate_biological_assessment(
@@ -1146,6 +1219,10 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     if not segment_witnesses or not (
                         _witness_keys(e) & segment_witnesses[0]):
                         error("ROUTE_ANCESTRY_WITNESS_MISMATCH", r)
+                    else:
+                        admitted_ancestry = True
+            if not admitted_ancestry:
+                error("UNSUPPORTED_ROUTE_ANCESTRY", r)
         if typ == "Verdict":
             authority = index.get(r.get("authority_ref"), {})
             if authority.get("status") != "ACTIVE_RULE": error("INACTIVE_VERDICT_AUTHORITY", r)
@@ -1182,6 +1259,9 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         or subject.get("type") not in {"Claim", "Route"}):
                     error("UNQUALIFIED_VERDICT_SUBJECT", r)
                 required_kind = allowed_axes.get(r.get("axis"))
+                if (required_kind == "ROUTE" and subject.get("type") == "Route"
+                        and subject.get("claim_kind") == "HISTORICAL"):
+                    required_kind = "HISTORICAL_ROUTE"
                 if required_kind and subject.get("type") == "Claim" and subject.get("claim_kind") != required_kind:
                     error("VERDICT_CLAIM_KIND_MISMATCH", r)
                 if subject.get("type") == "Claim" and subject.get("claim_kind") == "CERTIFICATE":
@@ -1243,7 +1323,9 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                                 and a.get("target_ref") == r.get("subject_ref")
                                 and index.get(a.get("evidence_ref"), {}).get("id") in evidence_refs
                                 and _appropriate_biological_assessment(
-                                    index, a, r.get("subject_ref"), {"adapter": ad}, gated_kind)
+                                    index, a, r.get("subject_ref"),
+                            _adapter_scientific_scope(r.get("scope"), ad),
+                            gated_kind)
                             ]
                             keys = {(e.get("study_id"), e.get("system_id")) for e in eligible}
                             independent_sources[ad] = keys
@@ -1610,6 +1692,11 @@ def scientific_dependency_closure(records):
                 pending.append(val)
             elif isinstance(val, list):
                 pending.extend(item for item in val if isinstance(item, str))
+        if record.get("type") == "ModelInstance":
+            # Only this model's directly owned uses: no reverse protocol clients.
+            pending.extend(r["id"] for r in records
+                           if r.get("type") == "DataUse"
+                           and r.get("model_instance_ref") == ident)
         if record.get("type") == "WitnessBundle":
             for link in record.get("bridge_links", []):
                 if isinstance(link, dict):
