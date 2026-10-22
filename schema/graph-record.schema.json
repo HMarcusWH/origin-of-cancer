@@ -5958,6 +5958,117 @@
         "type"
       ],
       "type": "object"
+    },
+    "AuthorizationEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "ADMIT_MODEL",
+            "RETIRE_MODEL",
+            "FREEZE_KERNEL",
+            "UNFREEZE_KERNEL"
+          ]
+        },
+        "authority_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "basis_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "string"
+        },
+        "previous_event_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "source_locator_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "RECORDED"
+          ]
+        },
+        "subject_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "const": "AuthorizationEvent"
+        }
+      },
+      "required": [
+        "action",
+        "authority_ref",
+        "basis_digest",
+        "basis_refs",
+        "evidence_refs",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "scope",
+        "status",
+        "subject_ref",
+        "type"
+      ],
+      "type": "object"
     }
   },
   "$id": "urn:ooc:schema:graph-record:0.1.0",
