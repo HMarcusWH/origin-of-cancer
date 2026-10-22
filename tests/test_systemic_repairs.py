@@ -39,6 +39,55 @@ class SystemicRepairs(ProductionValidation):
         get(rs,"u2")["unit_keys"]=["A"]
         self.assertEqual(validate_records(rs),[])
 
+
+    def test_append_only_kernel_freeze_authorization(self):
+        from tests.test_production_contracts import freeze_records
+        from oocgraph.core import kernel_freeze_basis_digest, effective_freeze_eligibility
+        rs=freeze_records()
+        programme=next(r for r in rs if r["type"]=="Programme")
+        programme["kernel_frozen"]=False
+        before=copy.deepcopy(rs)
+        basis=["ooc:fixture:g","ooc:fixture:q"]
+        event=fully_typed([node(
+            "AuthorizationEvent","kernel-event",status="RECORDED",
+            action="FREEZE_KERNEL",subject_ref=programme["id"],
+            authority_ref="ooc:fixture:freeze-auth",
+            scope={"domain":"PROGRAMME_GOVERNANCE"},
+            basis_refs=basis,basis_digest=kernel_freeze_basis_digest(rs,basis),
+            evidence_refs=[],provenance_class="CURATED_SEMANTIC")])[0]
+        rs.append(event)
+        self.assertEqual(self.errors(rs),[])
+        self.assertTrue(effective_freeze_eligibility(rs,["ooc:fixture:g"])["effective_kernel_frozen"])
+        self.assertEqual(history_violations(before,rs),[])
+
+    def test_empty_model_admission_evidence_fails(self):
+        rs=mathematical_fixture()
+        m=next(r for r in rs if r["type"]=="ModelInstance")
+        e=fully_typed([node(
+            "AuthorizationEvent","bad-model-admission",status="RECORDED",
+            action="ADMIT_MODEL",subject_ref=m["id"],
+            authority_ref="ooc:fixture:math-auth",scope=m["scope"],
+            basis_refs=[m["id"]],basis_digest=m["frozen_digest"],
+            evidence_refs=[],provenance_class="CURATED_SEMANTIC")])[0]
+        rs.append(e)
+        self.assertTrue(any("UNQUALIFIED_MODEL_ADMISSION" in x for x in self.errors(rs)))
+
+    def test_two_competing_freezes_do_not_resolve_by_timestamp(self):
+        from tests.test_production_contracts import freeze_records
+        from oocgraph.core import kernel_freeze_basis_digest
+        rs=freeze_records()
+        programme=next(r for r in rs if r["type"]=="Programme")
+        programme["kernel_frozen"]=False
+        basis=["ooc:fixture:g","ooc:fixture:q"]
+        e=fully_typed([node(
+            "AuthorizationEvent","e1",status="RECORDED",action="FREEZE_KERNEL",
+            subject_ref=programme["id"],authority_ref="ooc:fixture:freeze-auth",
+            scope={"domain":"PROGRAMME_GOVERNANCE"},
+            basis_refs=basis,basis_digest=kernel_freeze_basis_digest(rs,basis),
+            evidence_refs=[],provenance_class="CURATED_SEMANTIC")])[0]
+        rs.extend([e,{**e,"id":"ooc:fixture:e2"}])
+        self.assertTrue(any("AUTHORIZATION_HISTORY" in x for x in self.errors(rs)))
+
     def test_test_must_bind_result_execution(self):
         records=mathematical_fixture()
         t=next(r for r in records if r["type"]=="Test")

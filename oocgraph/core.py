@@ -148,8 +148,10 @@ REF_TYPES = {
     "verification_artifact_ref": {"SourceArtifact"}, "output_artifact_ref": {"SourceArtifact"},
     "obligation_claim_ref": {"Claim"},
     "conflict_resolution_ref": {"Decision"},
+    "previous_event_ref": {"AuthorizationEvent"},
 }
 REF_LIST_TYPES = {
+    "basis_refs": {"ResearchGap", "Requirement", "Decision", "EvidenceObject"},
     "evidence_refs": {"EvidenceObject"}, "bridge_evidence_refs": {"EvidenceObject"},
     "satisfaction_evidence_refs": {"EvidenceObject"}, "independence_evidence_refs": {"EvidenceObject"},
     "source_locator_refs": {"SourceLocator"}, "transition_refs": {"Transition"},
@@ -176,6 +178,7 @@ COMMON_SUBJECT_TYPES = {
 OWNER_REF_TYPES = {
     ("Intervention", "operator_ref"): {"InterventionOperator"},
     ("Observation", "operator_ref"): {"ObservationOperator"},
+    ("AuthorizationEvent", "subject_ref"): {"ModelInstance", "Programme"},
     ("Decision", "subject_ref"): COMMON_SUBJECT_TYPES,
     ("Requirement", "subject_ref"): COMMON_SUBJECT_TYPES,
     ("Test", "subject_ref"): COMMON_SUBJECT_TYPES,
@@ -649,7 +652,103 @@ def _material_scoped_contradictions(records, index, target_refs, scope):
     )
 
 
-def effective_obligation_state(records, obligation, retractions=None):
+def _authorization_tail(records, subject_ref, actions):
+    """A linear append-only decision history, never an implicit latest timestamp."""
+    events = [r for r in records if r.get("type") == "AuthorizationEvent"
+              and r.get("subject_ref") == subject_ref
+              and r.get("action") in actions]
+    if not events:
+        return None
+    ids = {r["id"]: r for r in events}
+    parents = {r.get("previous_event_ref") for r in events if r.get("previous_event_ref")}
+    leaves = [r for r in events if r["id"] not in parents]
+    if len(leaves) != 1:
+        raise IntegrityError("Conflicting authorization history: " + str(subject_ref))
+    seen = set()
+    current = leaves[0]
+    while current:
+        if current["id"] in seen:
+            raise IntegrityError("Authorization cycle: " + str(subject_ref))
+        seen.add(current["id"])
+        previous = current.get("previous_event_ref")
+        if previous and previous not in ids:
+            raise IntegrityError("Invalid authorization predecessor: " + str(subject_ref))
+        current = ids.get(previous)
+    if len(seen) != len(events):
+        raise IntegrityError("Disconnected authorization chain: " + str(subject_ref))
+    return leaves[0]
+
+
+def kernel_freeze_basis_digest(records, ids):
+    """Historical freeze evidence identified by explicit IDs, not live discovery."""
+    index = {r["id"]: r for r in records}
+    selected = set(ids)
+    for ident in ids:
+        rec = index.get(ident, {})
+        if rec.get("type") in {"Requirement", "ResearchGap"} and rec.get("decision_ref"):
+            selected.add(rec["decision_ref"])
+            selected.update(index.get(rec["decision_ref"], {}).get("evidence_refs", []))
+    if any(ident not in index for ident in selected):
+        raise IntegrityError("Incomplete kernel basis")
+    return sha256(canonical([index[i] for i in sorted(selected)]).encode())
+
+
+def _historical_model_license_admission(records, index, event):
+    model = index.get(event.get("subject_ref"), {})
+    app = index.get(model.get("applicability_ref"), {})
+    if not (model.get("type") == "ModelInstance"
+            and model.get("status") == "FROZEN"
+            and app.get("type") == "MethodApplicability"
+            and app.get("assessment") == "APPLICABLE"
+            and app.get("status") == "ACTIVE"
+            and canonical(model.get("scope")) == canonical(event.get("scope"))
+            and event.get("basis_digest") == model.get("frozen_digest")
+            and model.get("identity_algorithm") == MODEL_IDENTITY_ALGORITHM
+            and event.get("basis_refs") == [model.get("id")]):
+        return False
+    assumptions = [index.get(x, {}) for x in model.get("assumption_refs", [])]
+    if not assumptions or any(
+            a.get("required", True) and
+            (a.get("assessment") != "PASS" or a.get("status") != "RECORDED")
+            for a in assumptions):
+        return False
+    refs = set(event.get("evidence_refs", []))
+    return bool(refs) and all(any(
+        a.get("type") == "EvidenceAssessment"
+        and a.get("evidence_ref") == ref
+        and _qualified_assessment(
+            index, a, model["id"], event["scope"],
+            allowed_classes={"ANALYTIC", "FORMAL"},
+            allowed_ceilings={"METHODOLOGICAL", "MATHEMATICAL_EXACT"},
+            assessment_role="MODEL")
+        for a in records) for ref in refs)
+
+
+def effective_model_state(records, model):
+    """Frozen specification and current model license are separate objects."""
+    raw = model.get("status", "DRAFT")
+    index = {r["id"]: r for r in records}
+    event = _authorization_tail(records, model.get("id"),
+                                {"ADMIT_MODEL", "RETIRE_MODEL"})
+    if event is None:
+        return {"declared": raw, "effective": raw, "authorization_ref": None}
+    if event["action"] == "RETIRE_MODEL":
+        return {"declared": raw, "effective": "RETIRED",
+                "authorization_ref": event["id"]}
+    retracted = approved_retractions(records, index)
+    revoked = sorted(set(event.get("evidence_refs", [])) & set(retracted))
+    data_contested = any(
+        effective_data_use_state(records, du, retracted)["effective"] == "CONTESTED"
+        for du in records if du.get("type") == "DataUse"
+        and du.get("model_instance_ref") == model.get("id"))
+    app = index.get(model.get("applicability_ref"), {})
+    current = not (revoked or data_contested) and (
+        app.get("status") == "ACTIVE" and app.get("assessment") == "APPLICABLE")
+    return {"declared": raw, "effective": "ADMITTED" if current else "CONTESTED",
+            "authorization_ref": event["id"], "retracted_support_refs": revoked}
+
+
+def effective_obligation_state(records, obligation, retractions=None, historical=False):
     """Historical disposition remains; present evidential license can disappear."""
     raw = obligation.get("status", "OPEN")
     if raw not in {"RESOLVED", "SATISFIED", "BOUNDED"}:
@@ -666,9 +765,9 @@ def effective_obligation_state(records, obligation, retractions=None):
         required_evidence_refs=(obligation.get("satisfaction_evidence_refs", [])
                                 if obligation.get("type") == "Requirement" else None))
     retractions = approved_retractions(records, index) if retractions is None else retractions
-    revoked = sorted(set(decision.get("evidence_refs", [])) & set(retractions))
-    contradictions = _material_scoped_contradictions(
-        records, index, [obligation.get("id")], scope)
+    revoked = [] if historical else sorted(set(decision.get("evidence_refs", [])) & set(retractions))
+    contradictions = ([] if historical else _material_scoped_contradictions(
+        records, index, [obligation.get("id")], scope))
     effective = ("UNADMITTED" if issues else
                  "CONTESTED" if revoked or contradictions else
                  "ADMITTED_" + raw)
@@ -677,7 +776,7 @@ def effective_obligation_state(records, obligation, retractions=None):
             "historical_admission_issues": issues}
 
 
-def effective_freeze_eligibility(records, critical_gap_ids=None):
+def effective_freeze_eligibility(records, critical_gap_ids=None, historical=False):
     """Require CURRENT supported dispositions for all configured freeze burdens."""
     index = {r["id"]: r for r in records}
     programmes = [r for r in records if r.get("type") == "Programme"]
@@ -698,8 +797,8 @@ def effective_freeze_eligibility(records, critical_gap_ids=None):
             blockers.append(gap_ref)
             continue
         req = matching[0]
-        gs = effective_obligation_state(records, gap, retractions)
-        qs = effective_obligation_state(records, req, retractions)
+        gs = effective_obligation_state(records, gap, retractions, historical)
+        qs = effective_obligation_state(records, req, retractions, historical)
         gap_states[gap_ref] = gs
         requirement_states[req["id"]] = qs
         matches = (
@@ -720,17 +819,23 @@ def effective_freeze_eligibility(records, critical_gap_ids=None):
         if (req.get("type") == "Requirement"
                 and req.get("subject_ref") == programme.get("id")
                 and req.get("gap_ref") not in set(gaps)):
-            qs = effective_obligation_state(records, req, retractions)
+            qs = effective_obligation_state(records, req, retractions, historical)
             requirement_states[req["id"]] = qs
             if not qs["effective"].startswith("ADMITTED_"):
                 blockers.append(req.get("gap_ref", req["id"]))
+    authorized = False
+    if programme and not historical:
+        event = _authorization_tail(records, programme.get("id"),
+                                    {"FREEZE_KERNEL", "UNFREEZE_KERNEL"})
+        authorized = bool(event and event.get("action") == "FREEZE_KERNEL")
     return {"eligible": bool(programme) and bool(gaps) and not blockers,
             "blocking_gap_refs": sorted(set(blockers)),
             "gap_states": gap_states,
             "requirement_states": requirement_states,
             "declared_kernel_frozen": bool(programme.get("kernel_frozen")),
-            "effective_kernel_frozen": bool(programme.get("kernel_frozen"))
-                                         and not blockers}
+            "freeze_authorized_by_event": authorized,
+            "effective_kernel_frozen": (bool(programme.get("kernel_frozen"))
+                                        or authorized) and not blockers}
 
 
 def effective_transition_state(records, transition):
@@ -964,6 +1069,65 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     and a.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
                     and index.get(a.get("evidence_ref"),{}).get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE):
                     error("UNADMITTED_SUPPORT_RELATION", r)
+        if typ == "AuthorizationEvent":
+            subject = index.get(r.get("subject_ref"), {})
+            authority = index.get(r.get("authority_ref"), {})
+            action = r.get("action")
+            model_event = action in {"ADMIT_MODEL", "RETIRE_MODEL"}
+            kernel_event = action in {"FREEZE_KERNEL", "UNFREEZE_KERNEL"}
+            previous = index.get(r.get("previous_event_ref"), {})
+            if not (authority.get("type") == "Authority"
+                    and authority.get("status") == "ACTIVE_RULE"
+                    and ("EVIDENCE_POLICY" in authority.get("axes", []) if model_event
+                         else "RESEARCH_POLICY" in authority.get("axes", []))
+                    and (subject.get("type") == "ModelInstance" if model_event
+                         else subject.get("type") == "Programme")
+                    and r.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+                    and canonical(authority.get("scope")) == canonical(r.get("scope"))
+                    and (not authority.get("subject_refs")
+                         or r.get("subject_ref") in authority.get("subject_refs", []))):
+                error("INVALID_AUTHORIZATION_EVENT", r)
+            if r.get("previous_event_ref"):
+                expected = ({"ADMIT_MODEL"} if action == "RETIRE_MODEL" else
+                            {"RETIRE_MODEL"} if action == "ADMIT_MODEL" else
+                            {"FREEZE_KERNEL"} if action == "UNFREEZE_KERNEL" else
+                            {"UNFREEZE_KERNEL"})
+                if (previous.get("type") != "AuthorizationEvent"
+                    or previous.get("subject_ref") != r.get("subject_ref")
+                    or previous.get("action") not in expected):
+                    error("BROKEN_AUTHORIZATION_HISTORY", r)
+            elif action in {"RETIRE_MODEL", "UNFREEZE_KERNEL"}:
+                error("MISSING_AUTHORIZATION_PREDECESSOR", r)
+            if action == "ADMIT_MODEL":
+                if not _historical_model_license_admission(records, index, r):
+                    error("UNQUALIFIED_MODEL_ADMISSION", r)
+            if action == "RETIRE_MODEL" and (
+                    r.get("basis_digest") != subject.get("frozen_digest") or
+                    r.get("basis_refs") != [subject.get("id")]):
+                error("RETIREMENT_IDENTITY_MISMATCH", r)
+            if kernel_event:
+                try:
+                    if r.get("basis_digest") != kernel_freeze_basis_digest(
+                            records, r.get("basis_refs", [])):
+                        error("KERNEL_BASIS_MISMATCH", r)
+                except IntegrityError:
+                    error("INCOMPLETE_KERNEL_BASIS", r)
+                if action == "FREEZE_KERNEL":
+                    expected_gaps = configured_critical_gap_refs
+                    included_gaps = {x for x in r.get("basis_refs", [])
+                                     if index.get(x, {}).get("type") == "ResearchGap"}
+                    included_reqs = {x for x in r.get("basis_refs", [])
+                                     if index.get(x, {}).get("type") == "Requirement"}
+                    required = {q["id"] for q in records
+                                if q.get("type") == "Requirement"
+                                and q.get("gap_ref") in expected_gaps
+                                and q.get("subject_ref") == subject.get("id")}
+                    if included_gaps != expected_gaps or included_reqs != required:
+                        error("INCOMPLETE_KERNEL_FREEZE_BASIS", r)
+                    historic = effective_freeze_eligibility(
+                        records, sorted(expected_gaps), historical=True)
+                    if not historic["eligible"]:
+                        error("UNQUALIFIED_KERNEL_FREEZE", r)
         if typ == "LiteratureSource":
             if r.get("bibliographic_verification") == "VERIFIED":
                 verifications = [
@@ -1088,6 +1252,9 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 if assumption.get("required", True) and assumption.get("assessment") != "PASS":
                     error("FAILED_OR_UNKNOWN_REQUIRED_ASSUMPTION", r)
         if typ == "ModelInstance" and r.get("status") in {"ADMITTED", "FROZEN", "RETIRED"}:
+            if (r.get("status") == "ADMITTED" and root is not None
+                    and (root / "config/project.json").is_file()):
+                error("DIRECT_MODEL_ADMISSION_FORBIDDEN", r)
             if not r.get("protocol_refs"):
                 error("UNBOUND_MODEL_PROTOCOL", r)
             app = index.get(r.get("applicability_ref"), {})
@@ -1574,6 +1741,15 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     and documented_partition_pair(a, b, da, db)
                 ):
                     error("UNKNOWN_PARTITION_INDEPENDENCE", a)
+    for subject in (r for r in records
+                    if r.get("type") in {"ModelInstance", "Programme"}):
+        try:
+            actions = ({"ADMIT_MODEL", "RETIRE_MODEL"}
+                       if subject["type"] == "ModelInstance" else
+                       {"FREEZE_KERNEL", "UNFREEZE_KERNEL"})
+            _authorization_tail(records, subject["id"], actions)
+        except IntegrityError as exc:
+            error("AUTHORIZATION_HISTORY:" + str(exc), subject)
     try:
         state = resolve(records)
         if state["conflict_count"]: errors.append("UNRESOLVED_AUTHORITY_CONFLICT")
@@ -1662,10 +1838,12 @@ def validate_repository(root: Path) -> list[str]:
     return sorted(set(errors))
 
 IMMUTABLE_ROOT_TYPES = frozenset({
-    "Result", "Execution", "Verdict", "Decision", "EvidenceObject",
+    "Result", "Execution", "Verdict", "Decision", "AuthorizationEvent", "EvidenceObject",
     "SourceVerification"
 })
 IMMUTABLE_REFERENCES = {
+    "AuthorizationEvent": {"subject_ref", "authority_ref", "previous_event_ref",
+                           "basis_refs", "evidence_refs", "source_locator_refs"},
     "Result": {"subject_ref", "test_ref", "execution_ref", "verification_artifact_ref",
                "model_instance_ref", "source_locator_refs"},
     "Execution": {"input_refs", "protocol_ref", "software_ref",

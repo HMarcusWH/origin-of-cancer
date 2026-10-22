@@ -6,7 +6,7 @@ from pathlib import Path
 from .core import (canonical, loads, read_graph, resolve, sha256, file_inventory,
                    file_class, subject_digest, effective_route_state, effective_transition_state,
                    effective_data_use_state,
-                   approved_retractions, effective_freeze_eligibility)
+                   approved_retractions, effective_freeze_eligibility, effective_model_state)
 
 PRODUCTS = [
  'generated/graph.json','generated/ooc-graph.jsonld','generated/current_state.json',
@@ -123,7 +123,7 @@ def make_views(root: Path) -> dict[str, str]:
         'declared_status_is_not_current_scientific_authority':True,
         'mvcl_reference_edges':items('MVCLReference'),
         'reference_edges_are_admitted_routes':False})
-    out['generated/model_applicability.json']=dump({'estimands':items('Estimand'),'classes':items('ModelClass'),'instances':items('ModelInstance'),'applicability':items('MethodApplicability'),'universal_backend_selected':False})
+    out['generated/model_applicability.json']=dump({'estimands':items('Estimand'),'classes':items('ModelClass'),'instances':items('ModelInstance'),'applicability':items('MethodApplicability'),'effective_model_states':[{'id':m['id'],**effective_model_state(records,m)} for m in items('ModelInstance')],'universal_backend_selected':False})
     out['generated/README.md']='# Generated views\n\nDo not edit these files. Run `python tools/build.py --write` after an authored change. The graph, resolver, tables and static explorer are projections; they do not create scientific authority. Full graph exports are deterministic and carry no build-time clock.\n'
     payload=canonical({'nodes':nodes,'relations':edges}).replace('<','\\u003c').replace('&','\\u0026')
     out['generated/explorer.html']=EXPLORER.replace('PAYLOAD_JSON',payload).replace(
