@@ -1309,7 +1309,8 @@
             "DOES_NOT_ESTABLISH",
             "CALIBRATES",
             "FALSIFIES",
-            "RETRACTS"
+            "RETRACTS",
+            "REINSTATES"
           ]
         },
         "evidence_ref": {
@@ -1392,7 +1393,8 @@
             "INDEPENDENCE",
             "BOUNDED_DISPOSITION",
             "DOCUMENT_COMPLETION",
-            "RETRACTION"
+            "RETRACTION",
+            "REASSESSMENT"
           ]
         },
         "authority_ref": {

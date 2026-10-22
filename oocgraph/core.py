@@ -188,7 +188,7 @@ OWNER_REF_TYPES = {
     ("Requirement", "subject_ref"): COMMON_SUBJECT_TYPES,
     ("Test", "subject_ref"): COMMON_SUBJECT_TYPES,
     ("Verdict", "subject_ref"): COMMON_SUBJECT_TYPES,
-    ("EvidenceAssessment", "target_ref"): COMMON_SUBJECT_TYPES,
+    ("EvidenceAssessment", "target_ref"): COMMON_SUBJECT_TYPES | {"SourceVerification"},
     ("Falsifier", "target_ref"): COMMON_SUBJECT_TYPES,
     ("Result", "subject_ref"): COMMON_SUBJECT_TYPES,
 }
@@ -597,21 +597,20 @@ def _founder_states(index, founder_ref, seen=None):
     return result
 
 
-def approved_retractions(records, index=None):
-    """Append-only, authorized retractions; originals remain immutable history."""
-    index = {r["id"]: r for r in records} if index is None else index
-    retracted = {}
+def _authorized_retractions(records, index):
+    """All historically valid retraction decisions, even if later reinstated."""
+    result = {}
     for a in records:
-        if a.get("type") != "EvidenceAssessment" or a.get("effect") != "RETRACTS":
-            continue
-        if a.get("status") != "ADJUDICATED":
+        if (a.get("type") != "EvidenceAssessment"
+                or a.get("effect") != "RETRACTS"
+                or a.get("status") != "ADJUDICATED"):
             continue
         target = index.get(a.get("target_ref"), {})
         notice = index.get(a.get("evidence_ref"), {})
         authority = index.get(a.get("authority_ref"), {})
         if (a.get("assessment_role") == "RETRACTION"
             and a.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
-            and target.get("type") == "EvidenceObject"
+            and target.get("type") in {"EvidenceObject","SourceVerification"}
             and notice.get("type") == "EvidenceObject"
             and notice.get("status") == "RECORDED"
             and notice.get("evidence_class") in {"REVIEW", "ANALYTIC"}
@@ -624,8 +623,50 @@ def approved_retractions(records, index=None):
             and canonical(authority.get("scope")) == canonical(a.get("scope"))
             and (not authority.get("subject_refs")
                  or a.get("target_ref") in authority.get("subject_refs", []))):
-            retracted.setdefault(a["target_ref"], []).append(a["id"])
-    return {k: sorted(v) for k,v in sorted(retracted.items())}
+            result.setdefault(a["target_ref"], []).append(a["id"])
+    return {k:sorted(v) for k,v in sorted(result.items())}
+
+
+def approved_reinstatements(records, index=None):
+    """Adjudicated, source-backed reversals of particular historical retractions."""
+    index = {r["id"]:r for r in records} if index is None else index
+    approved = _authorized_retractions(records, index)
+    ids = {i for values in approved.values() for i in values}
+    reinstated = {}
+    for a in records:
+        if (a.get("type")!="EvidenceAssessment" or a.get("effect")!="REINSTATES"
+                or a.get("status")!="ADJUDICATED"):
+            continue
+        prior = index.get(a.get("target_ref"), {})
+        notice = index.get(a.get("evidence_ref"), {})
+        authority = index.get(a.get("authority_ref"), {})
+        if (prior.get("id") in ids
+            and a.get("assessment_role")=="REASSESSMENT"
+            and a.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+            and notice.get("type")=="EvidenceObject"
+            and notice.get("status")=="RECORDED"
+            and notice.get("claim_ceiling")=="VERIFICATION_ONLY"
+            and notice.get("evidence_class") in {"REVIEW","ANALYTIC"}
+            and notice.get("source_locator_refs")
+            and notice.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
+            and authority.get("type")=="Authority"
+            and authority.get("status")=="ACTIVE_RULE"
+            and "EVIDENCE_POLICY" in authority.get("axes",[])
+            and canonical(a.get("scope"))==canonical(prior.get("scope"))
+            and canonical(a.get("scope"))==canonical(authority.get("scope"))
+            and (not authority.get("subject_refs")
+                 or prior.get("target_ref") in authority.get("subject_refs",[]))):
+            reinstated.setdefault(prior["id"],[]).append(a["id"])
+    return {k:sorted(v) for k,v in sorted(reinstated.items())}
+
+
+def approved_retractions(records, index=None):
+    """Active evidence withdrawals: never rewrite historical retraction events."""
+    index = {r["id"]:r for r in records} if index is None else index
+    historical = _authorized_retractions(records, index)
+    restored = approved_reinstatements(records, index)
+    return {k:sorted(set(v)-set(restored)) for k,v in historical.items()
+            if set(v)-set(restored)}
 
 
 def effective_data_use_state(records, data_use, retractions=None):
@@ -1049,6 +1090,15 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
         schema = loads((root / "schema/graph-record.schema.json").read_text())
         vocab = loads((root / "schema/vocab.json").read_text())
         validators = {t: Draft202012Validator(s) for t, s in schema["$defs"].items()}
+        for model_type, followed in MODEL_IDENTITY_FORWARD_REFS.items():
+            definition = schema["$defs"].get(model_type, {})
+            declared_refs = {k for k in definition.get("properties", {})
+                             if (k.endswith("_ref") or k.endswith("_refs"))
+                             and k != "revision_of_ref"}
+            excluded = MODEL_IDENTITY_REFERENCE_EXCLUSIONS.get(model_type,set())
+            if declared_refs - followed - excluded:
+                errors.append("UNDECLARED_MODEL_IDENTITY_REFERENCE:" + model_type
+                              + ":" + ",".join(sorted(declared_refs-followed-excluded)))
         for schema_type, definition in schema["$defs"].items():
             for key in definition.get("properties", {}):
                 if key.endswith("_ref") or key == "same_identifier_as":
@@ -1287,9 +1337,14 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("VERIFIER_SOFTWARE_BYTE_DRIFT", r)
                 except (IntegrityError, OSError):
                     error("INVALID_VERIFIER_SOFTWARE_PATH", r)
-        if typ == "EvidenceAssessment" and r.get("effect") == "RETRACTS" and r.get("status") == "ADJUDICATED":
-            if r.get("target_ref") not in approved_retractions(records, index):
-                error("UNAUTHORIZED_RETRACTION", r)
+        if typ == "EvidenceAssessment" and r.get("status") == "ADJUDICATED":
+            if r.get("effect") == "RETRACTS":
+                authorizations = _authorized_retractions(records, index)
+                if r.get("id") not in authorizations.get(r.get("target_ref"), []):
+                    error("UNAUTHORIZED_RETRACTION", r)
+            if r.get("effect") == "REINSTATES":
+                if r.get("target_ref") not in approved_reinstatements(records, index):
+                    error("UNAUTHORIZED_REINSTATEMENT", r)
         if typ == "EvidenceObject":
             if not r.get("source_locator_refs"): error("UNLOCATED_EVIDENCE", r)
             for lr in r.get("source_locator_refs", []):
@@ -2048,6 +2103,12 @@ def history_violations(before: list[dict], after: list[dict]) -> list[str]:
     return failures
 
 
+MODEL_IDENTITY_REFERENCE_EXCLUSIONS = {
+    "DataUse": {"model_instance_ref"},  # owned by the model itself
+    "Protocol": {"data_use_refs", "target_refs"},  # reverse memberships
+}
+
+
 MODEL_IDENTITY_FORWARD_REFS = {
     "ModelInstance": {"applicability_ref", "assumption_refs", "context_ref",
         "equation_refs", "estimand_refs", "protocol_refs", "intervention_operator_refs",
@@ -2065,11 +2126,14 @@ MODEL_IDENTITY_FORWARD_REFS = {
     "Protocol": {"null_refs", "source_locator_refs"},
     "Dataset": {"source_locator_refs"},
     "ModelClass": {"source_locator_refs"},
-    "Assumption": {"source_locator_refs"},
+    "Assumption": {"evidence_refs", "source_locator_refs"},
     "Software": {"source_locator_refs"},
     "SourceArtifact": {"source_locator_refs"},
     "NullModel": {"target_claim_ref", "model_class_ref", "source_locator_refs"},
-    "Claim": {"assumption_refs", "source_locator_refs"},
+    "Claim": {"assumption_refs", "assessment_refs", "required_gate_refs",
+              "origin_route_ref", "malignant_state_ref",
+              "persistence_criterion_ref", "entry_assessment_refs",
+              "establishment_assessment_refs", "source_locator_refs"},
 }
 
 

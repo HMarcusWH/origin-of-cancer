@@ -236,6 +236,27 @@ class SystemicRepairs(ProductionValidation):
         self.assertEqual(self.errors(rs),[])
         self.assertEqual(effective_model_state(rs,m)["effective"],"RETIRED")
 
+    def test_append_only_reinstatement_of_retraction(self):
+        from oocgraph.core import approved_retractions, approved_reinstatements
+        from tests.test_latest_codex import LatestCodexContracts
+        helper=LatestCodexContracts()
+        rs=fully_typed(helper.retracted_route_fixture())
+        prior=next(r for r in rs if r["id"]=="ooc:fixture:retraction-adjudication")
+        self.assertIn("ooc:fixture:e1",approved_retractions(rs))
+        again=copy.deepcopy(next(r for r in rs if r["id"]=="ooc:fixture:retraction-notice"))
+        again["id"]="ooc:fixture:reinstatement-notice"
+        new=fully_typed([node(
+            "EvidenceAssessment","reinstatement",status="ADJUDICATED",
+            effect="REINSTATES",assessment_role="REASSESSMENT",
+            target_ref=prior["id"],evidence_ref=again["id"],
+            authority_ref=prior["authority_ref"],scope=prior["scope"],
+            rationale="Correction of prior withdrawal",limitations="Synthetic only",
+            provenance_class="CURATED_SEMANTIC")])[0]
+        rs.extend([again,new])
+        self.assertEqual(self.errors(rs),[])
+        self.assertNotIn("ooc:fixture:e1",approved_retractions(rs))
+        self.assertIn(prior["id"],approved_reinstatements(rs))
+
     def test_test_must_bind_result_execution(self):
         records=mathematical_fixture()
         t=next(r for r in records if r["type"]=="Test")
