@@ -1135,7 +1135,7 @@ def _event_admission_basis(records, event, root, *, kind):
     return list(basis_records.values())
 
 
-def _historical_positive_replay(record, basis_records):
+def _historical_positive_replay(record, basis_records, *, proof_trust_root=None):
     """Replay a positive claim against issuance-time rows, never today's graph.
 
     A valid hash of an incomplete snapshot is insufficient: the claimed
@@ -1161,7 +1161,12 @@ def _historical_positive_replay(record, basis_records):
                or not validators[row['type']].is_valid(row)
                for row in replay):
             return False
-        issues = validate_records(replay, root=None)
+        # Keep scientific records restricted to their issuance snapshot, but
+        # verify formal checkers against the independently pinned production
+        # policy when such a trust root is supplied. Without it, only the
+        # ordinary synthetic fixture harness may qualify synthetic proofs.
+        issues = validate_records(replay, root=None,
+                                  proof_trust_root=proof_trust_root)
     except (ValueError, TypeError, KeyError, IntegrityError):
         return False
     return not issues
@@ -1191,7 +1196,7 @@ def _production_issuance_authenticated(record, root):
     return (manifest.get('subject_ref') == record.get('id')
             and canonical(manifest.get('asserted_scope')) == canonical(scope)
             and record.get('id') not in basis
-            and _historical_positive_replay(record,basis))
+            and _historical_positive_replay(record,basis,proof_trust_root=root))
 
 
 def _is_scientific_positive(record):
@@ -1771,8 +1776,17 @@ def _nested_reference_errors(record, index, contract):
     return violations
 
 
-def validate_records(records: list[dict], root: Path | None = None) -> list[str]:
-    """Return integrity violations; scientific incompleteness is not a violation."""
+def validate_records(records: list[dict], root: Path | None = None,
+                     *, proof_trust_root: Path | None = None) -> list[str]:
+    """Return integrity violations; scientific incompleteness is not a violation.
+
+    ``proof_trust_root`` is exclusively the externally governed checker-policy
+    root for an authenticated *issuance snapshot* replay. It does not import
+    today's scientific graph or change the snapshot's obligation inventory.
+    """
+    if root is not None and proof_trust_root is not None and root != proof_trust_root:
+        raise IntegrityError('Conflicting proof trust roots')
+    formal_root = root if root is not None else proof_trust_root
     errors = []
     ids = [r.get("id") for r in records]
     if len(ids) != len(set(ids)): errors.append("DUPLICATE_ID")
@@ -1921,7 +1935,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                                 root,index,index.get(index.get(ref,{}).get("result_ref"),{}))
                             for ref in r.get("evidence_refs", []))):
                     error("UNTRUSTED_FORMAL_MODEL_ADMISSION", r)
-                if not _historical_model_license_admission(records, index, r, root):
+                if not _historical_model_license_admission(records, index, r, formal_root):
                     error("UNQUALIFIED_MODEL_ADMISSION", r)
             if action == "RETIRE_MODEL" and (
                     r.get("basis_digest") != subject.get("frozen_digest") or
@@ -2475,7 +2489,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("MATHEMATICAL_VERDICT_AXIS_MISMATCH", r)
                 if not r.get("model_instance_ref") or not r.get("result_refs"):
                     error("UNSUPPORTED_MATHEMATICAL_VERDICT", r)
-                qualifying_result = _qualified_formal_verdict(index, r, root)
+                qualifying_result = _qualified_formal_verdict(index, r, formal_root)
                 if qualifying_result is None:
                     error("UNVERIFIED_MATHEMATICAL_PROMOTION", r)
                     if root is not None and (root/"config/project.json").is_file():

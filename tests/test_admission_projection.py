@@ -171,6 +171,33 @@ class HistoricalSnapshotContract(unittest.TestCase):
         good={x['id']:x for x in current if x is not verdict}
         self.assertTrue(core._historical_positive_replay(verdict,good))
 
+    def test_issuance_replay_uses_externally_pinned_real_proof_checker(self):
+        """A production trust root cannot be replaced by synthetic fixture trust.
+
+        The original issuance snapshot is verified without importing today's
+        graph, but a certificate must still pass the actual signature policy.
+        """
+        from tests.test_production_contracts import mathematical_fixture
+        from tests.test_preemptive_repair import make_root, signed_math
+        with tempfile.TemporaryDirectory() as temp:
+            root=make_root(Path(temp),with_project=True)
+            records=mathematical_fixture()
+            result,key,digest=signed_math(records,root)
+            verdict=next(x for x in records if x['type']=='Verdict')
+            basis={x['id']:x for x in records if x is not verdict}
+            with patch.dict('os.environ',{'OOC_TRUST_POLICY_SHA256':digest}):
+                self.assertTrue(core._historical_positive_replay(
+                    verdict,basis,proof_trust_root=root))
+                receipt=result['verification_receipt']
+                saved=receipt.pop('attestation_signature_b64')
+                self.assertFalse(core._historical_positive_replay(
+                    verdict,basis,proof_trust_root=root))
+                receipt['attestation_signature_b64']=saved
+            # A repository-controlled self-signed policy is not enough.
+            with patch.dict('os.environ',{'OOC_TRUST_POLICY_SHA256':'0'*64}):
+                self.assertFalse(core._historical_positive_replay(
+                    verdict,basis,proof_trust_root=root))
+
     def test_production_requires_external_authorization_even_for_valid_checksum(self):
         record={'id':'ooc:fixture:g','type':'ResearchGap','status':'RESOLVED'}
         stamp=snapshot([record],[record['id']],subject_ref='ooc:fixture:programme',
