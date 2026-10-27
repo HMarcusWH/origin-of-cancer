@@ -5,6 +5,7 @@ Engineering conformance is not adjudication of the truth of a scientific stateme
 """
 from __future__ import annotations
 import hashlib
+import os
 import json
 import math
 import re
@@ -357,56 +358,82 @@ def _qualified_assessment(index, assessment, target_ref, scope, *,
     )
 
 
-def trusted_proof_receipt(root, index, result):
-    """Verify a *trusted signer* actually attested the exact formal checker chain.
+def proof_attestation_payload(index, result):
+    """Versioned immutable formal-proof chain. Signature excluded, every decisive result included."""
+    receipt = result.get("verification_receipt", {})
+    test = index.get(result.get("test_ref"), {})
+    execution = index.get(result.get("execution_ref"), {})
+    protocol = index.get(test.get("protocol_ref"), {})
+    model = index.get(result.get("model_instance_ref"), {})
+    claim = index.get(result.get("subject_ref"), {})
+    artifact = index.get(result.get("verification_artifact_ref"), {})
+    output = index.get(execution.get("output_artifact_ref"), {})
+    checker = index.get(execution.get("software_ref"), {})
+    # A signature is over the complete record contents that carried the initial
+    # admission, never over mutable current/retraction projections.
+    signed_result = dict(result)
+    signed_result["verification_receipt"] = {
+        k:v for k,v in receipt.items() if k != "attestation_signature_b64"}
+    return {
+        "domain": "OOC_FORMAL_PROOF_ATTESTATION_V2",
+        "result": signed_result, "test": test, "execution": execution,
+        "protocol": protocol, "model_id": model.get("id"),
+        "model_digest": model.get("frozen_digest"),
+        "claim_statement_sha256": sha256(claim.get("statement", "").encode("utf-8")),
+        "proof_sha256": artifact.get("sha256"),
+        "output_sha256": output.get("sha256"),
+        "checker_sha256": checker.get("sha256"),
+    }
 
-    Matching hashes and a self-reported PASS are not strong verification.
-    The production trust registry begins empty; approval requires external governance.
+
+def trusted_proof_receipt(root, index, result):
+    """A signature alone cannot authorize its own key or establish checker execution.
+
+    This offline check requires a policy digest injected by an *external* release
+    authority (e.g., a protected CI environment), not supplied by the candidate
+    repository. Without such a pinned trust root formal promotion fails closed.
     """
     from base64 import b64decode
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
     from cryptography.exceptions import InvalidSignature
     try:
+        policy_path = root / "config/trusted_proof_checkers.json"
+        external_digest = os.environ.get("OOC_TRUST_POLICY_SHA256", "").lower()
+        if not re.fullmatch(r"[0-9a-f]{64}", external_digest):
+            return False
+        raw = policy_path.read_bytes()
+        if sha256(raw) != external_digest:
+            return False
+        registry = loads(raw.decode("utf-8"))
         receipt = result.get("verification_receipt", {})
-        source = loads((root/"config/trusted_proof_checkers.json").read_text())
-        test = index.get(result.get("test_ref"), {})
-        exe = index.get(result.get("execution_ref"), {})
-        model = index.get(result.get("model_instance_ref"), {})
-        claim = index.get(result.get("subject_ref"), {})
-        proof = index.get(result.get("verification_artifact_ref"), {})
-        software = index.get(exe.get("software_ref"), {})
+        if (result.get("type") != "Result"
+                or receipt.get("attestation_version") != "OOC_FORMAL_PROOF_ATTESTATION_V2"):
+            return False
+        execution = index.get(result.get("execution_ref"), {})
+        checker = index.get(execution.get("software_ref"), {})
+        if (checker.get("type") != "Software"
+                or checker.get("runtime_role") != "FORMAL_PROOF_CHECKER"
+                or checker.get("provenance_class") in NON_ADMISSIBLE_PROVENANCE):
+            return False
         signer_id = receipt.get("attestation_signer_id")
-        keys = [r for r in source.get("trusted_checkers", [])
+        keys = [r for r in registry.get("trusted_checkers", [])
                 if r.get("id") == signer_id
-                and r.get("verifier_sha256") == software.get("sha256")
-                and r.get("verifier_version") == receipt.get("verifier_version")]
+                and r.get("verifier_sha256") == checker.get("sha256")
+                and r.get("verifier_version") == receipt.get("verifier_version")
+                and r.get("status") == "ACTIVE"]
         if len(keys) != 1:
             return False
-        signature = b64decode(receipt.get("attestation_signature_b64", ""), validate=True)
+        signature = b64decode(receipt.get("attestation_signature_b64", ""),validate=True)
         if len(signature) != 64:
             return False
-        msg = canonical({
-            "statement_sha256": sha256(claim.get("statement", "").encode("utf-8")),
-            "proof_sha256": proof.get("sha256"),
-            "checker_sha256": software.get("sha256"),
-            "checker_version": receipt.get("verifier_version"),
-            "execution_output_sha256": exe.get("output_sha256"),
-            "model_digest": model.get("frozen_digest"),
-            "model_instance_ref": model.get("id"),
-            "subject_ref": claim.get("id"),
-            "scope": result.get("scope"),
-            "protocol_ref": test.get("protocol_ref"),
-            "test_ref": test.get("id"),
-            "execution_ref": exe.get("id"),
-        }).encode("utf-8")
+        message = canonical(proof_attestation_payload(index, result)).encode("utf-8")
         Ed25519PublicKey.from_public_bytes(
             b64decode(keys[0].get("public_key_base64", ""),validate=True)
-        ).verify(signature, msg)
+        ).verify(signature,message)
         return True
     except (InvalidSignature, ValueError, TypeError, KeyError, OSError,
             IntegrityError, ImportError, AttributeError):
         return False
-
 
 def _verified_result(index, result, subject_ref, scope):
     """Formal result certification is separate from successful execution or fit."""
@@ -703,8 +730,8 @@ def _authorized_retractions(records, index):
     return {k:sorted(v) for k,v in sorted(result.items())}
 
 
-def approved_reinstatements(records, index=None):
-    """Adjudicated, source-backed reversals of particular historical retractions."""
+def _historical_reinstatements(records, index=None):
+    """Historical authority/structure, independent of later evidence withdrawals."""
     index = {r["id"]:r for r in records} if index is None else index
     approved = _authorized_retractions(records, index)
     ids = {i for values in approved.values() for i in values}
@@ -736,6 +763,40 @@ def approved_reinstatements(records, index=None):
     return {k:sorted(v) for k,v in sorted(reinstated.items())}
 
 
+
+def approved_reinstatements(records, index=None):
+    """Current reversible event projection; withdrawn notice cannot restore support.
+
+    Resolve retraction/reinstatement evidence dependencies with cycle detection.
+    A cyclic or ungrounded restoration is not approved (fail closed); old
+    historically authorized events remain valid and immutable.
+    """
+    index = {r["id"]:r for r in records} if index is None else index
+    historical = _authorized_retractions(records, index)
+    originally_valid = _historical_reinstatements(records, index)
+    # For each retraction event, inspect its historical candidate reinstatements.
+    all_retraction_ids = {r for items in historical.values() for r in items}
+    memo = {}
+    def evidence_active(evidence_ref, visiting):
+        if evidence_ref in visiting: return False
+        retractions = historical.get(evidence_ref, [])
+        return all(not retraction_active(r, visiting | {evidence_ref}) for r in retractions)
+    def retraction_active(retraction_ref, visiting):
+        token = "retraction:" + retraction_ref
+        if token in visiting: return True
+        if token in memo: return memo[token]
+        valid_restorations = originally_valid.get(retraction_ref, [])
+        active = not any(evidence_active(index.get(i, {}).get("evidence_ref"), visiting | {token})
+                         for i in valid_restorations)
+        memo[token] = active
+        return active
+    return {k:sorted(i for i in v
+                     if not retraction_active(k,set())
+                     and evidence_active(index.get(i, {}).get("evidence_ref"),set()))
+            for k,v in originally_valid.items()
+            if k in all_retraction_ids and not retraction_active(k,set())}
+
+
 def approved_retractions(records, index=None):
     """Active evidence withdrawals: never rewrite historical retraction events."""
     index = {r["id"]:r for r in records} if index is None else index
@@ -745,16 +806,60 @@ def approved_retractions(records, index=None):
             if set(v)-set(restored)}
 
 
+def _data_pair_scope(left, right, datasets):
+    return {
+        "data_use_refs": sorted([left["id"], right["id"]]),
+        "dataset_refs": sorted([left.get("dataset_ref"), right.get("dataset_ref")]),
+        "dataset_versions": {
+            left["id"]:datasets.get(left.get("dataset_ref"), {}).get("version"),
+            right["id"]:datasets.get(right.get("dataset_ref"), {}).get("version")},
+        "partition_ids": {
+            left["id"]:left.get("partition_id"),
+            right["id"]:right.get("partition_id")}}
+
+
 def effective_data_use_state(records, data_use, retractions=None):
-    """Historical DataUse admission remains; revoked audit support is contested."""
+    """Historical DataUse admission preserved; effective pairwise audits can contest it."""
     raw = data_use.get("status", "PROPOSED")
     if raw != "ADMITTED":
-        return {"declared": raw, "effective": raw, "retracted_audit_refs": []}
-    retractions = approved_retractions(records) if retractions is None else retractions
-    refs = sorted(set(data_use.get("independence_evidence_refs", [])) & set(retractions))
-    return {"declared": raw, "effective": "CONTESTED" if refs else "ADMITTED",
-            "retracted_audit_refs": refs}
-
+        return {"declared":raw,"effective":raw,"retracted_audit_refs":[],
+                "contradiction_refs":[]}
+    index = {r["id"]:r for r in records}
+    retractions = approved_retractions(records,index) if retractions is None else retractions
+    revoked = sorted(set(data_use.get("independence_evidence_refs", [])) & set(retractions))
+    contradictory = []
+    datasets = {r["id"]:r for r in records if r.get("type")=="Dataset"}
+    for other in records:
+        if other.get("type")!="DataUse" or other.get("id")==data_use.get("id"):
+            continue
+        roles={data_use.get("role"),other.get("role")}
+        if ("CONFIRM" not in roles or not roles & {"TRAIN","SELECT","CALIBRATION"}
+                or other.get("status")!="ADMITTED"):
+            continue
+        left= datasets.get(data_use.get("dataset_ref"),{})
+        right=datasets.get(other.get("dataset_ref"),{})
+        if (data_use.get("dataset_ref")!=other.get("dataset_ref")
+                and not (left.get("family_id") and left.get("family_id")==right.get("family_id"))):
+            continue
+        pair_scope=_data_pair_scope(data_use,other,datasets)
+        for e in records:
+            if (e.get("type")!="EvidenceObject" or e.get("design_class")!="DATA_AUDIT"
+                    or e.get("id") in retractions):
+                continue
+            for effect in ("CONTRADICTS","FALSIFIES"):
+                if all(any(_qualified_assessment(
+                        index,a,du["id"],pair_scope,effect=effect,
+                        allowed_classes={"ANALYTIC"},
+                        allowed_ceilings={"DATA_PARTITION_AUDIT"},
+                        assessment_role="INDEPENDENCE")
+                        and a.get("evidence_ref")==e["id"]
+                        for a in records if a.get("type")=="EvidenceAssessment")
+                       for du in (data_use,other)):
+                    contradictory.append(e["id"])
+    return {"declared":raw,
+            "effective":"CONTESTED" if revoked or contradictory else "ADMITTED",
+            "retracted_audit_refs":revoked,
+            "contradiction_refs":sorted(set(contradictory))}
 
 def _retracted_support_refs(records, index, assessment_refs):
     retracted = approved_retractions(records, index)
@@ -1006,66 +1111,132 @@ def effective_freeze_eligibility(records, critical_gap_ids=None, historical=Fals
             requirement_states[req["id"]] = qs
             if not qs["effective"].startswith("ADMITTED_"):
                 blockers.append(req.get("gap_ref", req["id"]))
-    authorized = False
-    if programme and not historical:
-        event = _authorization_tail(records, programme.get("id"),
-                                    {"FREEZE_KERNEL", "UNFREEZE_KERNEL"})
-        authorized = bool(event and event.get("action") == "FREEZE_KERNEL")
+    event = (_authorization_tail(records, programme.get("id"),
+                                 {"FREEZE_KERNEL", "UNFREEZE_KERNEL"})
+             if programme and not historical else None)
+    authorized = bool(event and event.get("action") == "FREEZE_KERNEL")
+    # Event history supersedes the migration-era Boolean in both directions.
+    frozen_authorized = authorized if event is not None else bool(programme.get("kernel_frozen"))
     return {"eligible": bool(programme) and bool(gaps) and not blockers,
             "blocking_gap_refs": sorted(set(blockers)),
             "gap_states": gap_states,
             "requirement_states": requirement_states,
             "declared_kernel_frozen": bool(programme.get("kernel_frozen")),
             "freeze_authorized_by_event": authorized,
-            "effective_kernel_frozen": (bool(programme.get("kernel_frozen"))
-                                        or authorized) and not blockers}
+            "effective_kernel_frozen": frozen_authorized and not blockers}
 
 
 def effective_transition_state(records, transition):
-    """The current scoped admission of a biological transition, not its raw label."""
+    """Active qualified support: retractions are historical, not automatic vetoes."""
     declared = transition.get("status", "OPEN")
     if declared != "SUPPORTED_SCOPED":
-        return {"declared": declared, "effective": declared, "contradiction_refs": []}
-    index = {r["id"]: r for r in records}
+        return {"declared":declared,"effective":declared,"contradiction_refs":[]}
+    index = {r["id"]:r for r in records}
     scope = transition.get("scope")
-    contradictions = _material_scoped_contradictions(
-        records, index, [transition.get("id")], scope)
-    retracted = _retracted_support_refs(
-        records, index, list(transition.get("evidence_assessment_refs", []))
-        + ([transition["context_transition_assessment_ref"]]
-           if transition.get("context_transition_assessment_ref") else []))
-    qualified = _admitted_transition_assessments(records, index, transition, scope)
-    effective = ("CONTESTED" if (contradictions or retracted) else
-                 "ADMITTED_SUPPORTED_SCOPED" if qualified else "UNADMITTED")
-    return {"declared": declared, "effective": effective,
-            "contradiction_refs": contradictions, "retracted_support_refs": retracted}
+    contradictions = _material_scoped_contradictions(records,index,[transition.get("id")],scope)
+    refs = list(transition.get("evidence_assessment_refs", []))
+    handoff_ref=transition.get("context_transition_assessment_ref")
+    if handoff_ref: refs.append(handoff_ref)
+    withdrawn = _retracted_support_refs(records,index,refs)
+    live = [a for a in _admitted_transition_assessments(records,index,transition,scope)
+            if a.get("evidence_ref") not in approved_retractions(records,index)]
+    handoff_valid = (not handoff_ref
+                     or index.get(handoff_ref,{}).get("evidence_ref") not in approved_retractions(records,index))
+    effective=("CONTESTED" if contradictions or not live or not handoff_valid
+               else "ADMITTED_SUPPORTED_SCOPED")
+    return {"declared":declared,"effective":effective,
+            "contradiction_refs":contradictions,"retracted_support_refs":withdrawn}
+
+def _adjacent_handoff_context(index, left, right):
+    """A bridge observes the common biological handoff of adjacent transitions."""
+    left_target = index.get(left.get("target_state_ref"), {})
+    right_source = index.get(right.get("source_state_ref"), {})
+    lt, rs = left_target.get("context_ref"),right_source.get("context_ref")
+    return lt if lt and lt == rs else None
 
 
 def effective_route_state(records, route):
-    """Current projection, not a mutation of immutable historical declarations."""
-    declared = route.get("status", "OPEN")
-    if declared != "CLOSED":
-        return {"declared": declared, "effective": declared, "contradiction_refs": []}
-    index = {r["id"]: r for r in records}
-    targets = [route["id"], route.get("founder_ref")] + list(route.get("transition_refs", []))
-    contradictions = _material_scoped_contradictions(records, index, targets, route.get("scope"))
-    refs = []
-    for tr in route.get("transition_refs", []):
-        transition = index.get(tr, {})
-        refs.extend(ref for ref in transition.get("evidence_assessment_refs", [])
-                    if canonical(index.get(ref, {}).get("scope")) == canonical(route.get("scope")))
-        if transition.get("context_transition_assessment_ref"):
-            refs.append(transition["context_transition_assessment_ref"])
-    refs.extend(ref for ref in index.get(route.get("founder_ref"), {}).get("ancestry_assessment_refs", [])
-                if canonical(index.get(ref, {}).get("scope")) == canonical(route.get("scope")))
-    for link in index.get(route.get("witness_bundle_ref"), {}).get("bridge_links", []):
-        if isinstance(link, dict):
-            refs.append(link.get("assessment_ref"))
-    retracted = _retracted_support_refs(records, index, refs)
-    return {"declared": declared,
-            "effective": "CONTESTED" if (contradictions or retracted) else "ADMITTED_CLOSED",
-            "contradiction_refs": contradictions, "retracted_support_refs": retracted}
+    """A closed route needs live segment, ancestry and witness/bridge closure.
 
+    Alternative segment evidence can survive, but cannot substitute for an
+    indispensable shared witness or the precise biological context handoff.
+    Historical CLOSED records are never mutated by current negative findings.
+    """
+    declared=route.get("status","OPEN")
+    if declared!="CLOSED":
+        return {"declared":declared,"effective":declared,"contradiction_refs":[]}
+    index={r["id"]:r for r in records}
+    scope=route.get("scope")
+    transitions=[index.get(ref,{}) for ref in route.get("transition_refs",[])]
+    founder=index.get(route.get("founder_ref"),{})
+    bundle=index.get(route.get("witness_bundle_ref"),{})
+    targets=[route.get("id"),route.get("founder_ref")]+list(route.get("transition_refs",[]))
+    contradictions=_material_scoped_contradictions(records,index,targets,scope)
+    retracted=approved_retractions(records,index)
+    support_refs=[]
+    segment_keys=[]
+    eligible=bool(transitions)
+    for t in transitions:
+        refs=t.get("evidence_assessment_refs",[])
+        support_refs.extend(refs)
+        if t.get("context_transition_assessment_ref"):
+            support_refs.append(t["context_transition_assessment_ref"])
+        active=[a for a in _admitted_transition_assessments(records,index,t,scope)
+                if a.get("evidence_ref") not in retracted
+                and a.get("evidence_ref") in bundle.get("evidence_refs",[])]
+        keys=set()
+        for a in active: keys |= _witness_keys(index.get(a.get("evidence_ref"),{}))
+        segment_keys.append(keys)
+        if (not active or effective_transition_state(records,t)["effective"]
+                !="ADMITTED_SUPPORTED_SCOPED"):
+            eligible=False
+    ancestry_keys=set()
+    for ar in founder.get("ancestry_assessment_refs",[]):
+        a=index.get(ar,{})
+        if canonical(a.get("scope"))!=canonical(scope): continue
+        support_refs.append(ar)
+        e=index.get(a.get("evidence_ref"),{})
+        if (e.get("id") in bundle.get("evidence_refs",[])
+            and e.get("id") not in retracted
+            and _appropriate_biological_assessment(index,a,founder.get("id"),scope,"ANCESTRY",
+                                                   context_ref=route.get("context_ref"))):
+            ancestry_keys |= _witness_keys(e)
+    if not segment_keys or not (ancestry_keys & segment_keys[0]):
+        eligible=False
+    if bundle.get("mode")=="SAME_SYSTEM":
+        common=set.intersection(*segment_keys) if segment_keys else set()
+        declared_witness=set(bundle.get("common_witness_ids",[]))
+        if not common or not declared_witness or not declared_witness.issubset({x[2] for x in common}):
+            eligible=False
+    elif bundle.get("mode")=="VALIDATED_BRIDGE":
+        for i,(left,right) in enumerate(zip(transitions,transitions[1:])):
+            if segment_keys[i] & segment_keys[i+1]:continue
+            handoff=_adjacent_handoff_context(index,left,right)
+            matching=[]
+            for link in bundle.get("bridge_links",[]):
+                if (link.get("from_transition_ref")!=left.get("id")
+                    or link.get("to_transition_ref")!=right.get("id")):continue
+                a=index.get(link.get("assessment_ref"),{})
+                e=index.get(link.get("evidence_ref"),{})
+                support_refs.append(a.get("id"))
+                from_key=(link.get("from_study_id"),link.get("from_system_id"),link.get("from_witness_id"))
+                to_key=(link.get("to_study_id"),link.get("to_system_id"),link.get("to_witness_id"))
+                pair={"from_study_id":from_key[0],"from_system_id":from_key[1],"from_witness_id":from_key[2],
+                      "to_study_id":to_key[0],"to_system_id":to_key[1],"to_witness_id":to_key[2]}
+                if (handoff and e.get("context_ref")==handoff
+                    and e.get("id") not in retracted
+                    and e.get("id") in bundle.get("bridge_evidence_refs",[])
+                    and from_key in segment_keys[i] and to_key in segment_keys[i+1]
+                    and pair in e.get("witness_bridge_pairs",[])
+                    and _appropriate_biological_assessment(index,a,route.get("id"),scope,"ROUTE",
+                                                           context_ref=handoff)):
+                    matching.append(e["id"])
+            if not matching:eligible=False
+    else:eligible=False
+    withdrawn=_retracted_support_refs(records,index,support_refs)
+    return {"declared":declared,
+            "effective":"ADMITTED_CLOSED" if eligible and not contradictions else "CONTESTED",
+            "contradiction_refs":contradictions,"retracted_support_refs":withdrawn}
 
 def _effective_pan_cancer_transfer(records, index, verdict):
     """Recheck independent surviving support for every transfer adapter."""
@@ -1074,8 +1245,11 @@ def _effective_pan_cancer_transfer(records, index, verdict):
         return False
     refs = set(transfer.get("evidence_refs", []))
     retracted = approved_retractions(records, index)
+    # A new adapter cannot rewrite a valid historic decision, but it does
+    # narrow *current* transfer breadth until newly supported.
     adapters = {r["id"] for r in records if r.get("type") == "Adapter"}
-    if not adapters or set(transfer.get("transfer_adapter_refs", [])) != adapters:
+    covered = set(transfer.get("transfer_adapter_refs", []))
+    if not adapters or not covered or covered != adapters:
         return False
     subject = index.get(verdict.get("subject_ref"), {})
     kind = ("HISTORICAL_ROUTE" if subject.get("type") == "Route"
@@ -1126,6 +1300,47 @@ def _normalized_source_identifiers(raw):
     return ids
 
 
+def _source_verification_consistent(source, receipt):
+    """Identifier consistency is necessary, not independent publisher verification."""
+    checked=_normalized_source_identifiers(receipt.get("identifier_checked",""))
+    if len(checked)!=1 or not checked.issubset(
+            _normalized_source_identifiers(source.get("identifiers_raw",""))):
+        return False
+    metadata=receipt.get("canonical_metadata")
+    if not isinstance(metadata,dict) or not metadata:return False
+    checked_id=next(iter(checked))
+    known=_normalized_source_identifiers(source.get("identifiers_raw",""))
+    identifier_fields={"doi":"doi:","pmid":"pmid:","pmcid":"pmcid:"}
+    for name,prefix in identifier_fields.items():
+        if name in metadata:
+            val=str(metadata[name]).strip()
+            if name=="doi": val=val.lower().removeprefix("https://doi.org/")
+            if name=="pmcid":val=val.upper()
+            ident=prefix+val
+            if ident not in known or (checked_id.startswith(prefix) and ident != checked_id):
+                return False
+    url=receipt.get("public_source_url","")
+    from urllib.parse import urlsplit, unquote
+    u=urlsplit(url)
+    if u.scheme!="https" or not u.hostname:return False
+    hostname=u.hostname.lower()
+    if hostname in {"doi.org","dx.doi.org"}:
+        url_ids=_normalized_source_identifiers(url)
+        if not url_ids or not url_ids.issubset(known):return False
+        if checked_id.startswith("doi:") and checked_id not in url_ids:return False
+    elif hostname=="pubmed.ncbi.nlm.nih.gov":
+        pmid=u.path.strip("/")
+        if not pmid.isdigit() or "pmid:"+pmid not in known:return False
+        if checked_id.startswith("pmid:") and checked_id!="pmid:"+pmid:return False
+    elif hostname=="pmc.ncbi.nlm.nih.gov":
+        parts=[x.upper() for x in u.path.split("/") if x.upper().startswith("PMC")]
+        if not parts or any("pmcid:"+x not in known for x in parts):return False
+    if checked_id.startswith("doi:") and "doi" not in metadata:return False
+    if checked_id.startswith("pmid:") and "pmid" not in metadata:return False
+    if checked_id.startswith("pmcid:") and "pmcid" not in metadata:return False
+    return True
+
+
 def effective_source_verification_state(records, source, retractions=None):
     """A historical VERIFIED source is not CURRENTLY verified after revocation.
 
@@ -1145,11 +1360,7 @@ def effective_source_verification_state(records, source, retractions=None):
         and v.get("status") == "VERIFIED"
         and v.get("source_ref") == source.get("id")
         and v.get("verification_scope") == "BIBLIOGRAPHIC_METADATA"
-        and len(_normalized_source_identifiers(v.get("identifier_checked", ""))) == 1
-        and _normalized_source_identifiers(v.get("identifier_checked", "")).issubset(
-            _normalized_source_identifiers(source.get("identifiers_raw", "")))
-        and bool(v.get("canonical_metadata"))
-        and v.get("public_source_url", "").startswith("https://")
+        and _source_verification_consistent(source,v)
         and v.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
     ]
     current = sorted(ref for ref in verified if ref not in retractions)
@@ -1375,12 +1586,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             identifiers = _normalized_source_identifiers(r.get("identifier_checked", ""))
             if not (
                 source.get("type") == "LiteratureSource"
-                and len(identifiers) == 1
-                and identifiers.issubset(
-                    _normalized_source_identifiers(source.get("identifiers_raw", "")))
+                and _source_verification_consistent(source,r)
                 and r.get("verification_scope") == "BIBLIOGRAPHIC_METADATA"
-                and bool(r.get("canonical_metadata"))
-                and r.get("public_source_url", "").startswith("https://")
                 and r.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE):
                 error("UNBACKED_VERIFICATION_CERTIFICATE", r)
         if typ == "LiteratureSource":
@@ -1394,11 +1601,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     and v.get("status") == "VERIFIED"
                     and v.get("source_ref") == r.get("id")
                     and v.get("verification_scope") == "BIBLIOGRAPHIC_METADATA"
-                    and len(_normalized_source_identifiers(v.get("identifier_checked",""))) == 1
-                    and _normalized_source_identifiers(v.get("identifier_checked","")).issubset(
-                        _normalized_source_identifiers(r.get("identifiers_raw","")))
-                    and bool(v.get("canonical_metadata"))
-                    and v.get("public_source_url","").startswith("https://")
+                    and _source_verification_consistent(r,v)
                     and v.get("provenance_class") not in NON_ADMISSIBLE_PROVENANCE
                     for v in verifications):
                     error("UNBACKED_SOURCE_VERIFICATION",r)
@@ -1501,7 +1704,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 if r.get("id") not in authorizations.get(r.get("target_ref"), []):
                     error("UNAUTHORIZED_RETRACTION", r)
             if r.get("effect") == "REINSTATES":
-                if r.get("target_ref") not in approved_reinstatements(records, index):
+                if r.get("target_ref") not in _historical_reinstatements(records, index):
                     error("UNAUTHORIZED_REINSTATEMENT", r)
         if typ == "EvidenceObject":
             if not r.get("source_locator_refs"): error("UNLOCATED_EVIDENCE", r)
@@ -1707,7 +1910,10 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         and a.get("evidence_ref") == e_ref
                         and _appropriate_biological_assessment(
                             index, a, r["id"], scope, "ROUTE",
-                            context_ref=r.get("context_ref"))
+                            context_ref=_adjacent_handoff_context(
+                                index,index.get(left,{}),index.get(right,{})))
+                        and _adjacent_handoff_context(
+                            index,index.get(left,{}),index.get(right,{})) is not None
                     ):
                         error("INVALID_BRIDGE_LINK", r)
                     else:
@@ -1816,8 +2022,11 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 if r.get("scope", {}).get("pan_cancer"):
                     transfer = index.get(r.get("transfer_decision_ref"), {})
                     authority_t = index.get(transfer.get("authority_ref"), {})
-                    adapters = {ad.get("id") for ad in records if ad.get("type") == "Adapter"}
+                    current_adapters = {ad.get("id") for ad in records if ad.get("type") == "Adapter"}
                     declared_adapters = _valid_ref_list(transfer.get("transfer_adapter_refs"))
+                    # The decision's declared coverage is immutable; newly
+                    # registered adapters affect current scope, not historic QA.
+                    adapters = declared_adapters or set()
                     allowed = (
                         transfer.get("type") == "Decision"
                         and transfer.get("decision_kind") == "TRANSFER"
@@ -1832,7 +2041,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         and (not authority_t.get("subject_refs")
                              or r.get("subject_ref") in authority_t.get("subject_refs", []))
                         and declared_adapters is not None and bool(adapters)
-                        and declared_adapters == adapters
+                        and adapters.issubset(current_adapters)
                     )
                     evidence_refs = _valid_ref_list(transfer.get("evidence_refs"))
                     if not allowed or not evidence_refs:
@@ -1973,16 +2182,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
         ar = _valid_ref_list(right.get("independence_evidence_refs"))
         if not al or not ar or not (al & ar):
             return False
-        scoped = {
-            "data_use_refs": sorted([left["id"], right["id"]]),
-            "dataset_refs": sorted([left.get("dataset_ref"), right.get("dataset_ref")]),
-            "dataset_versions": {
-                left["id"]: dataset_left.get("version"),
-                right["id"]: dataset_right.get("version")},
-            "partition_ids": {
-                left["id"]: left.get("partition_id"),
-                right["id"]: right.get("partition_id")}
-        }
+        scoped = _data_pair_scope(left, right, {left["dataset_ref"]:dataset_left,
+                                                  right["dataset_ref"]:dataset_right})
         for er in al & ar:
             ev = index.get(er, {})
             if ev.get("design_class") != "DATA_AUDIT":

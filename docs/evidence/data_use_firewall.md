@@ -36,3 +36,14 @@ are projected as CONTESTED rather than as currently verified.
 
 Evidence revisions never convert shared train/selection/confirmation cohorts
 into independently verified partitions by changing protocol IDs.
+
+### Later negative audits and immutable history
+
+An active, adjudicated `CONTRADICTS` or `FALSIFIES` DATA_AUDIT attached to
+**both** DataUses with their exact pair scope contests the current admission of
+the two uses. The original positive assessment remains historical; an unrelated
+negative finding, an out-of-scope audit, or an audit whose evidence was formally
+withdrawn cannot contest another data pair. The dependent model's *effective*
+license and mathematical support are recalculated without mutating the model's
+frozen historical specification. This is a research data-use policy, not a claim
+that two clinical cohorts are independent merely because their labels differ.

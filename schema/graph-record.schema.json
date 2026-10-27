@@ -4627,6 +4627,10 @@
               "type": "string",
               "pattern": "^[0-9a-f]{64}$"
             },
+            "attestation_version": {
+              "type": "string",
+              "const": "OOC_FORMAL_PROOF_ATTESTATION_V2"
+            },
             "attestation_signer_id": {
               "type": "string",
               "minLength": 1

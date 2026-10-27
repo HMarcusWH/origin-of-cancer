@@ -59,3 +59,18 @@ output-transcript bytes, mathematical obligation-to-Claim certification,
 historical dependency closure and withdrawn independence audits.
 Includes production-valid negative controls and extended append-only
 historical checks. No original scientific source or gap disposition changes.
+
+### PR #2 exact-head remediation — 27 October 2026
+
+Repaired eight further Codex-reviewed scientific-state paths: proof-chain
+outcomes now enter a versioned signature envelope governed by an independent
+trust-policy digest; explicit authorized unfreeze supersedes legacy flags;
+appending adapters preserves historical transfer records while contesting
+unproven new breadth; supported transitions can retain independent live evidence
+without automatically closing a route; reinstatement notices lose current effect
+when their evidence is withdrawn; validated route bridges use the adjacent
+handoff context; contrary pair-scoped data audits contest current uses and model
+licenses; and canonical bibliographic metadata must match checked identifiers.
+Added positive/negative synthetic regressions. Original SHA-locked biological
+sources, 43 OPEN critical gaps and PRE_FORMALIZATION status are unchanged.
+These changes are engineering controls only, not validated biomedical findings.

@@ -98,3 +98,31 @@ MODEL_VALIDITY obligation. Statistical DATA_INDEPENDENCE requires an actual
 pair-scoped data audit. Other statistical/methodological obligations remain OPEN
 pending a separately defined qualification contract; arbitrary formal certificates
 cannot be repurposed into empirical study validation.
+
+### Current authorization vs migration field
+
+When append-only FREEZE_KERNEL/UNFREEZE_KERNEL authorization events exist, their
+valid linear tail controls current authorization in **both** directions. A
+legacy `kernel_frozen=true` declaration cannot override a subsequent authorized
+UNFREEZE. Historical eligibility and contemporary supported dispositions remain
+separate; a revoked sole obligation cannot authorize present freeze even if it
+was originally accepted. With no events, the legacy field is supported only as
+an explicit migration fallback, not as authorization for new freeze approvals.
+
+### External trust policy for formal proof admission
+
+The local `config/trusted_proof_checkers.json` is an untrusted *candidate* policy.
+The formal validator deliberately fails closed unless the environment supplies
+`OOC_TRUST_POLICY_SHA256`—an exact SHA-256 of the authorized checker policy,
+independently provisioned by a trusted operator/protected CI environment, **not**
+computed from PR-controlled files during the same run. The policy must explicitly
+mark a signer ACTIVE and bind its public key, verifier version and checker SHA-256.
+The executing Software must be labeled FORMAL_PROOF_CHECKER with non-placeholder
+provenance, and proof receipts use OOC_FORMAL_PROOF_ATTESTATION_V2, signing the
+immutable proof Result/Test/Execution/Protocol record contents, statement,
+model digest, proof artifact, and exact output/checker hashes. Changed outcomes
+or a self-registered key without an external authorization digest cannot promote
+mathematical verification. This does not establish that the checker was actually
+run or the theorem is true; production key enrollment and verifier execution
+still require independent operational governance. A new trust-policy version
+requires separate approval and should preserve historical verification context.
