@@ -71,6 +71,77 @@
             "type": "string"
           },
           "uniqueItems": true
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object",
+                  "minProperties": 1
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input_graph_tree_sha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "issuer_epoch": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -671,6 +742,77 @@
             "minLength": 1
           },
           "uniqueItems": true
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object",
+                  "minProperties": 1
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input_graph_tree_sha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "issuer_epoch": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -893,6 +1035,67 @@
         "candidate_set_ref": {
           "type": "string",
           "minLength": 1
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object"
+                },
+                "subject_ref": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -1118,6 +1321,67 @@
             "minLength": 1
           },
           "uniqueItems": true
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object"
+                },
+                "subject_ref": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -1400,6 +1664,77 @@
         "authority_ref": {
           "type": "string",
           "minLength": 1
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object",
+                  "minProperties": 1
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input_graph_tree_sha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "issuer_epoch": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -1598,6 +1933,37 @@
                 "type": "string",
                 "minLength": 1
               }
+            }
+          }
+        },
+        "counterclaim_relation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "target_ref",
+            "counterclaim_ref",
+            "relation"
+          ],
+          "properties": {
+            "target_ref": {
+              "type": "string",
+              "x-ooc-target-types": [
+                "Claim",
+                "Requirement",
+                "ResearchGap"
+              ]
+            },
+            "counterclaim_ref": {
+              "type": "string",
+              "x-ooc-target-types": [
+                "Claim"
+              ]
+            },
+            "relation": {
+              "enum": [
+                "EXACT_NEGATION",
+                "VERIFIED_COUNTEREXAMPLE"
+              ]
             }
           }
         }
@@ -2269,6 +2635,77 @@
         },
         "year": {
           "type": "string"
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object",
+                  "minProperties": 1
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input_graph_tree_sha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "issuer_epoch": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -3002,6 +3439,77 @@
             "type": "string"
           },
           "uniqueItems": true
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object",
+                  "minProperties": 1
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input_graph_tree_sha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "issuer_epoch": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -4314,6 +4822,77 @@
         "obligation_claim_ref": {
           "type": "string",
           "minLength": 1
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object",
+                  "minProperties": 1
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input_graph_tree_sha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "issuer_epoch": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -4446,6 +5025,77 @@
         "obligation_claim_ref": {
           "type": "string",
           "minLength": 1
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object",
+                  "minProperties": 1
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input_graph_tree_sha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "issuer_epoch": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -4640,6 +5290,77 @@
               "minLength": 1
             }
           }
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object",
+                  "minProperties": 1
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input_graph_tree_sha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "issuer_epoch": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -4758,6 +5479,67 @@
             "HISTORICAL",
             "CAUSAL"
           ]
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object"
+                },
+                "subject_ref": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -5123,6 +5905,67 @@
         "verification_scope": {
           "minLength": 1,
           "type": "string"
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object"
+                },
+                "subject_ref": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -5397,6 +6240,77 @@
             "type": "string"
           },
           "uniqueItems": true
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object",
+                  "minProperties": 1
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input_graph_tree_sha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "issuer_epoch": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -5518,6 +6432,67 @@
         "context_transition_assessment_ref": {
           "type": "string",
           "minLength": 1
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object"
+                },
+                "subject_ref": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -5728,6 +6703,67 @@
         },
         "type": {
           "const": "Verdict"
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object"
+                },
+                "subject_ref": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [
@@ -6094,6 +7130,77 @@
         },
         "type": {
           "const": "AuthorizationEvent"
+        },
+        "admission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "basis": {
+              "type": "object",
+              "required": [
+                "policy_version",
+                "record_ids",
+                "records"
+              ],
+              "properties": {
+                "policy_version": {
+                  "const": "OOC_ADMISSION_BASIS_V2"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "obligation_inventory_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "critical_gap_refs": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "asserted_scope": {
+                  "type": "object",
+                  "minProperties": 1
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input_graph_tree_sha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "issuer_epoch": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "required": [

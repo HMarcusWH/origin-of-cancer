@@ -22,5 +22,13 @@
   ],
   "WitnessBundle.properties.bridge_links[].items.properties.assessment_ref": [
     "EvidenceAssessment"
+  ],
+  "EvidenceObject.properties.counterclaim_relation.properties.target_ref": [
+    "Claim",
+    "Requirement",
+    "ResearchGap"
+  ],
+  "EvidenceObject.properties.counterclaim_relation.properties.counterclaim_ref": [
+    "Claim"
   ]
 }

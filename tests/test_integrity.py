@@ -25,7 +25,7 @@ def verdict(name='v', decision='UNKNOWN', scope=None, **kw):
                 scope={'adapter':'synthetic'} if scope is None else scope,decision=decision,
                 authority_ref='ooc:fixture:authority',**kw)
 def vbase(scope=None):
-    return [node('Claim','claim',claim_kind='CAPABILITY'),node('Authority','authority',axes=['BIOLOGICAL_SUPPORT'],
+    return [node('Claim','claim',claim_kind='CAPABILITY',scope={'adapter':'synthetic'} if scope is None else scope),node('Authority','authority',axes=['BIOLOGICAL_SUPPORT'],
       scope={'adapter':'synthetic'} if scope is None else scope,status='ACTIVE_RULE')]
 def evidence_base(cls='SYNTHETIC',scope=None):
     return vbase(scope)+[node('Context','context'),node('SourceLocator','loc',selector={'figure':'synthetic-fixture'}),
