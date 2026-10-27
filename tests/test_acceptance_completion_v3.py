@@ -238,6 +238,27 @@ class AcceptanceCompletionV3(unittest.TestCase):
         from tests.test_admission_projection import HistoricalSnapshotContract
         HistoricalSnapshotContract().test_later_evidence_cannot_backfill_invalid_origin_issuance()
 
+    def test_WHOL_018_review_ledger_tracks_exact_acceptance_register(self):
+        from pathlib import Path
+        import csv, json, collections
+        root=Path(__file__).resolve().parents[1]
+        with (root/'tests/pr2_acceptance_register.csv').open(newline='') as f:
+            rows=list(csv.DictReader(f))
+        ledger=json.loads((root/'config/pr2_review_traceability_v3.json').read_text())
+        indexed={row['id']:row for row in rows}
+        self.assertEqual(len(rows),115)
+        self.assertEqual(len(indexed),115)
+        self.assertEqual(len(ledger['acceptance_scenarios']),115)
+        self.assertEqual(ledger['acceptance_coverage_status'],dict(
+            sorted(collections.Counter(row['qualification'] for row in rows).items())))
+        for case in ledger['acceptance_scenarios']:
+            expected=indexed[case['id']]
+            self.assertEqual(case['current_status'],expected['qualification'])
+            self.assertEqual(case['current_test_or_gate'],expected['test_or_gate'])
+        self.assertEqual(len(ledger['historical_findings']),83)
+        self.assertFalse(any(x.get('disposition') in {'CLOSED','RESOLVED','VERIFIED'}
+                             for x in ledger['historical_findings']))
+
     def test_WHOL_014_preformalization_and_43_critical_gaps_are_not_promoted(self):
         from pathlib import Path
         root=Path(__file__).resolve().parents[1]

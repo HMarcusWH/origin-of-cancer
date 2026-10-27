@@ -2,696 +2,925 @@
   "acceptance_coverage_status": {
     "CI_GATE": 2,
     "EXTERNAL_GATE": 4,
-    "NEEDS_EXPLICIT_FIXTURE": 7,
-    "TESTED": 102
+    "TESTED": 109
   },
   "acceptance_scenarios": [
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_exact_signed_result_is_admissible_with_unrelated_non_support_result",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "ADMIT",
       "id": "FORM-001",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_proof_trust_requires_external_digest_and_attested_outcomes",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-002",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_mixed_proof_results_cannot_launder_signature",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-003",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_mixed_proof_results_cannot_launder_signature",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-004",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_FORM_005_cross_model_result_must_not_borrow_a_proof",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-005",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_result_wrong_scope",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-006",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_protocol_wrong_target",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-007",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_mixed_proof_results_cannot_launder_signature",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-008",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_receipt_outcome_fail",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-009",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_execution_not_complete",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-010",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_test_not_passed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-011",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_proof_digest_changed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-012",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_checker_digest_changed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-013",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_proof_trust_requires_external_digest_and_attested_outcomes",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "FORM-014",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_exact_signed_result_is_admissible_with_unrelated_non_support_result",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT_OR_ROLE_SEPARATION",
       "id": "FORM-015",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "EXTERNAL_GATE",
+      "current_test_or_gate": "Requires externally authorized trust/root, repository admin or fresh review",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
       "expected": "POLICY_DECISION",
       "id": "FORM-016",
       "prior_status": "EXTERNAL_GATE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_admission_v3.py::test_formal_label_without_counterproof_is_not_refutation",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CHALLENGED_NOT_FORMALLY_REFUTED",
       "id": "FORM-017",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_all_ancestry_connected",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "ADMIT",
       "id": "ROUT-001",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_rejects_disconnected_ancestry_despite_continuous_other_witness",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-002",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_mutation_second_study_changed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-003",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_mutation_second_system_changed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-004",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ROUT_005_three_segments_share_an_ancestry_witness",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "ADMIT",
       "id": "ROUT-005",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_rejects_disconnected_ancestry_despite_continuous_other_witness",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-006",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_three_segment_bridge_valid",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "ADMIT",
       "id": "ROUT-007",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_three_segment_bridge_missing_second_link",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-008",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_three_segment_bridge_invalid_second_link",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-009",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_validated_bridge_rejects_wrong_context",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-010",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_bridge_evidence_uses_adjacent_handoff_not_route_origin",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CURRENT_CONTESTED_HISTORY_VALID",
       "id": "ROUT-011",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ROUT_012_ancestry_withdrawal_does_not_rewrite_closed_route",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CURRENT_CONTESTED_HISTORY_VALID",
       "id": "ROUT-012",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_ancestry_alternative_can_recover_connected_path",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CURRENT_ADMITTED",
       "id": "ROUT-013",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_surviving_transition_without_common_route_witness",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CURRENT_ROUTE_CONTESTED",
       "id": "ROUT-014",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_nested_cooperative_founder_allowed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "ADMIT_IF_EVIDENCED",
       "id": "ROUT-015",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_mutation_founder_assessments_removed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-016",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_systemic_repairs.py::test_human_route_does_not_promote_animal_context",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-017",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_latest_codex.py::test_explicit_context_stage_transition_is_representable",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "ADMIT",
       "id": "ROUT-018",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_validated_bridge_rejects_wrong_context",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-019",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_mutation_common_witness_declared_extra",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ROUT-020",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_current_negative_vetoes_freeze",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "ADMIT",
       "id": "STAT-001",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_current_negative_vetoes_freeze",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CONTEST_BOTH_BLOCK_FREEZE",
       "id": "STAT-002",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_negative_one_obligation_suffices_to_block",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CONTEST_REQUIREMENT_BLOCK_FREEZE",
       "id": "STAT-003",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_negative_one_obligation_suffices_to_block",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CONTEST_GAP_BLOCK_FREEZE",
       "id": "STAT-004",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_policy_negative_wrong_target",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NO_EFFECT",
       "id": "STAT-005",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_policy_negative_wrong_scope",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NO_EFFECT",
       "id": "STAT-006",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_STAT_007_negative_audit_wrong_dataset_version_is_not_material",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NO_EFFECT",
       "id": "STAT-007",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_policy_negative_unadjudicated",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NO_EFFECT",
       "id": "STAT-008",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_policy_negative_wrong_ceiling",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NO_EFFECT",
       "id": "STAT-009",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_STAT_010_retracted_negative_audit_restores_uncontested_freeze_eligibility",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REASSESS_LIVE_SUPPORT",
       "id": "STAT-010",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_current_negative_vetoes_freeze",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "HISTORY_VALID_CURRENT_BLOCKED",
       "id": "STAT-011",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_overlapping_units_never_accepted",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "STAT-012",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_protocol_change_does_not_reset_data_independence",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "STAT-013",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_STAT_014_negative_data_use_audit_contests_model_and_verdict",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CONTEST_DEPENDENT",
       "id": "STAT-014",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_valid_origin_historically_and_currently",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "ADMIT",
       "id": "ORIG-001",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_later_retraction_contests_current_without_invalidating_history",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "HISTORY_VALID_CURRENT_CONTESTED",
       "id": "ORIG-002",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ORIG_003_entry_evidence_withdrawn_history_remains_valid",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "HISTORY_VALID_CURRENT_CONTESTED",
       "id": "ORIG-003",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ORIG_004_establishment_evidence_withdrawn_history_remains_valid",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "HISTORY_VALID_CURRENT_CONTESTED",
       "id": "ORIG-004",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ORIG_005_valid_origin_reinstatement_restores_every_mandatory_group",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CURRENT_ADMITTED",
       "id": "ORIG-005",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_missing_entry_cannot_promote_origin",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ORIG-006",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_missing_establishment_cannot_promote_origin",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ORIG-007",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_rejects_disconnected_ancestry_despite_continuous_other_witness",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "ORIG-008",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ORIG_009_invalid_origin_cannot_be_backfilled",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT_OR_NEW_VERSION",
       "id": "ORIG-009",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_appended_adapter_preserves_history_but_narrows_current",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "HISTORY_VALID_CURRENT_SCOPE_LIMITED",
       "id": "ORIG-010",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ORIG_011_historical_model_license_survives_new_negative_method_audit",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "HISTORY_VALID_CURRENT_CONTESTED",
       "id": "ORIG-011",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_later_retraction_contests_current_without_invalidating_history",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "HISTORY_CHECK_PASS",
       "id": "ORIG-012",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_ungrounded_reinstatement_cycle_never_bootstraps",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "ACTIVE",
       "id": "REIN-001",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_later_retraction_contests_current_without_invalidating_history",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "WITHDRAWN",
       "id": "REIN-002",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_systemic_repairs.py::test_append_only_reinstatement_of_retraction",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "RESTORED",
       "id": "REIN-003",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_reinstatement_notice_retraction_reactivates_original_withdrawal",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NOT_RESTORED",
       "id": "REIN-004",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_ungrounded_reinstatement_cycle_never_bootstraps",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NOT_RESTORED",
       "id": "REIN-005",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_reinstatement_fixed_point_is_record_and_id_order_invariant",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "RESTORE_GROUNDED_CLOSURE",
       "id": "REIN-006",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_reinstatement_matches_independent_subset_oracle",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NOT_RESTORED",
       "id": "REIN-007",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_reinstatement_fixed_point_is_record_and_id_order_invariant",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "RESTORED_IF_ANY_GROUNDED",
       "id": "REIN-008",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_reinstatement_notice_retraction_reactivates_original_withdrawal",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NOT_RESTORED",
       "id": "REIN-009",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_reinstatement_notice_retraction_reactivates_original_withdrawal",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "RECOMPUTE",
       "id": "REIN-010",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_REIN_011_irrelevant_append_does_not_change_retraction_state",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NO_EFFECT",
       "id": "REIN-011",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_reinstatement_fixed_point_is_record_and_id_order_invariant",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "INVARIANT",
       "id": "REIN-012",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_reinstatement_matches_independent_subset_oracle",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "INVARIANT",
       "id": "REIN-013",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_ungrounded_reinstatement_cycle_never_bootstraps",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NOT_RESTORED",
       "id": "REIN-014",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_REIN_015_retraction_notice_cannot_be_mutated_after_adjudication",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "HISTORY_CHECK_FAIL",
       "id": "REIN-015",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_w61_complete_and_prefix_end_to_end",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "VERIFY",
       "id": "DOI_-001",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_w61_complete_and_prefix_end_to_end",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "DOI_-002",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_source_w61_full_identifier_and_url_percent_encoding",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "VERIFY",
       "id": "DOI_-003",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_correct_pmid_companion",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "VERIFY",
       "id": "DOI_-004",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_registered_identifier_w61",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "VERIFY",
       "id": "DOI_-005",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_registered_identifier_w61",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "VERIFY",
       "id": "DOI_-006",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_wrong_doi_metadata",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "DOI_-007",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_wrong_doi_url",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "DOI_-008",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_wrong_pmids",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "DOI_-009",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_registered_identifier_w1..w70",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "MATCH_GOLDEN",
       "id": "DOI_-010",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_registered_identifier_w69",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "MATCH_ALL",
       "id": "DOI_-011",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_correct_mixed_case",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "MATCH",
       "id": "DOI_-012",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_source_w61_full_identifier_and_url_percent_encoding",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "MATCH",
       "id": "DOI_-013",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_invalid_percent_url",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT_OR_UNRESOLVED",
       "id": "DOI_-014",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_DOI_015_untyped_identifier_is_not_silently_verified",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "UNRESOLVED",
       "id": "DOI_-015",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_build.py::test_source_locks_match",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "SOURCE_LOCK_PASS",
       "id": "DOI_-016",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_WHOL_001_unrelated_verdict_remains_supported_after_scoped_retraction",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "LOCALIZED_PROPAGATION",
       "id": "WHOL-001",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_WHOL_002_unrelated_valid_evidence_does_not_revise_route",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "NO_EFFECT",
       "id": "WHOL-002",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_later_retraction_contests_current_without_invalidating_history",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "EXPECTED_DOWNGRADE",
       "id": "WHOL-003",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_systemic_repairs.py::test_retracted_contradiction_ceases_contesting_current_route",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REASSESS",
       "id": "WHOL-004",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_production_contracts.py::test_bridge_refs_wrong_type",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "SCHEMA_ERROR",
       "id": "WHOL-005",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_integrity.py::test_duplicate_json_keys",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "INTEGRITY_ERROR",
       "id": "WHOL-006",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_review_cannot_close_biological_route",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "WHOL-007",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_production_contracts.py::test_no_crash_schema_invalid_disposition",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "INTEGRITY_ERROR",
       "id": "WHOL-008",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_integrity.py::test_shared_protocol_does_not_import_other_model",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "DIGEST_STABLE_UNRELATED_MODEL",
       "id": "WHOL-009",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_missing_entry_cannot_promote_origin",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "WHOL-010",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_synthetic_cannot_close_biological_route",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "REJECT",
       "id": "WHOL-011",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_critical_research_baseline_is_unchanged",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "INVARIANT",
       "id": "WHOL-012",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_critical_research_baseline_is_unchanged",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "INVARIANT",
       "id": "WHOL-013",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_WHOL_014_preformalization_and_43_critical_gaps_are_not_promoted",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "INVARIANT",
       "id": "WHOL-014",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_critical_research_baseline_is_unchanged",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "INVARIANT",
       "id": "WHOL-015",
       "prior_status": "TESTED"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_build.py::test_deterministic_regeneration",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
       "expected": "CHECK_PASS",
       "id": "WHOL-016",
       "prior_status": "NEEDS_EXPLICIT_FIXTURE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "CI_GATE",
+      "current_test_or_gate": "GitHub Actions 3.11/3.12/3.13; tools/check_history.py",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
       "expected": "CHECK_PASS",
       "id": "WHOL-017",
       "prior_status": "CI_GATE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "CI_GATE",
+      "current_test_or_gate": "GitHub Actions 3.11/3.12/3.13; tools/check_history.py",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
       "expected": "CHECK_PASS",
       "id": "WHOL-018",
       "prior_status": "CI_GATE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "EXTERNAL_GATE",
+      "current_test_or_gate": "Requires externally authorized trust/root, repository admin or fresh review",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
       "expected": "REQUIRE_OPERATOR_GATE",
       "id": "WHOL-019",
       "prior_status": "EXTERNAL_GATE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "EXTERNAL_GATE",
+      "current_test_or_gate": "Requires externally authorized trust/root, repository admin or fresh review",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
       "expected": "REQUIRE_ADMIN_GATE",
       "id": "WHOL-020",
       "prior_status": "EXTERNAL_GATE"
     },
     {
-      "disposition": "REQUIRES_CURRENT_INTEGRATED_CONFIRMATION",
+      "current_status": "EXTERNAL_GATE",
+      "current_test_or_gate": "Requires externally authorized trust/root, repository admin or fresh review",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
       "expected": "REQUIRE_REVIEW_GATE",
       "id": "WHOL-021",
       "prior_status": "EXTERNAL_GATE"
