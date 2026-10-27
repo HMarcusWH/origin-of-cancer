@@ -115,13 +115,20 @@ def support_certificate(record, index, records, *, withdrawn, root=None,
                        and link.get('to_transition_ref')==transitions[i+1].get('id')]
                 if len(path)>i+1 and tuple(path[i])==tuple(path[i+1]):
                     continue  # Common witness needs no separate bridge
-                qualified=(core._qualified_bridge_successors(
-                    index,record,transitions,bundle,i,
-                    {tuple(path[i])},{tuple(path[i+1])},withdrawn)
-                    if len(path)>i+1 else set())
-                group('BRIDGE_'+str(i+1),[link.get('assessment_ref') for link in links],
-                      lambda ref:bool(qualified) and any(
-                          link.get('assessment_ref')==ref for link in links))
+                def exact_bridge_link(ref):
+                    # A surviving alternative qualifies only itself: never certify
+                    # every candidate merely because one path remains reachable.
+                    for link in links:
+                        if link.get('assessment_ref') != ref:
+                            continue
+                        single_link_bundle = {**bundle, 'bridge_links': [link]}
+                        if core._qualified_bridge_successors(
+                                index, record, transitions, single_link_bundle, i,
+                                {tuple(path[i])}, {tuple(path[i+1])}, withdrawn):
+                            return True
+                    return False
+                group('BRIDGE_'+str(i+1),
+                      [link.get('assessment_ref') for link in links], exact_bridge_link)
 
     elif typ in {'Requirement','ResearchGap'} and record.get('status') in {'SATISFIED','RESOLVED','BOUNDED'}:
         decision=index.get(record.get('decision_ref'),{})

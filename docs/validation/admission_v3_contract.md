@@ -28,3 +28,15 @@ Current research baseline: **PRE_FORMALIZATION**, Pass 0 **OPEN**, all 43 critic
 - Replay a fresh archive/checkout; verify exact Git tree and all 24 generated products, not merely the `core.py` blob.
 - Preserve the 83 historical Codex threads and 115 prior scenarios as *open or evidence-linked*, not as automatically closed after a passing build.
 - Do not ask for final Codex review or merge until the entire staged branch is integrated and all CI gates pass.
+
+## PR #5 review repairs — trust, evidence, and reviewer parity
+
+The admission snapshot `subject_ref` identifies the issued record (including an AuthorizationEvent); the authorized target remains its separate `subject_ref` field. These must not be interchanged.
+
+When replaying issuance-time records with an external proof trust root, every formal disposition must authenticate its Result and the proof artifact, checker software, and execution-output *file bytes*. Snapshot scope remains issuance-time; trust-policy access does not import the current graph.
+
+Current ROUTE_CLOSURE Verdicts require both effective route closure and surviving qualified verdict-specific assessments. Multiple valid support sources are alternatives, and a withdrawn source never vetoes an independent surviving alternative. Bridge certificates must qualify each selected link, never launder all alternatives through one surviving link.
+
+Current supported Transition statuses must agree with reviewer qualification projections. Biological Context may carry explicit `organism` and `lineage` dimensions in addition to species, tissue, stage, population, and time. Absent dimensions cannot authorize a widened claim.
+
+Generated repository inventory must be regenerated from a clean Git checkout after LF normalization; CI must reject drift rather than concealing it with a pre-check rewrite. All these rules are engineering integrity controls and confer no clinical or cancer-biology authority.

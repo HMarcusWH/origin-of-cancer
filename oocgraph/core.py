@@ -126,7 +126,14 @@ def resolve(records: Iterable[dict], *, root: Path | None = None) -> dict:
             elif kind == "ORIGIN":
                 live = _origin_current_support(records,index,subject,v)
             elif status == "SUPPORTED_SCOPED" and subject.get('type') == 'Route':
-                live = effective_route_state(records, subject)['effective'] == 'ADMITTED_CLOSED'
+                route_kind = ('HISTORICAL_ROUTE' if subject.get('claim_kind') == 'HISTORICAL'
+                              else 'ROUTE')
+                live = bool(
+                    effective_route_state(records, subject)['effective'] == 'ADMITTED_CLOSED'
+                    and live_support(index, records, v.get('assessment_refs', []),
+                        lambda a: _appropriate_biological_assessment(
+                            index, a, v.get('subject_ref'), v.get('scope'), route_kind),
+                        withdrawn))
             elif status == "SUPPORTED_SCOPED" and subject.get('type') == 'Claim':
                 live = bool(live_support(index,records,v.get('assessment_refs',[]),
                     lambda a: _appropriate_biological_assessment(index,a,subject['id'],v.get('scope'),
@@ -1119,7 +1126,7 @@ def _event_admission_basis(records, event, root, *, kind):
     if basis_records is None:
         return None
     manifest=event['admission_basis']['basis']
-    if (manifest.get('subject_ref') != event.get('subject_ref')
+    if (manifest.get('subject_ref') != event.get('id')
             or canonical(manifest.get('asserted_scope')) != canonical(event.get('scope'))
             or manifest.get('input_graph_tree_sha') is None):
         return None
@@ -2051,12 +2058,13 @@ def validate_records(records: list[dict], root: Path | None = None,
         if (typ in {"ResearchGap", "Requirement"}
                 and r.get("status") in {"RESOLVED", "SATISFIED", "BOUNDED"}
                 and r.get("obligation_domain") == "MATHEMATICAL"
-                and root is not None and (root/"config/project.json").is_file()):
+                and (proof_trust_root is not None or
+                     (root is not None and (root/"config/project.json").is_file()))):
             decision = index.get(r.get("decision_ref"), {})
             proofs = [index.get(index.get(e, {}).get("result_ref"), {})
                       for e in decision.get("evidence_refs", [])]
             if not proofs or not all(
-                    x.get("type") == "Result" and trusted_proof_receipt(root,index,x)
+                    x.get("type") == "Result" and trusted_proof_receipt(formal_root,index,x)
                     for x in proofs):
                 error("UNTRUSTED_MATHEMATICAL_DISPOSITION", r)
         if typ == "Result" and r.get("verification_mode") == "FORMAL_PROOF":
@@ -2066,12 +2074,12 @@ def validate_records(records: list[dict], root: Path | None = None,
                 error("UNHASHED_PROOF_ARTIFACT", r)
             if isinstance(receipt, dict) and receipt.get("artifact_sha256") != artifact.get("sha256"):
                 error("PROOF_RECEIPT_ARTIFACT_MISMATCH", r)
-            if root is not None and artifact.get("path"):
+            if formal_root is not None:
                 try:
-                    proof_path = safe_path(root, artifact["path"])
+                    proof_path = safe_path(formal_root, artifact["path"])
                     if not proof_path.is_file() or sha256(proof_path.read_bytes()) != artifact.get("sha256"):
                         error("PROOF_ARTIFACT_BYTE_DRIFT", r)
-                except (IntegrityError, OSError):
+                except (IntegrityError, OSError, KeyError, TypeError):
                     error("INVALID_PROOF_ARTIFACT_PATH", r)
             exe = index.get(r.get("execution_ref"), {})
             output = index.get(exe.get("output_artifact_ref"), {})
@@ -2079,21 +2087,21 @@ def validate_records(records: list[dict], root: Path | None = None,
                 or not output.get("sha256")
                 or output.get("sha256") != exe.get("output_sha256")):
                 error("UNBOUND_EXECUTION_OUTPUT", r)
-            if root is not None and output.get("path"):
+            if formal_root is not None:
                 try:
-                    output_path = safe_path(root, output["path"])
+                    output_path = safe_path(formal_root, output["path"])
                     if (not output_path.is_file()
                         or sha256(output_path.read_bytes()) != output.get("sha256")):
                         error("EXECUTION_OUTPUT_BYTE_DRIFT", r)
-                except (IntegrityError, OSError):
+                except (IntegrityError, OSError, KeyError, TypeError):
                     error("INVALID_EXECUTION_OUTPUT_PATH", r)
             software = index.get(exe.get("software_ref"), {})
-            if root is not None and software.get("path"):
+            if formal_root is not None:
                 try:
-                    verifier_path = safe_path(root, software["path"])
+                    verifier_path = safe_path(formal_root, software["path"])
                     if not verifier_path.is_file() or sha256(verifier_path.read_bytes()) != software.get("sha256"):
                         error("VERIFIER_SOFTWARE_BYTE_DRIFT", r)
-                except (IntegrityError, OSError):
+                except (IntegrityError, OSError, KeyError, TypeError):
                     error("INVALID_VERIFIER_SOFTWARE_PATH", r)
         if typ == "EvidenceAssessment" and r.get("status") == "ADJUDICATED":
             if r.get("effect") == "RETRACTS":

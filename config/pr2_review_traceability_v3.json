@@ -1767,5 +1767,71 @@
   ],
   "policy_decisions": "Software contracts staged; independent production issuer and scientific governance approval not represented as complete",
   "source_pr": "https://github.com/HMarcusWH/origin-of-cancer/pull/2",
-  "status": "STAGING_IMPLEMENTATION_NOT_INDEPENDENTLY_REVIEWED"
+  "staging_pr5_review_findings": [
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-01",
+      "priority": "P1",
+      "test_or_gate": "tests.test_pr5_review_repairs.AdmissionSnapshotBinding.test_freeze_issuer_id_and_target_are_distinct_but_consistent",
+      "title": "Reconcile authorization event issuer and target",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685040"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-02",
+      "priority": "P1",
+      "test_or_gate": "tests.test_pr5_review_repairs.AdmissionSnapshotBinding.test_unsigned_mathematical_disposition_is_rejected_in_trust_root_replay",
+      "title": "Authenticate mathematical obligations under injected replay trust",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685048"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-03",
+      "priority": "P1",
+      "test_or_gate": "tests.test_pr5_review_repairs.AdmissionSnapshotBinding.test_proof_replay_checks_artifact_output_and_checker_bytes",
+      "title": "Check proof, checker, and output artifact bytes during historical replay",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685061"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-04",
+      "priority": "P2",
+      "test_or_gate": "tests.test_pr5_review_repairs.CurrentStateAndCertificate.test_supported_transition_is_admitted_in_both_views",
+      "title": "Promote legitimate transitions in reviewer certificate",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685066"
+    },
+    {
+      "disposition": "AWAITING_CLEAN_CHECKOUT_CI",
+      "id": "PR5-05",
+      "priority": "P2",
+      "test_or_gate": "GitHub Actions tools/build.py --check on staging SHA",
+      "title": "Rebuild generated files from committed LF-normalized bytes",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685079"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-06",
+      "priority": "P1",
+      "test_or_gate": "tests.test_pr5_review_repairs.CurrentStateAndCertificate.test_route_verdict_needs_its_own_live_support",
+      "title": "Require route verdict to retain own live evidence support",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685086"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-07",
+      "priority": "P2",
+      "test_or_gate": "tests.test_pr5_review_repairs.CurrentStateAndCertificate.test_bridge_certificate_excludes_withdrawn_alternative",
+      "title": "Exclude retracted bridge evidence from accepted certificates",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685098"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-08",
+      "priority": "P2",
+      "test_or_gate": "tests.test_pr5_review_repairs.CurrentStateAndCertificate.test_context_species_organism_lineage_can_all_be_recorded",
+      "title": "Represent organism and lineage in scientific context schema",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685106"
+    }
+  ],
+  "status": "PR5_REVIEW_REPAIRS_STAGED_CI_AND_INDEPENDENT_REVIEW_REQUIRED"
 }

@@ -854,6 +854,14 @@
         "notes": {
           "type": "string"
         },
+        "organism": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "lineage": {
+          "minLength": 1,
+          "type": "string"
+        },
         "population": {
           "minLength": 1,
           "type": "string"

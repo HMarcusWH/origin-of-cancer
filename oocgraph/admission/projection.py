@@ -83,7 +83,7 @@ def project_current(records, *, root=None, critical_gap_ids=None):
         return 'UNKNOWN'
 
     positive_states = {'SUPPORTED_SCOPED', 'MATHEMATICALLY_VERIFIED_SCOPED',
-                       'ADMITTED', 'ADMITTED_CLOSED', 'ADMITTED_RESOLVED',
+                       'ADMITTED', 'ADMITTED_SUPPORTED_SCOPED', 'ADMITTED_CLOSED', 'ADMITTED_RESOLVED',
                        'ADMITTED_SATISFIED', 'ADMITTED_BOUNDED', 'VERIFIED'}
     qualification = []
     withdrawn = core.approved_retractions(records, idx)
@@ -99,8 +99,7 @@ def project_current(records, *, root=None, critical_gap_ids=None):
         group_ok = not required_groups or all(g.satisfied for g in required_groups)
         # A projection must never fabricate admission from a raw declared status
         # when its own explanatory certificate is incomplete.
-        if current in {'ADMITTED','ADMITTED_CLOSED','SUPPORTED_SCOPED',
-                       'MATHEMATICALLY_VERIFIED_SCOPED'} and not group_ok:
+        if current in positive_states and not group_ok:
             current='CONTESTED'
         if current in positive_states:
             decision = 'ADMITTED'; reason = ('CURRENT_REQUIREMENTS_SATISFIED',)
