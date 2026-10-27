@@ -126,3 +126,13 @@ mathematical verification. This does not establish that the checker was actually
 run or the theorem is true; production key enrollment and verifier execution
 still require independent operational governance. A new trust-policy version
 requires separate approval and should preserve historical verification context.
+
+## October 27 preemptive repair: statistical contradictions and history
+
+An adjudicated statistical `DATA_INDEPENDENCE` contradiction must meet the
+same purpose, scope, active-provenance and data-audit ceiling as positive
+independence evidence. A qualified negative assessment contests the current
+obligation and removes current freeze eligibility; it does not erase the
+historical satisfied/resolved decision. A withdrawn or in-review audit is
+not an affirmative statistical contradiction. See
+`docs/validation/pr2_scientific_admission_contracts.md`.

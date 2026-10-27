@@ -492,6 +492,33 @@ def _verified_result(index, result, subject_ref, scope):
     )
 
 
+def _qualified_formal_verdict(index, verdict, root=None):
+    """Atomic admission: one exact Result must satisfy every formal gate.
+
+    Other Results in the same Verdict may be controls or contrary observations;
+    they cannot lend a signature to an unrelated, unsigned Result. The
+    external checker-policy pin is mandatory on production repository roots.
+    """
+    strict = root is not None and (root / "config/project.json").is_file()
+    for result_ref in verdict.get("result_refs", []):
+        result = index.get(result_ref, {})
+        if not (result.get("model_instance_ref") == verdict.get("model_instance_ref")
+                and _verified_result(index, result, verdict.get("subject_ref"), verdict.get("scope"))):
+            continue
+        if strict and not trusted_proof_receipt(root, index, result):
+            continue
+        for assessment_ref in verdict.get("assessment_refs", []):
+            assessment = index.get(assessment_ref, {})
+            evidence = index.get(assessment.get("evidence_ref"), {})
+            if (evidence.get("result_ref") == result_ref
+                    and _qualified_assessment(
+                        index, assessment, verdict.get("subject_ref"), verdict.get("scope"),
+                        effect="SUPPORTS", allowed_classes={"FORMAL"},
+                        allowed_ceilings={"MATHEMATICAL_EXACT"})):
+                return result_ref
+    return None
+
+
 def _appropriate_biological_assessment(index, assessment, target_ref, scope, claim_kind, *,
                                        context_ref=None):
     policy = EVIDENCE_OBLIGATION_POLICY.get(claim_kind)
@@ -516,7 +543,7 @@ def _admitted_origin_claim(records, index, claim):
     criterion = index.get(claim.get("persistence_criterion_ref"), {})
     if not (route.get("type") == "Route"
             and route.get("status") == "CLOSED"
-            and effective_route_state(records, route)["effective"] == "ADMITTED_CLOSED"
+            and effective_route_state(records, route, historical=True)["effective"] == "ADMITTED_CLOSED"
             and canonical(route.get("scope")) == canonical(claim.get("scope"))
             and route.get("transition_refs")
             and state.get("type") == "BiologicalState"
@@ -765,36 +792,44 @@ def _historical_reinstatements(records, index=None):
 
 
 def approved_reinstatements(records, index=None):
-    """Current reversible event projection; withdrawn notice cannot restore support.
+    """Grounded least-fixed-point resolution of append-only reinstatements.
 
-    Resolve retraction/reinstatement evidence dependencies with cycle detection.
-    A cyclic or ungrounded restoration is not approved (fail closed); old
-    historically authorized events remain valid and immutable.
+    Notice-retraction cycles cannot authorize themselves. A valid independent
+    ground notice permits support to propagate along a cycle. Results are
+    invariant under record order, ID order and iteration order.
     """
-    index = {r["id"]:r for r in records} if index is None else index
+    index = {r["id"]: r for r in records} if index is None else index
     historical = _authorized_retractions(records, index)
-    originally_valid = _historical_reinstatements(records, index)
-    # For each retraction event, inspect its historical candidate reinstatements.
-    all_retraction_ids = {r for items in historical.values() for r in items}
-    memo = {}
-    def evidence_active(evidence_ref, visiting):
-        if evidence_ref in visiting: return False
-        retractions = historical.get(evidence_ref, [])
-        return all(not retraction_active(r, visiting | {evidence_ref}) for r in retractions)
-    def retraction_active(retraction_ref, visiting):
-        token = "retraction:" + retraction_ref
-        if token in visiting: return True
-        if token in memo: return memo[token]
-        valid_restorations = originally_valid.get(retraction_ref, [])
-        active = not any(evidence_active(index.get(i, {}).get("evidence_ref"), visiting | {token})
-                         for i in valid_restorations)
-        memo[token] = active
-        return active
-    return {k:sorted(i for i in v
-                     if not retraction_active(k,set())
-                     and evidence_active(index.get(i, {}).get("evidence_ref"),set()))
-            for k,v in originally_valid.items()
-            if k in all_retraction_ids and not retraction_active(k,set())}
+    candidates = _historical_reinstatements(records, index)
+    withdrawals_by_notice = {
+        notice: frozenset(refs) for notice, refs in historical.items()
+    }
+    authorized_ids = {ref for refs in historical.values() for ref in refs}
+    restored = set()
+
+    def grounded(assessment_ref, restored_refs):
+        notice = index.get(assessment_ref, {}).get("evidence_ref")
+        return (index.get(notice, {}).get("type") == "EvidenceObject"
+                and withdrawals_by_notice.get(notice, frozenset()) <= restored_refs)
+
+    # Monotone iteration: each successful round restores >=1 authorized event.
+    for _ in range(len(authorized_ids) + 1):
+        next_restored = restored | {
+            ref for ref in authorized_ids
+            if any(grounded(assessment, restored)
+                   for assessment in candidates.get(ref, []))
+        }
+        if next_restored == restored:
+            break
+        restored = next_restored
+    else:
+        raise IntegrityError("Reinstatement fixed point failed to converge")
+
+    return {
+        ref: sorted(assessment for assessment in candidates.get(ref, [])
+                    if grounded(assessment, restored))
+        for ref in sorted(restored)
+    }
 
 
 def approved_retractions(records, index=None):
@@ -919,25 +954,36 @@ def _admitted_transition_assessments(records, index, transition, scope):
 
 
 def _material_scoped_contradictions(records, index, target_refs, scope):
-    """Retracted negative evidence survives in history but not current support."""
+    """Qualified current contradictions use the target's evidence policy.
+
+    Statistical independence objections require a pair/obligation-matched
+    analytic DATA_PARTITION_AUDIT, not a biological evidence class. A
+    retracted or unadjudicated objection cannot revoke scientific permission.
+    """
     retracted = approved_retractions(records, index)
-    return sorted(
-        a["id"] for a in records
-        if a.get("type") == "EvidenceAssessment"
-        and a.get("target_ref") in set(target_refs)
-        and a.get("effect") in {"CONTRADICTS", "FALSIFIES"}
-        and a.get("evidence_ref") not in retracted
-        and _qualified_assessment(
-            index, a, a.get("target_ref"), scope, effect=a.get("effect"),
-            allowed_classes=({"FORMAL"} if (
-                index.get(a.get("target_ref"), {}).get("claim_kind") == "CERTIFICATE"
-                or index.get(a.get("target_ref"), {}).get("obligation_domain") == "MATHEMATICAL")
-                else BIOLOGICAL_EVIDENCE_CLASSES),
-            allowed_ceilings=({"MATHEMATICAL_EXACT"} if (
-                index.get(a.get("target_ref"), {}).get("claim_kind") == "CERTIFICATE"
-                or index.get(a.get("target_ref"), {}).get("obligation_domain") == "MATHEMATICAL")
-                else BIOLOGICAL_CEILINGS))
-    )
+    targets = set(target_refs)
+    qualified = []
+    for assessment in records:
+        if (assessment.get("type") != "EvidenceAssessment"
+                or assessment.get("target_ref") not in targets
+                or assessment.get("effect") not in {"CONTRADICTS", "FALSIFIES"}
+                or assessment.get("evidence_ref") in retracted):
+            continue
+        target = index.get(assessment.get("target_ref"), {})
+        domain, kind = target.get("obligation_domain"), target.get("obligation_claim_kind")
+        if domain == "STATISTICAL" and kind == "DATA_INDEPENDENCE":
+            valid = _admissible_disposition_evidence(
+                index, assessment, target["id"], scope, domain, assessment["effect"])
+        else:
+            formal = (target.get("claim_kind") == "CERTIFICATE"
+                      or domain == "MATHEMATICAL")
+            valid = _qualified_assessment(
+                index, assessment, target["id"], scope, effect=assessment["effect"],
+                allowed_classes={"FORMAL"} if formal else BIOLOGICAL_EVIDENCE_CLASSES,
+                allowed_ceilings={"MATHEMATICAL_EXACT"} if formal else BIOLOGICAL_CEILINGS)
+        if valid:
+            qualified.append(assessment["id"])
+    return sorted(qualified)
 
 
 def _authorization_tail(records, subject_ref, actions):
@@ -1155,7 +1201,79 @@ def _adjacent_handoff_context(index, left, right):
     return lt if lt and lt == rs else None
 
 
-def effective_route_state(records, route):
+def _qualified_bridge_successors(index, route, transitions, bundle, step, frontier,
+                                 next_keys, withdrawn):
+    """Admit only directionally evidenced, context-matched adjacent bridges."""
+    left, right = transitions[step], transitions[step + 1]
+    handoff = _adjacent_handoff_context(index, left, right)
+    result = set()
+    if not handoff:
+        return result
+    for link in bundle.get("bridge_links", []):
+        if (link.get("from_transition_ref") != left.get("id")
+                or link.get("to_transition_ref") != right.get("id")):
+            continue
+        a = index.get(link.get("assessment_ref"), {})
+        e = index.get(link.get("evidence_ref"), {})
+        start = (link.get("from_study_id"), link.get("from_system_id"),
+                 link.get("from_witness_id"))
+        end = (link.get("to_study_id"), link.get("to_system_id"),
+               link.get("to_witness_id"))
+        pair = {"from_study_id": start[0], "from_system_id": start[1],
+                "from_witness_id": start[2], "to_study_id": end[0],
+                "to_system_id": end[1], "to_witness_id": end[2]}
+        if (start in frontier and end in next_keys
+                and e.get("context_ref") == handoff
+                and e.get("id") in bundle.get("bridge_evidence_refs", [])
+                and e.get("id") not in withdrawn
+                and pair in e.get("witness_bridge_pairs", [])
+                and a.get("evidence_ref") == e.get("id")
+                and _appropriate_biological_assessment(
+                    index, a, route.get("id"), route.get("scope"),
+                    "ROUTE", context_ref=handoff)):
+            result.add(end)
+    return result
+
+
+def _ancestry_connected_witness_path(index, route, transitions, bundle,
+                                     segment_keys, ancestry_keys, withdrawn=frozenset()):
+    """Prove one ancestry-reachable path, not disconnected local witnesses.
+
+    State space is (segment index, qualified study/system/witness key).
+    Identity preservation and valid directed bridges are the only advances.
+    Multi-founder ancestry is supported through a frontier of qualifying keys.
+    """
+    if not segment_keys or len(segment_keys) != len(transitions):
+        return False
+    frontier = set(ancestry_keys) & segment_keys[0]
+    if not frontier:
+        return False
+    mode = bundle.get("mode")
+    if mode not in {"SAME_SYSTEM", "VALIDATED_BRIDGE"}:
+        return False
+    for step in range(len(transitions) - 1):
+        # A reused witness label does not repair a discontinuous biological
+        # route. Even identity handoffs must join the identical state/context.
+        left, right = transitions[step], transitions[step + 1]
+        if (left.get("target_state_ref") != right.get("source_state_ref")
+                or not _adjacent_handoff_context(index, left, right)):
+            return False
+        next_keys = segment_keys[step + 1]
+        successors = frontier & next_keys
+        if mode == "VALIDATED_BRIDGE":
+            successors |= _qualified_bridge_successors(
+                index, route, transitions, bundle, step, frontier,
+                next_keys, withdrawn)
+        frontier = successors
+        if not frontier:
+            return False
+    if mode == "SAME_SYSTEM":
+        declared = set(bundle.get("common_witness_ids", []))
+        if not declared or not declared <= {key[2] for key in frontier}:
+            return False
+    return bool(frontier)
+
+def effective_route_state(records, route, *, historical=False):
     """A closed route needs live segment, ancestry and witness/bridge closure.
 
     Alternative segment evidence can survive, but cannot substitute for an
@@ -1171,8 +1289,9 @@ def effective_route_state(records, route):
     founder=index.get(route.get("founder_ref"),{})
     bundle=index.get(route.get("witness_bundle_ref"),{})
     targets=[route.get("id"),route.get("founder_ref")]+list(route.get("transition_refs",[]))
-    contradictions=_material_scoped_contradictions(records,index,targets,scope)
-    retracted=approved_retractions(records,index)
+    contradictions=([] if historical else _material_scoped_contradictions(
+        records,index,targets,scope))
+    retracted=({} if historical else approved_retractions(records,index))
     support_refs=[]
     segment_keys=[]
     eligible=bool(transitions)
@@ -1187,8 +1306,9 @@ def effective_route_state(records, route):
         keys=set()
         for a in active: keys |= _witness_keys(index.get(a.get("evidence_ref"),{}))
         segment_keys.append(keys)
-        if (not active or effective_transition_state(records,t)["effective"]
-                !="ADMITTED_SUPPORTED_SCOPED"):
+        if (not active or t.get("status") != "SUPPORTED_SCOPED"
+                or (not historical and effective_transition_state(records,t)["effective"]
+                    != "ADMITTED_SUPPORTED_SCOPED")):
             eligible=False
     ancestry_keys=set()
     for ar in founder.get("ancestry_assessment_refs",[]):
@@ -1203,36 +1323,18 @@ def effective_route_state(records, route):
             ancestry_keys |= _witness_keys(e)
     if not segment_keys or not (ancestry_keys & segment_keys[0]):
         eligible=False
-    if bundle.get("mode")=="SAME_SYSTEM":
-        common=set.intersection(*segment_keys) if segment_keys else set()
-        declared_witness=set(bundle.get("common_witness_ids",[]))
-        if not common or not declared_witness or not declared_witness.issubset({x[2] for x in common}):
-            eligible=False
-    elif bundle.get("mode")=="VALIDATED_BRIDGE":
-        for i,(left,right) in enumerate(zip(transitions,transitions[1:])):
-            if segment_keys[i] & segment_keys[i+1]:continue
-            handoff=_adjacent_handoff_context(index,left,right)
-            matching=[]
-            for link in bundle.get("bridge_links",[]):
-                if (link.get("from_transition_ref")!=left.get("id")
-                    or link.get("to_transition_ref")!=right.get("id")):continue
-                a=index.get(link.get("assessment_ref"),{})
-                e=index.get(link.get("evidence_ref"),{})
-                support_refs.append(a.get("id"))
-                from_key=(link.get("from_study_id"),link.get("from_system_id"),link.get("from_witness_id"))
-                to_key=(link.get("to_study_id"),link.get("to_system_id"),link.get("to_witness_id"))
-                pair={"from_study_id":from_key[0],"from_system_id":from_key[1],"from_witness_id":from_key[2],
-                      "to_study_id":to_key[0],"to_system_id":to_key[1],"to_witness_id":to_key[2]}
-                if (handoff and e.get("context_ref")==handoff
-                    and e.get("id") not in retracted
-                    and e.get("id") in bundle.get("bridge_evidence_refs",[])
-                    and from_key in segment_keys[i] and to_key in segment_keys[i+1]
-                    and pair in e.get("witness_bridge_pairs",[])
-                    and _appropriate_biological_assessment(index,a,route.get("id"),scope,"ROUTE",
-                                                           context_ref=handoff)):
-                    matching.append(e["id"])
-            if not matching:eligible=False
-    else:eligible=False
+    if not _ancestry_connected_witness_path(
+            index, route, transitions, bundle, segment_keys,
+            ancestry_keys, frozenset(retracted)):
+        eligible = False
+    if bundle.get("mode") == "SAME_SYSTEM" and (
+            bundle.get("bridge_links") or bundle.get("bridge_evidence_refs")):
+        eligible = False
+    if bundle.get("mode") == "VALIDATED_BRIDGE":
+        for link in bundle.get("bridge_links", []):
+            a = index.get(link.get("assessment_ref"), {})
+            if a.get("id"):
+                support_refs.append(a["id"])
     withdrawn=_retracted_support_refs(records,index,support_refs)
     return {"declared":declared,
             "effective":"ADMITTED_CLOSED" if eligible and not contradictions else "CONTESTED",
@@ -1277,67 +1379,118 @@ def _effective_pan_cancer_transfer(records, index, verdict):
 
 
 def _normalized_source_identifiers(raw):
-    """Normalize complete DOI / PMID / PMCID / URL identifiers, never substrings."""
+    """Parse complete typed identifiers without truncating punctuation in DOIs.
+
+    An identifier boundary is an explicit ``; PMID ...`` (or typed DOI,
+    PMCID, URL) or a line/pipe separator. Bare internal semicolons and angle
+    brackets belong to the DOI; they are never token terminators.
+    """
     from urllib.parse import urlsplit, unquote
     if not isinstance(raw, str):
         return set()
+    items = re.split(
+        r";\s+(?=(?:PMID|PMCID|DOI)(?:\s|:)|https?://)|\s*\|\s*|\r?\n",
+        raw.strip(), flags=re.IGNORECASE)
     ids = set()
-    for match in re.finditer(r"https?://[^\s;|<>]+", raw, re.I):
-        url = match.group(0).rstrip(".,);]")
-        parts = urlsplit(url)
-        if parts.hostname and parts.hostname.lower() in {"doi.org", "dx.doi.org"}:
-            doi = unquote(parts.path).strip("/").lower()
-            if re.fullmatch(r"10\.\d{4,9}/\S+", doi):
-                ids.add("doi:" + doi)
-        elif parts.hostname:
-            ids.add("url:" + parts.scheme.lower() + "://" + parts.netloc.lower() + parts.path.rstrip("/") + ("?" + parts.query if parts.query else ""))
-    for match in re.finditer(r"(?<![a-z0-9])10\.\d{4,9}/[^\s;,|<>]+", raw, re.I):
-        ids.add("doi:" + match.group(0).rstrip(".,);]").lower())
-    for match in re.finditer(r"\bPMCID\s*:?[\s]*(PMC\d+)\b|\b(PMC\d+)\b", raw, re.I):
-        ids.add("pmcid:" + (match.group(1) or match.group(2)).upper())
-    for match in re.finditer(r"\bPMID\s*:?\s*(\d+)\b", raw, re.I):
-        ids.add("pmid:" + match.group(1))
+    for item in items:
+        item = item.strip()
+        if not item:
+            continue
+        kind, value = None, item
+        label = re.match(r"^(PMID|PMCID|DOI)(?:\s*:\s*|\s+)(.+)$", item, re.I)
+        if label:
+            kind, value = label.group(1).lower(), label.group(2).strip()
+        elif re.match(r"^DOI:", item, re.I):
+            kind, value = "doi", item[4:].strip()
+        if kind == "pmid":
+            if re.fullmatch(r"\d+", value):
+                ids.add("pmid:" + value)
+            continue
+        if kind == "pmcid" or re.fullmatch(r"PMC\d+", value, re.I):
+            if re.fullmatch(r"PMC\d+", value, re.I):
+                ids.add("pmcid:" + value.upper())
+            continue
+        if re.match(r"^https?://", value, re.I):
+            # Malformed percent-escapes make URL identity ambiguous.
+            if re.search(r"%(?![0-9a-fA-F]{2})", value):
+                continue
+            try:
+                parts = urlsplit(value)
+            except ValueError:
+                continue
+            host = (parts.hostname or "").lower()
+            if (parts.scheme.lower() == "https" and host in {"doi.org", "dx.doi.org"}
+                    and not parts.query and not parts.fragment):
+                # Normalize percent escapes from a canonical doi.org resolver.
+                doi = unquote(parts.path).lstrip("/").lower()
+                if re.fullmatch(r"10\.\d{4,9}/\S+", doi):
+                    ids.add("doi:" + doi)
+            elif host:
+                ids.add("url:" + parts.scheme.lower() + "://"
+                        + parts.netloc.lower() + parts.path.rstrip("/")
+                        + ("?" + parts.query if parts.query else ""))
+            continue
+        doi = value.strip().lower()
+        if kind in {None, "doi"} and re.fullmatch(r"10\.\d{4,9}/\S+", doi):
+            ids.add("doi:" + doi)
     return ids
 
 
 def _source_verification_consistent(source, receipt):
-    """Identifier consistency is necessary, not independent publisher verification."""
-    checked=_normalized_source_identifiers(receipt.get("identifier_checked",""))
-    if len(checked)!=1 or not checked.issubset(
-            _normalized_source_identifiers(source.get("identifiers_raw",""))):
+    """Full registered/checked/metadata/URL agreement, not publisher proof."""
+    from urllib.parse import urlsplit
+    checked = _normalized_source_identifiers(receipt.get("identifier_checked", ""))
+    known = _normalized_source_identifiers(source.get("identifiers_raw", ""))
+    if len(checked) != 1 or not checked <= known:
         return False
-    metadata=receipt.get("canonical_metadata")
-    if not isinstance(metadata,dict) or not metadata:return False
-    checked_id=next(iter(checked))
-    known=_normalized_source_identifiers(source.get("identifiers_raw",""))
-    identifier_fields={"doi":"doi:","pmid":"pmid:","pmcid":"pmcid:"}
-    for name,prefix in identifier_fields.items():
-        if name in metadata:
-            val=str(metadata[name]).strip()
-            if name=="doi": val=val.lower().removeprefix("https://doi.org/")
-            if name=="pmcid":val=val.upper()
-            ident=prefix+val
-            if ident not in known or (checked_id.startswith(prefix) and ident != checked_id):
-                return False
-    url=receipt.get("public_source_url","")
-    from urllib.parse import urlsplit, unquote
-    u=urlsplit(url)
-    if u.scheme!="https" or not u.hostname:return False
-    hostname=u.hostname.lower()
-    if hostname in {"doi.org","dx.doi.org"}:
-        url_ids=_normalized_source_identifiers(url)
-        if not url_ids or not url_ids.issubset(known):return False
-        if checked_id.startswith("doi:") and checked_id not in url_ids:return False
-    elif hostname=="pubmed.ncbi.nlm.nih.gov":
-        pmid=u.path.strip("/")
-        if not pmid.isdigit() or "pmid:"+pmid not in known:return False
-        if checked_id.startswith("pmid:") and checked_id!="pmid:"+pmid:return False
-    elif hostname=="pmc.ncbi.nlm.nih.gov":
-        parts=[x.upper() for x in u.path.split("/") if x.upper().startswith("PMC")]
-        if not parts or any("pmcid:"+x not in known for x in parts):return False
-    if checked_id.startswith("doi:") and "doi" not in metadata:return False
-    if checked_id.startswith("pmid:") and "pmid" not in metadata:return False
-    if checked_id.startswith("pmcid:") and "pmcid" not in metadata:return False
+    metadata = receipt.get("canonical_metadata")
+    if not isinstance(metadata, dict) or not metadata:
+        return False
+    checked_id = next(iter(checked))
+    for field, prefix in {"doi": "doi:", "pmid": "pmid:", "pmcid": "pmcid:"}.items():
+        if field not in metadata:
+            continue
+        value = str(metadata[field]).strip()
+        if field == "doi":
+            parsed = _normalized_source_identifiers(value)
+            ident = next(iter(parsed)) if len(parsed) == 1 else None
+        elif field == "pmcid":
+            ident = prefix + value.upper()
+        else:
+            ident = prefix + value
+        if ident not in known or (checked_id.startswith(prefix) and ident != checked_id):
+            return False
+    url = receipt.get("public_source_url", "")
+    try:
+        parts = urlsplit(url)
+    except ValueError:
+        return False
+    if parts.scheme != "https" or not parts.hostname:
+        return False
+    host = parts.hostname.lower()
+    if host in {"doi.org", "dx.doi.org"}:
+        url_ids = _normalized_source_identifiers(url)
+        if not url_ids or not url_ids <= known:
+            return False
+        if checked_id.startswith("doi:") and checked_id not in url_ids:
+            return False
+    elif host == "pubmed.ncbi.nlm.nih.gov":
+        pmid = parts.path.strip("/")
+        if not pmid.isdigit() or "pmid:" + pmid not in known:
+            return False
+        if checked_id.startswith("pmid:") and checked_id != "pmid:" + pmid:
+            return False
+    elif host == "pmc.ncbi.nlm.nih.gov":
+        pmc_ids = [x.upper() for x in parts.path.split("/")
+                   if x.upper().startswith("PMC")]
+        if not pmc_ids or any("pmcid:" + x not in known for x in pmc_ids):
+            return False
+    if checked_id.startswith("doi:") and "doi" not in metadata:
+        return False
+    if checked_id.startswith("pmid:") and "pmid" not in metadata:
+        return False
+    if checked_id.startswith("pmcid:") and "pmcid" not in metadata:
+        return False
     return True
 
 
@@ -1931,6 +2084,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             if not ancestry_assessments:
                 error("UNSUPPORTED_ROUTE_ANCESTRY", r)
             admitted_ancestry = False
+            admitted_ancestry_keys = set()
             for ar in ancestry_assessments:
                 a = index.get(ar, {})
                 if canonical(a.get("scope")) != canonical(scope):
@@ -1949,8 +2103,13 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("ROUTE_ANCESTRY_WITNESS_MISMATCH", r)
                     else:
                         admitted_ancestry = True
+                        admitted_ancestry_keys.update(_witness_keys(e) & segment_witnesses[0])
             if not admitted_ancestry:
                 error("UNSUPPORTED_ROUTE_ANCESTRY", r)
+            if not _ancestry_connected_witness_path(
+                    index, r, [index.get(ref, {}) for ref in transitions], wb,
+                    segment_witnesses, admitted_ancestry_keys):
+                error("DISCONNECTED_ANCESTRY_WITNESS_PATH", r)
         if typ == "Verdict":
             authority = index.get(r.get("authority_ref"), {})
             if authority.get("status") != "ACTIVE_RULE": error("INACTIVE_VERDICT_AUTHORITY", r)
@@ -2076,30 +2235,16 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                                 for key in independent_sources[first])
                         if not independent_assignment(sorted(adapters), set()):
                             error("TRANSFER_INDEPENDENCE_NOT_ESTABLISHED", r)
-            if (r.get("decision") == "MATHEMATICALLY_VERIFIED_SCOPED"
-                    and root is not None and (root/"config/project.json").is_file()
-                    and not any(trusted_proof_receipt(root,index,index.get(i,{}))
-                                for i in r.get("result_refs", []))):
-                error("UNTRUSTED_FORMAL_PROOF", r)
             if r.get("decision") == "MATHEMATICALLY_VERIFIED_SCOPED":
                 if r.get("axis") != "MATHEMATICAL_VERIFICATION":
                     error("MATHEMATICAL_VERDICT_AXIS_MISMATCH", r)
                 if not r.get("model_instance_ref") or not r.get("result_refs"):
                     error("UNSUPPORTED_MATHEMATICAL_VERDICT", r)
-                qualifying = [index.get(x, {}) for x in r.get("result_refs", []) if isinstance(x, str)]
-                admitting = [index.get(x, {}) for x in r.get("assessment_refs", []) if isinstance(x, str)]
-                if not any(
-                    result.get("model_instance_ref") == r.get("model_instance_ref")
-                    and _verified_result(index, result, r.get("subject_ref"), r.get("scope"))
-                    and any(
-                        index.get(a.get("evidence_ref"), {}).get("result_ref") == result.get("id")
-                        and _qualified_assessment(
-                            index, a, r.get("subject_ref"), r.get("scope"),
-                            allowed_classes={"FORMAL"}, allowed_ceilings={"MATHEMATICAL_EXACT"})
-                        for a in admitting
-                    ) for result in qualifying
-                ):
+                qualifying_result = _qualified_formal_verdict(index, r, root)
+                if qualifying_result is None:
                     error("UNVERIFIED_MATHEMATICAL_PROMOTION", r)
+                    if root is not None and (root/"config/project.json").is_file():
+                        error("UNTRUSTED_FORMAL_PROOF", r)
             if r.get("decision") in SCIENTIFIC_POSITIVE and r.get("scope", {}).get("domain") == "PROGRAMME_GOVERNANCE":
                 error("GOVERNANCE_AS_SCIENTIFIC_SUPPORT", r)
         if typ == "Programme":

@@ -74,3 +74,21 @@ licenses; and canonical bibliographic metadata must match checked identifiers.
 Added positive/negative synthetic regressions. Original SHA-locked biological
 sources, 43 OPEN critical gaps and PRE_FORMALIZATION status are unchanged.
 These changes are engineering controls only, not validated biomedical findings.
+
+## 2026-10-27 — PR #2 scientific-admission repair and adversarial qualification
+
+- Require the **same** Result to satisfy exact formal PASS, external V2
+  checker attestation, model/subject/scope, and adjudicated FORMAL support.
+- Connect founder ancestry to the complete route witness path, including
+  directed adjacent-context bridge propagation and common-witness checks.
+- Apply purpose-matched statistical independence evidence to both support
+  and negative freeze-obligation assessment.
+- Keep historically valid ORIGIN decisions valid after later route withdrawal
+  while projecting current claims as contested.
+- Replace order-dependent retraction/reinstatement recursion with a grounded
+  monotone least-fixed-point resolver.
+- Parse the complete legacy W61 DOI and labeled identifiers without
+  punctuation truncation, retaining exact immutable source bytes.
+- Expand synthetic adversarial regression testing and document unfulfilled
+  external governance gates. **No biological evidence, mathematical cancer
+  model, origin route or clinical indication was promoted.**
