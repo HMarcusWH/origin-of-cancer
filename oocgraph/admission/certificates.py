@@ -116,6 +116,11 @@ def support_certificate(record, index, records, *, withdrawn, root=None,
                 if len(path)>i+1 and tuple(path[i])==tuple(path[i+1]):
                     continue  # Common witness needs no separate bridge
                 def exact_bridge_link(ref):
+                    # A contested route can have no complete witness path. Still
+                    # report this mandatory bridge group as unsatisfied instead
+                    # of indexing a missing pair and crashing all reviewer views.
+                    if len(path) <= i + 1:
+                        return False
                     # A surviving alternative qualifies only itself: never certify
                     # every candidate merely because one path remains reachable.
                     for link in links:

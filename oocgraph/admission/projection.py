@@ -60,12 +60,17 @@ def project_current(records, *, root=None, critical_gap_ids=None):
             return 'ADMITTED' if (target.get('decision_ref') == ident
                 and isinstance(effective,str) and effective.startswith('ADMITTED_')) else 'NOT_ADMITTED'
         if typ == 'SourceVerification':
-            parent = next((r for r in records if r.get('type')=='LiteratureSource'
-                and ident in r.get('verification_refs', [])), None)
-            return ('VERIFIED' if parent and source[parent['id']]['effective']=='VERIFIED'
-                    and ident not in core.approved_retractions(records,idx)
-                    and core._source_verification_consistent(parent,record)
-                    else 'CONTESTED' if record.get('status')=='VERIFIED' else 'NOT_ADMITTED')
+            # SourceVerification.source_ref is the append-only ownership link.
+            # LiteratureSource.verification_refs is historical and must not be
+            # edited merely to register a new verification receipt. Reuse the
+            # authoritative per-source *active* receipt list, not the source's
+            # immutable back-reference or a source-wide VERIFIED flag alone.
+            parent = idx.get(record.get('source_ref'), {})
+            active = (parent.get('type') == 'LiteratureSource'
+                      and ident in source.get(parent.get('id'), {}).get(
+                          'active_verification_refs', ()))
+            return ('VERIFIED' if active else
+                    'CONTESTED' if record.get('status')=='VERIFIED' else 'NOT_ADMITTED')
         if typ == 'Transition': return transition[ident]['effective']
         if typ == 'Route': return route[ident]['effective']
         if typ == 'ModelInstance': return model[ident]['effective']

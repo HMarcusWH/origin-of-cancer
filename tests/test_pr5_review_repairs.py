@@ -171,5 +171,91 @@ class CurrentStateAndCertificate(unittest.TestCase):
         self.assertFalse(core._evidence_matches_scientific_scope(
             {ctx['id']:ctx},e,{'species':'human','organism':'homo_sapiens','lineage':'ANOTHER'}))
 
+
+class FollowupProjectionRegressions(unittest.TestCase):
+    """Two Codex P2 findings on e63f759; schema-valid append-only fixtures."""
+
+    @staticmethod
+    def appended_source_receipts():
+        source=node('LiteratureSource','append-source',
+                    status='REGISTERED_NOT_EXTRACTED',
+                    identifiers_raw='10.1000/xyz123',
+                    bibliographic_verification='UNVERIFIED',
+                    extraction_status='REGISTERED_NOT_EXTRACTED',
+                    verification_refs=[])
+        receipt=node('SourceVerification','append-receipt',status='VERIFIED',
+                     source_ref=source['id'],identifier_checked='10.1000/xyz123',
+                     verification_scope='BIBLIOGRAPHIC_METADATA',
+                     canonical_metadata={'doi':'10.1000/xyz123'},
+                     public_source_url='https://doi.org/10.1000/xyz123',
+                     provenance_class='CURATED_SEMANTIC')
+        rows=fully_typed([
+            node('Context','receipt-context',species='synthetic',
+                 tissue='synthetic',stage='source',time_scope='past'),
+            node('SourceLocator','receipt-locator',path='README.md',
+                 selector={'record':'source-verification'}),
+            source, receipt,
+        ])
+        return rows,source,receipt
+
+    @staticmethod
+    def qualification(projected,ref):
+        return next(q for q in projected['qualifications']
+                    if q['subject_ref']==ref)
+
+    def test_withdrawn_only_bridge_projects_contested_without_crashing(self):
+        rs=fully_typed(bridge_fixture())
+        self.assertEqual(core.validate_records(rs),[])
+        before=project_current(rs)
+        self.assertEqual(before['routes']['ooc:fixture:r']['effective'],
+                         'ADMITTED_CLOSED')
+        retract(rs,'ooc:fixture:bridge',name='sole-bridge-withdrawal')
+        self.assertEqual(core.validate_records(rs),[])
+        self.assertEqual(core.effective_route_state(rs,get(rs,'r'))['witness_path'],[])
+        projected=project_current(rs)  # Must not raise IndexError.
+        self.assertEqual(projected['routes']['ooc:fixture:r']['effective'],'CONTESTED')
+        q=self.qualification(projected,'ooc:fixture:r')
+        self.assertEqual(q['decision'],'CONTESTED')
+        bridges=[g for g in q['required_groups'] if g['name']=='BRIDGE_1']
+        self.assertEqual(len(bridges),1)
+        self.assertFalse(bridges[0]['satisfied'])
+        self.assertEqual(bridges[0]['accepted'],[])
+        self.assertNotIn('ooc:fixture:bridge',q['accepted_evidence_refs'])
+
+    def test_append_only_source_receipt_qualifies_without_legacy_backref(self):
+        rows,src,receipt=self.appended_source_receipts()
+        original_source=copy.deepcopy(src)
+        self.assertEqual(core.validate_records(rows),[])
+        out=project_current(rows)
+        self.assertEqual(src,original_source)
+        self.assertEqual(src['verification_refs'],[])
+        self.assertEqual(out['sources'][src['id']]['effective'],'VERIFIED')
+        self.assertEqual(out['sources'][src['id']]['active_verification_refs'],
+                         [receipt['id']])
+        self.assertEqual(self.qualification(out,receipt['id'])['decision'],'ADMITTED')
+
+    def test_source_receipt_retraction_does_not_contaminate_active_alternative(self):
+        rows,src,receipt=self.appended_source_receipts()
+        alternative=copy.deepcopy(receipt)
+        alternative['id']='ooc:fixture:second-append-receipt'
+        rows.append(alternative)
+        original_source=copy.deepcopy(src)
+        retract(rows,receipt['id'],name='receipt-revocation')
+        self.assertEqual(core.validate_records(rows),[])
+        out=project_current(rows)
+        self.assertEqual(src,original_source)
+        self.assertEqual(out['sources'][src['id']]['effective'],'VERIFIED')
+        self.assertEqual(out['sources'][src['id']]['active_verification_refs'],
+                         [alternative['id']])
+        self.assertEqual(self.qualification(out,receipt['id'])['decision'],'CONTESTED')
+        self.assertEqual(self.qualification(out,alternative['id'])['decision'],
+                         'ADMITTED')
+        retract(rows,alternative['id'],name='second-receipt-revocation')
+        self.assertEqual(core.validate_records(rows),[])
+        out=project_current(rows)
+        self.assertEqual(out['sources'][src['id']]['effective'],'CONTESTED')
+        self.assertEqual(self.qualification(out,alternative['id'])['decision'],
+                         'CONTESTED')
+
 if __name__=='__main__':
     unittest.main()

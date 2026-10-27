@@ -40,3 +40,20 @@ Current ROUTE_CLOSURE Verdicts require both effective route closure and survivin
 Current supported Transition statuses must agree with reviewer qualification projections. Biological Context may carry explicit `organism` and `lineage` dimensions in addition to species, tissue, stage, population, and time. Absent dimensions cannot authorize a widened claim.
 
 Generated repository inventory must be regenerated from a clean Git checkout after LF normalization; CI must reject drift rather than concealing it with a pre-check rewrite. All these rules are engineering integrity controls and confer no clinical or cancer-biology authority.
+
+## PR #5 follow-up — append-only verification and contested bridge projection
+
+If a formerly validated bridge route loses the only qualified bridge witness,
+its effective state is `CONTESTED` and the reviewer certificate records an
+unsatisfied `BRIDGE_n` group without indexing a nonexistent witness path. A
+separately qualified surviving bridge keeps the route eligible for admission
+without reviving withdrawn alternatives.
+
+`SourceVerification.source_ref` is the append-only receipt-to-source link.
+The current receipt projector accepts only receipt IDs in the parent
+LiteratureSource's `active_verification_refs` from
+`effective_source_verification_state`, not stale `verification_refs` on the
+immutable source record or merely the source-wide `VERIFIED` status. A
+withdrawn receipt is contested even when a different independent receipt
+continues to verify that source. This is bibliographic metadata verification,
+not independent paper extraction or biological evidence.
