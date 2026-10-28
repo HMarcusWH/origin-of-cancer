@@ -7,14 +7,37 @@ import unittest
 
 from oocgraph import core
 from oocgraph.admission.projection import project_current
-from tests.test_pr5_review_repairs import CurrentStateAndCertificate, retract
+from tests.test_integrity import node
+from tests.test_production_contracts import fully_typed, route_records
+from tests.test_pr5_review_repairs import retract
 from tests.test_routes_and_data import get
 
 
 class RouteKindPolicyConsistency(unittest.TestCase):
     @staticmethod
     def fixture(claim_kind):
-        records = CurrentStateAndCertificate().route_with_closure_verdict()
+        # Build directly from the production-schema fixture instead of
+        # importing a TestCase subclass (which duplicates its tests in
+        # unittest discovery and falsely inflates the CI count).
+        records = route_records()
+        scope = get(records, 'r')['scope']
+        evidence = copy.deepcopy(get(records, 'e2'))
+        evidence['id'] = 'ooc:fixture:closure-e'
+        assessment = copy.deepcopy(get(records, 'a2'))
+        assessment.update(id='ooc:fixture:closure-a',
+                          target_ref='ooc:fixture:r',
+                          evidence_ref=evidence['id'])
+        records.extend([evidence, assessment])
+        records.extend(fully_typed([
+            node('Authority', 'closure-auth', status='ACTIVE_RULE',
+                 axes=['ROUTE_CLOSURE'], scope=scope),
+            node('Verdict', 'closure-verdict', subject_ref='ooc:fixture:r',
+                 axis='ROUTE_CLOSURE', facet='scientific',
+                 decision='SUPPORTED_SCOPED', scope=scope,
+                 assessment_refs=[assessment['id']],
+                 authority_ref='ooc:fixture:closure-auth',
+                 provenance_class='CURATED_SEMANTIC'),
+        ]))
         route = get(records, 'r')
         route['claim_kind'] = claim_kind
         if claim_kind == 'HISTORICAL':
