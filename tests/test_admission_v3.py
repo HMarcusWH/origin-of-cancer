@@ -166,7 +166,17 @@ class FormalQualificationChecks(unittest.TestCase):
         result=copy.deepcopy(get(rs,'math-result'))
         result.update(id='ooc:fixture:counter-result',subject_ref=claim['id'],
                       test_ref=test['id'],execution_ref=execution['id'])
-        result['verification_receipt']['statement_sha256']=core.sha256(claim['statement'].encode())
+        receipt=result['verification_receipt']
+        receipt['statement_sha256']=core.sha256(claim['statement'].encode())
+        # The checker, not an unsigned EvidenceObject, must attest the relation.
+        receipt['attestation_version']='OOC_FORMAL_PROOF_ATTESTATION_V3'
+        receipt['counterproof_binding']={
+            'target_id':get(rs,'math-claim')['id'],
+            'counterclaim_id':claim['id'],
+            'relation':'EXACT_NEGATION',
+            'target_statement_sha256':core.sha256(
+                get(rs,'math-claim')['statement'].encode()),
+            'counterclaim_statement_sha256':core.sha256(claim['statement'].encode())}
         evidence=copy.deepcopy(get(rs,'math-evidence'))
         evidence.update(id='ooc:fixture:counter-evidence',result_ref=result['id'],
                         counterclaim_relation={'target_ref':get(rs,'math-claim')['id'],

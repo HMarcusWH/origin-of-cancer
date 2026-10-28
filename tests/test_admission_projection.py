@@ -1,6 +1,7 @@
 """Source-pinned, synthetic-only state projection and policy-registry tests."""
 import copy
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -183,20 +184,26 @@ class HistoricalSnapshotContract(unittest.TestCase):
             root=make_root(Path(temp),with_project=True)
             records=mathematical_fixture()
             result,key,digest=signed_math(records,root)
+            # Original source-path authorization uses an immutable Git tree,
+            # not the files present in the latest working directory.
+            subprocess.run(['git','init','-q',str(root)],check=True)
+            subprocess.run(['git','-C',str(root),'add','-A'],check=True)
+            tree=subprocess.check_output(['git','-C',str(root),'write-tree'],
+                                         text=True).strip()
             verdict=next(x for x in records if x['type']=='Verdict')
             basis={x['id']:x for x in records if x is not verdict}
             with patch.dict('os.environ',{'OOC_TRUST_POLICY_SHA256':digest}):
                 self.assertTrue(core._historical_positive_replay(
-                    verdict,basis,proof_trust_root=root))
+                    verdict,basis,proof_trust_root=root,issuance_tree_sha=tree))
                 receipt=result['verification_receipt']
                 saved=receipt.pop('attestation_signature_b64')
                 self.assertFalse(core._historical_positive_replay(
-                    verdict,basis,proof_trust_root=root))
+                    verdict,basis,proof_trust_root=root,issuance_tree_sha=tree))
                 receipt['attestation_signature_b64']=saved
             # A repository-controlled self-signed policy is not enough.
             with patch.dict('os.environ',{'OOC_TRUST_POLICY_SHA256':'0'*64}):
                 self.assertFalse(core._historical_positive_replay(
-                    verdict,basis,proof_trust_root=root))
+                    verdict,basis,proof_trust_root=root,issuance_tree_sha=tree))
 
     def test_production_requires_external_authorization_even_for_valid_checksum(self):
         record={'id':'ooc:fixture:g','type':'ResearchGap','status':'RESOLVED'}
