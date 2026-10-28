@@ -1312,6 +1312,25 @@ def _historical_positive_replay(record, basis_records, *, proof_trust_root=None,
         return False
 
 
+def _issuance_scope(record):
+    """Typed issuance envelope for scientific sinks with no native scope field.
+
+    The record contents and source/subject identity are still independently
+    bound to the approved digest; a synthetic envelope is never scientific
+    evidence or a broader authorization.
+    """
+    scope = (record.get('scope') or record.get('obligation_scope')
+             or record.get('disposition_scope'))
+    if scope is not None:
+        return scope
+    return {
+        'Programme': {'domain':'PROGRAMME_GOVERNANCE'},
+        'DataUse': {'domain':'DATA_FIREWALL'},
+        'SourceVerification': {'domain':'BIBLIOGRAPHIC_VERIFICATION'},
+        'LiteratureSource': {'domain':'BIBLIOGRAPHIC_VERIFICATION'},
+    }.get(record.get('type'), {})
+
+
 def _production_issuance_authenticated(record, root):
     """Production positive claims require externally pinned immutable issuance.
 
@@ -1331,8 +1350,7 @@ def _production_issuance_authenticated(record, root):
     if basis is None:
         return False
     manifest=record['admission_basis']['basis']
-    scope=(record.get('scope') or record.get('obligation_scope')
-           or record.get('disposition_scope'))
+    scope = _issuance_scope(record)
     return (manifest.get('subject_ref') == record.get('id')
             and canonical(manifest.get('asserted_scope')) == canonical(scope)
             and manifest.get('issued_record_sha256') == issued_record_digest(record)
