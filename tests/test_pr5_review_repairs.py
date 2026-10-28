@@ -58,7 +58,8 @@ class AdmissionSnapshotBinding(unittest.TestCase):
             nonfixture=copy.deepcopy(event);nonfixture['id']='ooc:authorization:issued'
             nonfixture['admission_basis']=snapshot(records,[r['id'] for r in records],
                 subject_ref=nonfixture['id'],asserted_scope=event['scope'],
-                input_graph_tree_sha='1'*40,issuer_epoch='synthetic-epoch')
+                input_graph_tree_sha='1'*40,issuer_epoch='synthetic-epoch',
+                issued_record=nonfixture)
             with patch.object(core,'_independently_pinned_admission_basis',return_value=True),\
                  patch.object(core,'_historical_positive_replay',return_value=True):
                 self.assertTrue(core._production_issuance_authenticated(nonfixture,Path(tmp)))
