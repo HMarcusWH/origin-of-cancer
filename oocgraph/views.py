@@ -3,6 +3,7 @@ from __future__ import annotations
 import html
 from collections import Counter
 from pathlib import Path
+from .admission.projection import project_current
 from .core import (canonical, loads, read_graph, resolve, sha256, file_inventory,
                    file_class, subject_digest, effective_route_state, effective_transition_state,
                    effective_data_use_state,
@@ -42,9 +43,10 @@ def make_views(root: Path) -> dict[str, str]:
                          'sha256':None if generated else sha256((root/p).read_bytes()),'hash_excluded':generated})
     digest=subject_digest(root,files)
     graph_hash=sha256(canonical(records).encode())
-    resolver=resolve(records)
+    projected=project_current(records, root=root, critical_gap_ids=project.get("critical_gap_ids", []))
+    resolver=projected['resolver']
     critical=[r for r in items('ResearchGap') if r['priority']=='CRITICAL']
-    freeze=effective_freeze_eligibility(records, project.get("critical_gap_ids", []))
+    freeze=projected["freeze"]
     opencrit=[r for r in critical if r["id"] in freeze["blocking_gap_refs"]]
     required=loads((root/'config/documentation_contract.json').read_text())['required_documents']
     state={'stage':project['scientific_stage'],
@@ -58,7 +60,7 @@ def make_views(root: Path) -> dict[str, str]:
            'source_identifier_groups':len({r['identifiers_raw'].split('; PMID')[0].strip().lower() for r in items('LiteratureSource')}),
            'bibliographic_verifications':counts['SourceVerification'],
            'currently_verified_sources':sum(
-               effective_source_verification_state(records, s)['effective']=='VERIFIED'
+               projected['sources'][s['id']]['effective']=='VERIFIED'
                for s in items('LiteratureSource')),
            'completed_paper_extractions':sum(r['extraction_status']=='EXTRACTED' for r in items('LiteratureSource')),
            'theory_cards':counts['Theory'],'completed_theory_cards':sum(r['card_complete'] for r in items('Theory')),
@@ -100,6 +102,7 @@ def make_views(root: Path) -> dict[str, str]:
         'sources_are_not_evidence':True,
         'reported_adjudication_is_not_independent_verification':True,
         'retracted_evidence':approved_retractions(records),
+        'admission_qualification':projected['qualifications'],
         'retracted_source_verifications':{
             k:v for k,v in approved_retractions(records).items()
             if any(s['id']==k for s in items('SourceVerification'))}})
@@ -116,21 +119,21 @@ def make_views(root: Path) -> dict[str, str]:
     out['generated/data_use_firewall.json']=dump({
         'data_uses':items('DataUse'), 'datasets':items('Dataset'),
         'effective_independence':[
-            {'id':r['id'], **effective_data_use_state(records, r)}
+            {'id':r['id'], **projected['data_uses'][r['id']]}
             for r in items('DataUse')],
         'independence_assumed':False})
     out['generated/route_atlas.json']=dump({
         'routes':items('Route'), 'transitions':items('Transition'),
         'effective_routes':[
-            {'id':r['id'], **effective_route_state(records,r)}
+            {'id':r['id'], **projected['routes'][r['id']]}
             for r in items('Route')],
         'effective_transitions':[
-            {'id':t['id'], **effective_transition_state(records,t)}
+            {'id':t['id'], **projected['transitions'][t['id']]}
             for t in items('Transition')],
         'declared_status_is_not_current_scientific_authority':True,
         'mvcl_reference_edges':items('MVCLReference'),
         'reference_edges_are_admitted_routes':False})
-    out['generated/model_applicability.json']=dump({'estimands':items('Estimand'),'classes':items('ModelClass'),'instances':items('ModelInstance'),'applicability':items('MethodApplicability'),'effective_model_states':[{'id':m['id'],**effective_model_state(records,m)} for m in items('ModelInstance')],'universal_backend_selected':False})
+    out['generated/model_applicability.json']=dump({'estimands':items('Estimand'),'classes':items('ModelClass'),'instances':items('ModelInstance'),'applicability':items('MethodApplicability'),'effective_model_states':[{'id':m['id'],**projected['models'][m['id']]} for m in items('ModelInstance')],'universal_backend_selected':False})
     out['generated/README.md']='# Generated views\n\nDo not edit these files. Run `python tools/build.py --write` after an authored change. The graph, resolver, tables and static explorer are projections; they do not create scientific authority. Full graph exports are deterministic and carry no build-time clock.\n'
     payload=canonical({'nodes':nodes,'relations':edges}).replace('<','\\u003c').replace('&','\\u0026')
     out['generated/explorer.html']=EXPLORER.replace('PAYLOAD_JSON',payload).replace(

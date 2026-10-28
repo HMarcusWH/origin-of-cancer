@@ -1,0 +1,249 @@
+{
+  "policy_version": "OOC_ADMISSION_V2",
+  "description": "Admission sink census. Metadata does not itself convey scientific truth.",
+  "sinks": [
+    {
+      "id": "Adapter.status:DOSSIER_COMPLETE",
+      "policy_id": "OOC_DECLARATION_NON_AUTH_V2",
+      "owner": "Adapter",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "AuthorizationEvent.action:ADMIT_MODEL",
+      "policy_id": "OOC_OBLIGATION_AND_GOVERNANCE_V2",
+      "owner": "AuthorizationEvent",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "_historical_model_license_admission"
+    },
+    {
+      "id": "AuthorizationEvent.action:FREEZE_KERNEL",
+      "policy_id": "OOC_OBLIGATION_AND_GOVERNANCE_V2",
+      "owner": "AuthorizationEvent",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_freeze_eligibility"
+    },
+    {
+      "id": "AuthorizationEvent.action:UNFREEZE_KERNEL",
+      "policy_id": "OOC_OBLIGATION_AND_GOVERNANCE_V2",
+      "owner": "AuthorizationEvent",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_freeze_eligibility"
+    },
+    {
+      "id": "Claim.empirical_admission:RECORDED_IN_VERDICTS",
+      "policy_id": "OOC_DECLARATION_NON_AUTH_V2",
+      "owner": "Claim",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "DataUse.status:ADMITTED",
+      "policy_id": "OOC_DATA_FIREWALL_V2",
+      "owner": "DataUse",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_data_use_state"
+    },
+    {
+      "id": "Decision.decision:COMPLETE",
+      "policy_id": "OOC_NON_AUTHORITATIVE_REVIEW_V2",
+      "owner": "Decision",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "RECORDED_STATUS_ONLY",
+      "current": "NO_SCIENTIFIC_AUTHORITY",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "Decision.decision:RESOLVE",
+      "policy_id": "OOC_NON_AUTHORITATIVE_REVIEW_V2",
+      "owner": "Decision",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "RECORDED_STATUS_ONLY",
+      "current": "NO_SCIENTIFIC_AUTHORITY",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "Decision.decision:SATISFY",
+      "policy_id": "OOC_NON_AUTHORITATIVE_REVIEW_V2",
+      "owner": "Decision",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "RECORDED_STATUS_ONLY",
+      "current": "NO_SCIENTIFIC_AUTHORITY",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "Decision.decision:VERIFY",
+      "policy_id": "OOC_NON_AUTHORITATIVE_REVIEW_V2",
+      "owner": "Decision",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "RECORDED_STATUS_ONLY",
+      "current": "NO_SCIENTIFIC_AUTHORITY",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "Execution.status:COMPLETED",
+      "policy_id": "OOC_NON_AUTHORITATIVE_REVIEW_V2",
+      "owner": "Execution",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "RECORDED_STATUS_ONLY",
+      "current": "NO_SCIENTIFIC_AUTHORITY",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "LiteratureSource.status:EXTRACTED",
+      "policy_id": "OOC_NON_AUTHORITATIVE_REVIEW_V2",
+      "owner": "LiteratureSource",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "RECORDED_STATUS_ONLY",
+      "current": "NO_SCIENTIFIC_AUTHORITY",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "LiteratureSource.status:REGISTERED_NOT_EXTRACTED",
+      "policy_id": "OOC_NON_AUTHORITATIVE_REVIEW_V2",
+      "owner": "LiteratureSource",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "RECORDED_STATUS_ONLY",
+      "current": "NO_SCIENTIFIC_AUTHORITY",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "MethodImport.status:SCOPED_IMPORT_ADMITTED",
+      "policy_id": "OOC_NON_AUTHORITATIVE_REVIEW_V2",
+      "owner": "MethodImport",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "RECORDED_STATUS_ONLY",
+      "current": "NO_SCIENTIFIC_AUTHORITY",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "ModelInstance.status:ADMITTED",
+      "policy_id": "OOC_PROOF_AND_MODEL_V2",
+      "owner": "ModelInstance",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_model_state"
+    },
+    {
+      "id": "Programme.kernel_frozen:true",
+      "policy_id": "OOC_OBLIGATION_AND_GOVERNANCE_V2",
+      "owner": "Programme",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_freeze_eligibility"
+    },
+    {
+      "id": "Requirement.status:BOUNDED",
+      "policy_id": "OOC_OBLIGATION_AND_GOVERNANCE_V2",
+      "owner": "Requirement",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_obligation_state"
+    },
+    {
+      "id": "Requirement.status:SATISFIED",
+      "policy_id": "OOC_OBLIGATION_AND_GOVERNANCE_V2",
+      "owner": "Requirement",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_obligation_state"
+    },
+    {
+      "id": "ResearchGap.status:BOUNDED",
+      "policy_id": "OOC_OBLIGATION_AND_GOVERNANCE_V2",
+      "owner": "ResearchGap",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_obligation_state"
+    },
+    {
+      "id": "ResearchGap.status:RESOLVED",
+      "policy_id": "OOC_OBLIGATION_AND_GOVERNANCE_V2",
+      "owner": "ResearchGap",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_obligation_state"
+    },
+    {
+      "id": "Result.status:VALIDATED",
+      "policy_id": "OOC_PROOF_AND_MODEL_V2",
+      "owner": "Result",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "Route.status:CLOSED",
+      "policy_id": "OOC_ROUTE_V2",
+      "owner": "Route",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_route_state"
+    },
+    {
+      "id": "SourceVerification.status:VERIFIED",
+      "policy_id": "OOC_BIBLIOGRAPHIC_V2",
+      "owner": "SourceVerification",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_source_verification_state"
+    },
+    {
+      "id": "Theory.status:CARD_COMPLETE",
+      "policy_id": "OOC_DECLARATION_NON_AUTH_V2",
+      "owner": "Theory",
+      "mode": "NON_AUTHORITATIVE_METADATA",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "NON_AUTHORITATIVE_ONLY"
+    },
+    {
+      "id": "Transition.status:SUPPORTED_SCOPED",
+      "policy_id": "OOC_ROUTE_V2",
+      "owner": "Transition",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "effective_transition_state"
+    },
+    {
+      "id": "Verdict.decision:MATHEMATICALLY_VERIFIED_SCOPED",
+      "policy_id": "OOC_FORMAL_V2",
+      "owner": "Verdict",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "resolve"
+    },
+    {
+      "id": "Verdict.decision:SUPPORTED_SCOPED",
+      "policy_id": "OOC_ORIGIN_AND_BIOLOGICAL_V2",
+      "owner": "Verdict",
+      "mode": "AUTHORITATIVE",
+      "historical": "ISSUANCE_BASIS_OR_UNVERIFIABLE",
+      "current": "EVIDENCE_GROUPS_AND_DEPENDENCIES",
+      "evaluator": "resolve"
+    }
+  ]
+}

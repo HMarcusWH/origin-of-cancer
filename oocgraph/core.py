@@ -9,9 +9,16 @@ import os
 import json
 import math
 import re
+import subprocess
 from collections import defaultdict
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
+from .admission.scope import scoped_claim_entails
+from .admission.evidence import qualify_groups, groups_satisfied, live_support
+from .admission.formal import qualify_formal_result, qualify_verified_counterevidence
+from .admission.route import has_ancestry_path
+from .admission.history import historical_obligations, obligation_inventory, issued_record_digest, snapshot as admission_snapshot
+from .admission.registry import registry_errors
 
 class IntegrityError(ValueError):
     """Malformed or inconsistent graph input."""
@@ -74,7 +81,7 @@ def read_graph(root: Path) -> list[dict]:
 def partition(verdict: dict) -> str:
     return canonical([verdict.get(k) for k in ("subject_ref", "axis", "facet", "scope", "model_instance_ref")])
 
-def resolve(records: Iterable[dict]) -> dict:
+def resolve(records: Iterable[dict], *, root: Path | None = None) -> dict:
     """Order-independent, explicit-supersession resolver; no recency ranking."""
     records = list(records)
     verdicts = {r["id"]: r for r in records if r["type"] == "Verdict"}
@@ -105,31 +112,50 @@ def resolve(records: Iterable[dict]) -> dict:
         if len(active) == 1 and status in SCIENTIFIC_POSITIVE:
             v = verdicts[active[0]]
             index = {r["id"]: r for r in records}
-            retracted = _retracted_support_refs(
-                records, index, v.get("assessment_refs", []))
             subject = index.get(v.get("subject_ref"), {})
-            route_contested = (subject.get("type") == "Route"
-                               and effective_route_state(records, subject)["effective"] == "CONTESTED")
-            used_data = [du for du in records if du.get("type") == "DataUse"
-                         and du.get("model_instance_ref") == v.get("model_instance_ref")]
-            model_data_contested = any(
-                effective_data_use_state(records, du)["effective"] == "CONTESTED"
-                for du in used_data)
-            transfer_contested = (bool(v.get("scope", {}).get("pan_cancer"))
-                                  and not _effective_pan_cancer_transfer(records, index, v))
-            origin_contested = (
-                subject.get("type") == "Claim" and subject.get("claim_kind") == "ORIGIN"
-                and (bool(_retracted_support_refs(
-                         records, index, list(subject.get("entry_assessment_refs", []))
-                         + list(subject.get("establishment_assessment_refs", []))))
-                     or effective_route_state(
-                         records, index.get(subject.get("origin_route_ref"), {}))
-                         ["effective"] != "ADMITTED_CLOSED"))
-            if (retracted or route_contested or model_data_contested or transfer_contested
-                or origin_contested
-                or _material_scoped_contradictions(
-                    records, index, [v.get("subject_ref")], v.get("scope"))):
-                status = "CONTESTED"
+            withdrawn = approved_retractions(records, index)
+            kind = subject.get("claim_kind")
+            if status == "MATHEMATICALLY_VERIFIED_SCOPED":
+                # All authority, proof, and surviving evidence must belong to
+                # one Result.  Never select a withdrawn first alternative and
+                # accidentally veto another independently qualifying Result.
+                certified = _qualified_formal_verdict(index, v, root, withdrawn=withdrawn)
+                live = certified is not None
+            elif kind == "ORIGIN":
+                live = _origin_current_support(records,index,subject,v)
+            elif status == "SUPPORTED_SCOPED" and subject.get('type') == 'Route':
+                route_kind = route_evidence_policy_key(subject)
+                live = bool(
+                    effective_route_state(records, subject)['effective'] == 'ADMITTED_CLOSED'
+                    and live_support(index, records, v.get('assessment_refs', []),
+                        lambda a: _appropriate_biological_assessment(
+                            index, a, v.get('subject_ref'), v.get('scope'), route_kind),
+                        withdrawn))
+            elif status == "SUPPORTED_SCOPED" and subject.get('type') == 'Claim':
+                live = bool(live_support(index,records,v.get('assessment_refs',[]),
+                    lambda a: _appropriate_biological_assessment(index,a,subject['id'],v.get('scope'),
+                        subject.get('claim_kind')),
+                    withdrawn))
+            else:
+                live = bool(live_support(index,records,v.get('assessment_refs',[]),
+                    lambda a: _qualified_assessment(index,a,v.get('subject_ref'),v.get('scope')),
+                    withdrawn))
+            data_contested = any(
+                effective_data_use_state(records, du)['effective'] == 'CONTESTED'
+                for du in records if du.get('type') == 'DataUse' and
+                du.get('model_instance_ref') == v.get('model_instance_ref'))
+            if v.get('model_instance_ref') and any(e.get('type')=='AuthorizationEvent' and
+                    e.get('subject_ref')==v.get('model_instance_ref') and
+                    e.get('action')=='ADMIT_MODEL' for e in records):
+                model_contested = (effective_model_state(records,index.get(v['model_instance_ref'],{}),root=root)['effective']
+                                   != 'ADMITTED')
+            else: model_contested = False
+            transfer_contested = bool(v.get('scope',{}).get('pan_cancer') and
+                                      not _effective_pan_cancer_transfer(records,index,v))
+            contradictions = _material_scoped_contradictions(
+                records,index,[v.get('subject_ref')],v.get('scope'),root=root)
+            if not live or data_contested or model_contested or transfer_contested or contradictions:
+                status = 'CONTESTED'
         output.append({"partition": loads(key), "state": status, "active_verdict_refs": active,
                        "historical_verdict_refs": sorted(removed)})
     return {"policy": "EXPLICIT_SCOPED_SUPERSESSION_ONLY", "partitions": output,
@@ -249,6 +275,17 @@ EVIDENCE_OBLIGATION_POLICY = {
                    {"TEMPORAL","ANCESTRY","CAUSAL"}),
     "CONSTITUTIVE": ({"BIOLOGICAL_CAUSAL_SCOPED"},{"PERTURBATION","MIXED"},{"CAUSAL"})
 }
+def route_evidence_policy_key(route):
+    """Map schema-level Route kinds to the *same* adjudication policy everywhere.
+
+    Route.claim_kind is CAUSAL or HISTORICAL; the optional field defaults to
+    CAUSAL for backward-compatible historical records.  Never reinterpret an
+    unknown Route kind as a legitimate route-evidence permission.
+    """
+    kind = route.get("claim_kind", "CAUSAL")
+    return {"CAUSAL": "ROUTE", "HISTORICAL": "HISTORICAL_ROUTE"}.get(kind)
+
+
 CLOSURE_DECISIONS = {
     ("ResearchGap", "RESOLVED"): ("RESEARCH_GAP_DISPOSITION", "RESOLVE"),
     ("ResearchGap", "BOUNDED"): ("RESEARCH_GAP_DISPOSITION", "BOUND"),
@@ -303,7 +340,9 @@ def _evidence_matches_scientific_scope(index, evidence, scope):
                 "PRIMARY_HUMAN_LONGITUDINAL", "PRIMARY_HUMAN_CROSS_SECTIONAL",
                 "HUMAN_CAUSAL"}:
             return False
-    for key in ("tissue", "population", "time_scope"):
+    # Every declared scientific coordinate must be witnessed by the biological
+    # source context. Missing context is NOT a licence to widen the assertion.
+    for key in ("organism", "tissue", "population", "time_scope", "stage", "lineage"):
         if key in scope and scope[key] != ctx.get(key):
             return False
     return True
@@ -375,7 +414,9 @@ def proof_attestation_payload(index, result):
     signed_result["verification_receipt"] = {
         k:v for k,v in receipt.items() if k != "attestation_signature_b64"}
     return {
-        "domain": "OOC_FORMAL_PROOF_ATTESTATION_V2",
+        "domain": ("OOC_FORMAL_PROOF_ATTESTATION_V3" if
+                   receipt.get("attestation_version") == "OOC_FORMAL_PROOF_ATTESTATION_V3"
+                   else "OOC_FORMAL_PROOF_ATTESTATION_V2"),
         "result": signed_result, "test": test, "execution": execution,
         "protocol": protocol, "model_id": model.get("id"),
         "model_digest": model.get("frozen_digest"),
@@ -406,8 +447,14 @@ def trusted_proof_receipt(root, index, result):
             return False
         registry = loads(raw.decode("utf-8"))
         receipt = result.get("verification_receipt", {})
+        version = receipt.get("attestation_version")
         if (result.get("type") != "Result"
-                or receipt.get("attestation_version") != "OOC_FORMAL_PROOF_ATTESTATION_V2"):
+                or version not in {"OOC_FORMAL_PROOF_ATTESTATION_V2",
+                                   "OOC_FORMAL_PROOF_ATTESTATION_V3"}
+                or (version == "OOC_FORMAL_PROOF_ATTESTATION_V3")
+                   != isinstance(receipt.get("counterproof_binding"), dict)
+                or (version == "OOC_FORMAL_PROOF_ATTESTATION_V2"
+                    and "counterproof_binding" in receipt)):
             return False
         execution = index.get(result.get("execution_ref"), {})
         checker = index.get(execution.get("software_ref"), {})
@@ -492,24 +539,27 @@ def _verified_result(index, result, subject_ref, scope):
     )
 
 
-def _qualified_formal_verdict(index, verdict, root=None):
-    """Atomic admission: one exact Result must satisfy every formal gate.
+def _qualified_formal_verdict(index, verdict, root=None, *, withdrawn=None):
+    """Return a single Result with exact proof trust and qualified support.
 
-    Other Results in the same Verdict may be controls or contrary observations;
-    they cannot lend a signature to an unrelated, unsigned Result. The
-    external checker-policy pin is mandatory on production repository roots.
+    During *historical structural* validation, ``withdrawn=None`` preserves
+    the original admissibility test; current evaluations pass the actual
+    withdrawal set.  Sorting makes result-ref order immaterial, and the
+    assessment must belong to the same signed, passing Result.
     """
     strict = root is not None and (root / "config/project.json").is_file()
-    for result_ref in verdict.get("result_refs", []):
+    for result_ref in sorted(set(verdict.get("result_refs", []))):
         result = index.get(result_ref, {})
         if not (result.get("model_instance_ref") == verdict.get("model_instance_ref")
                 and _verified_result(index, result, verdict.get("subject_ref"), verdict.get("scope"))):
             continue
         if strict and not trusted_proof_receipt(root, index, result):
             continue
-        for assessment_ref in verdict.get("assessment_refs", []):
+        for assessment_ref in sorted(set(verdict.get("assessment_refs", []))):
             assessment = index.get(assessment_ref, {})
             evidence = index.get(assessment.get("evidence_ref"), {})
+            if (withdrawn is not None and assessment.get("evidence_ref") in withdrawn):
+                continue
             if (evidence.get("result_ref") == result_ref
                     and _qualified_assessment(
                         index, assessment, verdict.get("subject_ref"), verdict.get("scope"),
@@ -534,17 +584,25 @@ def _appropriate_biological_assessment(index, assessment, target_ref, scope, cla
     )
 
 
-def _admitted_origin_claim(records, index, claim):
-    """An end-to-end route is not first entry or malignant establishment."""
+def _admitted_origin_claim(records, index, claim, asserted_scope=None, *, current=False):
+    """Qualify ORIGIN's route, first entry, establishment and continuity groups.
+
+    An ORIGIN entry in one species never licenses a verdict in another species.
+    The historical assessment declaration is immutable; present-day withdrawals
+    only affect CURRENT, never reinterpret a pre-existing valid claim.
+    """
     if claim.get("type") != "Claim" or claim.get("claim_kind") != "ORIGIN":
+        return False
+    scope = claim.get("scope") if asserted_scope is None else asserted_scope
+    if not scoped_claim_entails(claim.get("scope"), scope):
         return False
     route = index.get(claim.get("origin_route_ref"), {})
     state = index.get(claim.get("malignant_state_ref"), {})
     criterion = index.get(claim.get("persistence_criterion_ref"), {})
     if not (route.get("type") == "Route"
             and route.get("status") == "CLOSED"
-            and effective_route_state(records, route, historical=True)["effective"] == "ADMITTED_CLOSED"
-            and canonical(route.get("scope")) == canonical(claim.get("scope"))
+            and effective_route_state(records, route, historical=not current)["effective"] == "ADMITTED_CLOSED"
+            and scoped_claim_entails(route.get("scope"), scope)
             and route.get("transition_refs")
             and state.get("type") == "BiologicalState"
             and index.get(route["transition_refs"][-1], {}).get("target_state_ref") == state.get("id")
@@ -555,21 +613,32 @@ def _admitted_origin_claim(records, index, claim):
         return False
     witness = index.get(route.get("witness_bundle_ref"), {})
     eligible_refs = set(witness.get("evidence_refs", []))
-    def admission(refs, role, designs):
-        return bool(refs) and all(
-            e.get("id") in eligible_refs
-            and e.get("context_ref") == state.get("context_ref")
-            and e.get("design_class") in designs
-            and _qualified_assessment(
-                index, a, claim.get("id"), claim.get("scope"),
-                assessment_role=role, allowed_ceilings=BIOLOGICAL_CEILINGS)
-            for ref in refs for a in [index.get(ref, {})]
-            for e in [index.get(a.get("evidence_ref"), {})])
-    return (
-        admission(claim.get("entry_assessment_refs", []), "TEMPORAL",
-                  {"LONGITUDINAL", "LINEAGE", "MIXED"})
-        and admission(claim.get("establishment_assessment_refs", []), "PERSISTENCE",
-                      {"LONGITUDINAL", "MIXED"}))
+    withdrawn = approved_retractions(records, index) if current else {}
+    groups = qualify_groups([
+        ("FIRST_ENTRY", "ANY", claim.get("entry_assessment_refs", []), 1),
+        ("ESTABLISHMENT", "ANY", claim.get("establishment_assessment_refs", []), 1),
+    ],lambda group, ref: (
+        (a := index.get(ref, {})).get("type") == "EvidenceAssessment"
+        and (e := index.get(a.get("evidence_ref"), {})).get("id") in eligible_refs
+        and e.get("id") not in withdrawn
+        and e.get("context_ref") == state.get("context_ref")
+        and e.get("design_class") in (
+            {"LONGITUDINAL", "LINEAGE", "MIXED"}
+            if group == "FIRST_ENTRY" else {"LONGITUDINAL", "MIXED"})
+        and _qualified_assessment(index, a, claim.get("id"), scope,
+                    assessment_role=("TEMPORAL" if group == "FIRST_ENTRY" else "PERSISTENCE"),
+                    allowed_ceilings=BIOLOGICAL_CEILINGS)))
+    return groups_satisfied(groups)
+
+
+def _origin_current_support(records, index, claim, verdict):
+    """Keep historical ORIGIN stable, but recompute each mandatory live group."""
+    if not _admitted_origin_claim(records,index,claim,verdict.get('scope'),current=True):
+        return False
+    withdrawn=approved_retractions(records,index)
+    return bool(live_support(index,records,verdict.get('assessment_refs',[]),
+        lambda a: _appropriate_biological_assessment(index,a,claim['id'],verdict.get('scope'),"PERSISTENCE"),
+        withdrawn))
 
 
 def _admissible_disposition_evidence(index, assessment, target_ref, scope, domain, effect):
@@ -881,16 +950,16 @@ def effective_data_use_state(records, data_use, retractions=None):
             if (e.get("type")!="EvidenceObject" or e.get("design_class")!="DATA_AUDIT"
                     or e.get("id") in retractions):
                 continue
-            for effect in ("CONTRADICTS","FALSIFIES"):
-                if all(any(_qualified_assessment(
-                        index,a,du["id"],pair_scope,effect=effect,
-                        allowed_classes={"ANALYTIC"},
-                        allowed_ceilings={"DATA_PARTITION_AUDIT"},
-                        assessment_role="INDEPENDENCE")
-                        and a.get("evidence_ref")==e["id"]
-                        for a in records if a.get("type")=="EvidenceAssessment")
-                       for du in (data_use,other)):
-                    contradictory.append(e["id"])
+            if all(any(_qualified_assessment(
+                    index,a,du["id"],pair_scope,effect=effect,
+                    allowed_classes={"ANALYTIC"},
+                    allowed_ceilings={"DATA_PARTITION_AUDIT"},
+                    assessment_role="INDEPENDENCE")
+                    and a.get("evidence_ref")==e["id"]
+                    for a in records if a.get("type")=="EvidenceAssessment"
+                    for effect in ("CONTRADICTS", "FALSIFIES"))
+                   for du in (data_use,other)):
+                contradictory.append(e["id"])
     return {"declared":raw,
             "effective":"CONTESTED" if revoked or contradictory else "ADMITTED",
             "retracted_audit_refs":revoked,
@@ -953,7 +1022,7 @@ def _admitted_transition_assessments(records, index, transition, scope):
                 index, index.get(ref, {}), transition.get("id"), scope, "TRANSITION")]
 
 
-def _material_scoped_contradictions(records, index, target_refs, scope):
+def _material_scoped_contradictions(records, index, target_refs, scope, *, root=None):
     """Qualified current contradictions use the target's evidence policy.
 
     Statistical independence objections require a pair/obligation-matched
@@ -977,10 +1046,25 @@ def _material_scoped_contradictions(records, index, target_refs, scope):
         else:
             formal = (target.get("claim_kind") == "CERTIFICATE"
                       or domain == "MATHEMATICAL")
-            valid = _qualified_assessment(
-                index, assessment, target["id"], scope, effect=assessment["effect"],
-                allowed_classes={"FORMAL"} if formal else BIOLOGICAL_EVIDENCE_CLASSES,
-                allowed_ceilings={"MATHEMATICAL_EXACT"} if formal else BIOLOGICAL_CEILINGS)
+            if formal:
+                valid = qualify_verified_counterevidence(
+                    index, assessment, scope, target_ref=target["id"],
+                    qualified_assessment=lambda a: _qualified_assessment(
+                        index, a, target["id"], scope, effect=a["effect"],
+                        allowed_classes={"FORMAL"},
+                        allowed_ceilings={"MATHEMATICAL_EXACT"}),
+                    verify_result=_verified_result,
+                    verify_signature=lambda ix,res: _formal_signature_active(ix,res,root))
+            elif target.get('type') == 'ModelInstance':
+                valid = _qualified_assessment(
+                    index, assessment,target['id'],scope,effect=assessment['effect'],
+                    allowed_classes={'ANALYTIC'}, allowed_ceilings={'METHODOLOGICAL'},
+                    assessment_role='MODEL')
+            else:
+                valid = _qualified_assessment(
+                    index, assessment, target["id"], scope, effect=assessment["effect"],
+                    allowed_classes=BIOLOGICAL_EVIDENCE_CLASSES,
+                    allowed_ceilings=BIOLOGICAL_CEILINGS)
         if valid:
             qualified.append(assessment["id"])
     return sorted(qualified)
@@ -1027,7 +1111,274 @@ def kernel_freeze_basis_digest(records, ids):
     return sha256(canonical([index[i] for i in sorted(selected)]).encode())
 
 
-def _historical_model_license_admission(records, index, event):
+def _formal_signature_active(index, result, root=None):
+    """Trust-root policy is external; unsigned formal evidence never grants model admission.
+
+    An explicitly injected repository root from validation is used to check
+    cryptographic attestation. Synthetic unit fixtures (root=None) use only
+    syntactic PASS identity and can never authorize production release.
+    """
+    if root is None or not (root / 'config/project.json').is_file():
+        return bool(result.get("id", "").startswith("ooc:fixture:")
+                    and _verified_result(index, result, result.get("subject_ref"), result.get("scope")))
+    return trusted_proof_receipt(root, index, result)
+
+def _independently_pinned_admission_basis(event, stamped):
+    """Protected issuer supplies a digest; unconfigured production fails closed.
+
+    A PR-controlled graph or config field can never authorize its own history.
+    The CI/repository administration policy must forbid injecting this value
+    from candidate-controlled workflow code.
+    """
+    pinned = {part.strip().lower() for part in
+              os.environ.get('OOC_AUTHORIZED_ADMISSION_BASIS_SHA256', '').split(',')
+              if re.fullmatch(r'[0-9a-f]{64}', part.strip().lower())}
+    return bool(pinned and stamped.get('digest') in pinned)
+
+
+def _event_admission_basis(records, event, root, *, kind):
+    """Replay only an authenticated and content-addressed issuance snapshot."""
+    production = bool(root is not None and (root/'config/project.json').is_file())
+    basis_records = historical_obligations(
+        event, require_authenticated=production,
+        verifier=_independently_pinned_admission_basis)
+    if basis_records is None:
+        return None
+    manifest=event['admission_basis']['basis']
+    if (manifest.get('subject_ref') != event.get('id')
+            or canonical(manifest.get('asserted_scope')) != canonical(event.get('scope'))
+            or manifest.get('input_graph_tree_sha') is None
+            or (production and manifest.get('issued_record_sha256')
+                != issued_record_digest(event))):
+        return None
+    if not set(event.get('basis_refs',[])).issubset(basis_records):
+        return None
+    if kind == 'FREEZE_KERNEL':
+        inventory = set(manifest.get('obligation_inventory_refs',[]))
+        if not inventory or inventory != set(obligation_inventory(
+                basis_records.values(),event.get('subject_ref'))):
+            return None
+        if set(manifest.get('critical_gap_refs',[])) - set(basis_records):
+            return None
+    if production and not _historical_repository_paths_valid(
+            [*basis_records.values(), event], root, manifest.get('input_graph_tree_sha')):
+        return None
+    return list(basis_records.values())
+
+
+def _historical_repository_paths_valid(rows, root, tree_sha):
+    """Verify source anchors against original Git tree objects, not today's graph.
+
+    Production historical replay fails closed if its pinned tree is not present
+    or if an original path is unsafe, untracked, a symlink, or hash-mismatched.
+    """
+    if not isinstance(tree_sha, str) or not re.fullmatch(r'[0-9a-f]{40}', tree_sha):
+        return False
+    try:
+        listing = subprocess.run(
+            ['git', '-C', str(root), 'ls-tree', '-r', '-z', tree_sha],
+            capture_output=True, timeout=15, check=False)
+        if listing.returncode:
+            return False
+        historical_blobs = {}
+        for entry in listing.stdout.split(b'\x00'):
+            if not entry:
+                continue
+            header, raw_path = entry.split(b'\t', 1)
+            mode, kind, blob = header.decode('ascii').split()
+            if kind == 'blob' and mode in {'100644', '100755'}:
+                historical_blobs[raw_path.decode('utf-8')] = blob
+        checked = {}
+        for record in rows:
+            for field in ('path', 'doc_path'):
+                if field not in record:
+                    continue
+                path = record[field]
+                safe_path(root, path)
+                blob = historical_blobs.get(path)
+                if not blob:
+                    return False
+                expected = record.get('sha256') if field == 'path' else None
+                if expected is not None:
+                    if blob not in checked:
+                        content = subprocess.run(
+                            ['git', '-C', str(root), 'cat-file', 'blob', blob],
+                            capture_output=True, timeout=15, check=False)
+                        if content.returncode:
+                            return False
+                        checked[blob] = sha256(content.stdout)
+                    if checked[blob] != expected:
+                        return False
+        return True
+    except (OSError, ValueError, TypeError, UnicodeError, subprocess.TimeoutExpired,
+            IntegrityError):
+        return False
+
+
+def _historical_positive_replay(record, basis_records, *, proof_trust_root=None,
+                                issuance_tree_sha=None):
+    """Replay a positive claim against issuance-time rows, never today's graph.
+
+    A valid hash of an incomplete snapshot is insufficient: the claimed
+    admission has to qualify *inside* that historical universe, with all
+    necessary transitive source, method, scope, authority and route records.
+    Production additionally requires an independently pinned snapshot digest.
+    """
+    if not isinstance(record,dict) or not isinstance(basis_records,dict):
+        return False
+    if record.get('id') in basis_records:
+        return False  # no self-authored basis or retroactive replacement
+    try:
+        # Admission-time snapshots are untrusted input even when their hashes
+        # agree. A schema-invalid snapshot must not become an accepted past.
+        from jsonschema import Draft202012Validator
+        schema_path = Path(__file__).resolve().parents[1] / 'schema/graph-record.schema.json'
+        schema = loads(schema_path.read_text())
+        validators = {typ: Draft202012Validator(definition)
+                      for typ, definition in schema['$defs'].items()}
+        replay = [*basis_records.values(), record]
+        if any(not isinstance(row, dict)
+               or row.get('type') not in validators
+               or not validators[row['type']].is_valid(row)
+               for row in replay):
+            return False
+        if (proof_trust_root is not None
+                and (proof_trust_root / 'config/project.json').is_file()
+                and not _historical_repository_paths_valid(
+                    replay, proof_trust_root, issuance_tree_sha)):
+            return False
+        # Keep scientific records restricted to their issuance snapshot, but
+        # verify formal checkers against the independently pinned production
+        # policy when such a trust root is supplied. Without it, only the
+        # ordinary synthetic fixture harness may qualify synthetic proofs.
+        issues = validate_records(replay, root=None,
+                                  proof_trust_root=proof_trust_root)
+        if issues:
+            return False
+        # Semantic validation deliberately preserves a historically issued
+        # declaration after later retractions.  At *issuance*, however, the
+        # record must itself be effectively admitted in this closed snapshot;
+        # otherwise a withdrawn support could be retroactively reinstated to
+        # manufacture authority it never had when issued.
+        index = {row['id']: row for row in replay}
+        kind = record.get('type')
+        ident = record.get('id')
+        if kind == 'Verdict':
+            state = resolve(replay, root=proof_trust_root)
+            return any(ident in part['active_verdict_refs']
+                       and part['state'] == record.get('decision')
+                       for part in state['partitions'])
+        if kind == 'Transition':
+            return effective_transition_state(replay, record)['effective'] == 'ADMITTED_SUPPORTED_SCOPED'
+        if kind == 'Route':
+            return effective_route_state(replay, record)['effective'] == 'ADMITTED_CLOSED'
+        if kind == 'DataUse':
+            return effective_data_use_state(replay, record)['effective'] == 'ADMITTED'
+        if kind == 'ModelInstance':
+            state = effective_model_state(replay, record, root=proof_trust_root)
+            return (state['effective'] == 'ADMITTED'
+                    and state.get('authorization_ref') is not None)
+        if kind in {'Requirement', 'ResearchGap'}:
+            return effective_obligation_state(
+                replay, record, root=proof_trust_root)['effective'] == (
+                    'ADMITTED_' + record.get('status', ''))
+        if kind in {'SourceVerification', 'LiteratureSource'}:
+            source = (index.get(record.get('source_ref'), {})
+                      if kind == 'SourceVerification' else record)
+            if source.get('type') != 'LiteratureSource':
+                return False
+            current = effective_source_verification_state(replay, source)
+            return (ident in current['active_verification_refs']
+                    if kind == 'SourceVerification'
+                    else current['effective'] == 'VERIFIED')
+        if kind == 'AuthorizationEvent':
+            subject = index.get(record.get('subject_ref'), {})
+            if record.get('action') == 'ADMIT_MODEL':
+                if subject.get('type') != 'ModelInstance':
+                    return False
+                state = effective_model_state(replay, subject, root=proof_trust_root)
+                return state['effective'] == 'ADMITTED' and state['authorization_ref'] == ident
+            if record.get('action') == 'FREEZE_KERNEL':
+                if subject.get('type') != 'Programme':
+                    return False
+                state = effective_freeze_eligibility(replay, root=proof_trust_root)
+                return state['effective_kernel_frozen'] and state['freeze_authorized_by_event']
+            return False
+        if kind == 'Programme':
+            return effective_freeze_eligibility(
+                replay, root=proof_trust_root)['effective_kernel_frozen']
+        return False  # All unknown positive paths fail closed.
+    except (ValueError, TypeError, KeyError, IntegrityError, RecursionError, IndexError):
+        return False
+
+
+def _issuance_scope(record):
+    """Typed issuance envelope for scientific sinks with no native scope field.
+
+    The record contents and source/subject identity are still independently
+    bound to the approved digest; a synthetic envelope is never scientific
+    evidence or a broader authorization.
+    """
+    scope = (record.get('scope') or record.get('obligation_scope')
+             or record.get('disposition_scope'))
+    if scope is not None:
+        return scope
+    return {
+        'Programme': {'domain':'PROGRAMME_GOVERNANCE'},
+        'DataUse': {'domain':'DATA_FIREWALL'},
+        'SourceVerification': {'domain':'BIBLIOGRAPHIC_VERIFICATION'},
+        'LiteratureSource': {'domain':'BIBLIOGRAPHIC_VERIFICATION'},
+    }.get(record.get('type'), {})
+
+
+def _production_issuance_authenticated(record, root):
+    """Production positive claims require externally pinned immutable issuance.
+
+    In-memory fixture records (``ooc:fixture``) do not pass a production-root
+    admission check; they are used solely by the no-project synthetic harness.
+    """
+    if root is None or not (root/'config/project.json').is_file():
+        return True  # in-memory synthetic contract tests only
+    ref = record.get('id', '')
+    if ref.startswith('ooc:fixture:'):
+        # The standalone synthetic harness has no locked 43-gap production
+        # source register.  Fixture positives can never enter the real graph.
+        project = loads((root/'config/project.json').read_text())
+        return not project.get('critical_gap_ids') and not (root/'config/source_locks.json').exists()
+    basis=historical_obligations(record,require_authenticated=True,
+        verifier=_independently_pinned_admission_basis)
+    if basis is None:
+        return False
+    manifest=record['admission_basis']['basis']
+    scope = _issuance_scope(record)
+    return (manifest.get('subject_ref') == record.get('id')
+            and canonical(manifest.get('asserted_scope')) == canonical(scope)
+            and manifest.get('issued_record_sha256') == issued_record_digest(record)
+            and record.get('id') not in basis
+            and _historical_positive_replay(
+                record, basis, proof_trust_root=root,
+                issuance_tree_sha=manifest.get('input_graph_tree_sha')))
+
+
+def _is_scientific_positive(record):
+    """Only qualification-triggering state, not operational metadata."""
+    typ=record.get('type')
+    return (
+        (typ=='Programme' and record.get('kernel_frozen') is True)
+        or (typ=='Verdict' and record.get('decision') in SCIENTIFIC_POSITIVE)
+        or (typ=='Transition' and record.get('status')=='SUPPORTED_SCOPED')
+        or (typ=='Route' and record.get('status')=='CLOSED')
+        or (typ=='DataUse' and record.get('status')=='ADMITTED')
+        or (typ=='ModelInstance' and record.get('status')=='ADMITTED')
+        or (typ=='Requirement' and record.get('status') in {'SATISFIED','BOUNDED'})
+        or (typ=='ResearchGap' and record.get('status') in {'RESOLVED','BOUNDED'})
+        or (typ=='SourceVerification' and record.get('status')=='VERIFIED')
+        or (typ=='LiteratureSource' and record.get('bibliographic_verification')=='VERIFIED')
+        or (typ=='AuthorizationEvent' and record.get('action') in {'FREEZE_KERNEL','ADMIT_MODEL'})
+    )
+
+
+def _historical_model_license_admission(records, index, event, root=None):
     model = index.get(event.get("subject_ref"), {})
     app = index.get(model.get("applicability_ref"), {})
     if not (model.get("type") == "ModelInstance"
@@ -1047,18 +1398,41 @@ def _historical_model_license_admission(records, index, event):
             for a in assumptions):
         return False
     refs = set(event.get("evidence_refs", []))
-    return bool(refs) and all(any(
-        a.get("type") == "EvidenceAssessment"
-        and a.get("evidence_ref") == ref
-        and _qualified_assessment(
-            index, a, model["id"], event["scope"],
-            allowed_classes={"ANALYTIC", "FORMAL"},
-            allowed_ceilings={"METHODOLOGICAL", "MATHEMATICAL_EXACT"},
-            assessment_role="MODEL")
-        for a in records) for ref in refs)
+    if not refs:
+        return False
+    for ref in refs:
+        evidence = index.get(ref, {})
+        assessments = [a for a in records if a.get("type") == "EvidenceAssessment"
+                       and a.get("evidence_ref") == ref]
+        if not any(_qualified_assessment(
+                index, a, model["id"], event["scope"],
+                allowed_classes={"ANALYTIC", "FORMAL"},
+                allowed_ceilings={"METHODOLOGICAL", "MATHEMATICAL_EXACT"},
+                assessment_role="MODEL") for a in assessments):
+            return False
+        if evidence.get("evidence_class") == "FORMAL":
+            result = index.get(evidence.get("result_ref"), {})
+            claim_ref = result.get("subject_ref")
+            claim = index.get(claim_ref, {})
+            if not (claim.get("type") == "Claim"
+                    and claim.get("claim_kind") == "CERTIFICATE"
+                    and scoped_claim_entails(claim.get("scope"), event.get("scope"))
+                    and qualify_formal_result(
+                        index, result, claim_ref=claim_ref, model_ref=model["id"],
+                        scope=event["scope"], verify_result=_verified_result,
+                        evidence_refs=(ref,),
+                        assessments=tuple(a["id"] for a in assessments),
+                        qualifies_assessment=lambda a, er: _qualified_assessment(
+                            index, a, model["id"], event["scope"],
+                            allowed_classes={"FORMAL"},
+                            allowed_ceilings={"MATHEMATICAL_EXACT"},
+                            assessment_role="MODEL"),
+                        verify_signature=lambda idx, res: _formal_signature_active(idx, res, root))):
+                return False
+    return True
 
 
-def effective_model_state(records, model):
+def effective_model_state(records, model, *, root=None):
     """Frozen specification and current model license are separate objects."""
     raw = model.get("status", "DRAFT")
     index = {r["id"]: r for r in records}
@@ -1076,13 +1450,20 @@ def effective_model_state(records, model):
         for du in records if du.get("type") == "DataUse"
         and du.get("model_instance_ref") == model.get("id"))
     app = index.get(model.get("applicability_ref"), {})
-    current = not (revoked or data_contested) and (
+    negative_model = _material_scoped_contradictions(
+        records,index,[model.get('id')],model.get('scope'),root=root)
+    # Reapply the *same* exact binding contract to live model reliance.
+    # Checking evidence labels alone here used to allow a newly invalidated
+    # formal Result to retain an ADMITTED current model license.
+    positive_license = _historical_model_license_admission(records,index,event,root)
+    current = not (revoked or data_contested or negative_model) and positive_license and (
         app.get("status") == "ACTIVE" and app.get("assessment") == "APPLICABLE")
     return {"declared": raw, "effective": "ADMITTED" if current else "CONTESTED",
-            "authorization_ref": event["id"], "retracted_support_refs": revoked}
+            "authorization_ref": event["id"], "retracted_support_refs": revoked,
+            "contradiction_refs": negative_model}
 
 
-def effective_obligation_state(records, obligation, retractions=None, historical=False):
+def effective_obligation_state(records, obligation, retractions=None, historical=False, *, root=None):
     """Historical disposition remains; present evidential license can disappear."""
     raw = obligation.get("status", "OPEN")
     if raw not in {"RESOLVED", "SATISFIED", "BOUNDED"}:
@@ -1101,7 +1482,7 @@ def effective_obligation_state(records, obligation, retractions=None, historical
     retractions = approved_retractions(records, index) if retractions is None else retractions
     revoked = [] if historical else sorted(set(decision.get("evidence_refs", [])) & set(retractions))
     contradictions = ([] if historical else _material_scoped_contradictions(
-        records, index, [obligation.get("id")], scope))
+        records, index, [obligation.get("id")], scope, root=root))
     effective = ("UNADMITTED" if issues else
                  "CONTESTED" if revoked or contradictions else
                  "ADMITTED_" + raw)
@@ -1110,7 +1491,7 @@ def effective_obligation_state(records, obligation, retractions=None, historical
             "historical_admission_issues": issues}
 
 
-def effective_freeze_eligibility(records, critical_gap_ids=None, historical=False):
+def effective_freeze_eligibility(records, critical_gap_ids=None, historical=False, *, root=None):
     """Require CURRENT supported dispositions for all configured freeze burdens."""
     index = {r["id"]: r for r in records}
     programmes = [r for r in records if r.get("type") == "Programme"]
@@ -1131,8 +1512,8 @@ def effective_freeze_eligibility(records, critical_gap_ids=None, historical=Fals
             blockers.append(gap_ref)
             continue
         req = matching[0]
-        gs = effective_obligation_state(records, gap, retractions, historical)
-        qs = effective_obligation_state(records, req, retractions, historical)
+        gs = effective_obligation_state(records, gap, retractions, historical,root=root)
+        qs = effective_obligation_state(records, req, retractions, historical,root=root)
         gap_states[gap_ref] = gs
         requirement_states[req["id"]] = qs
         matches = (
@@ -1153,7 +1534,7 @@ def effective_freeze_eligibility(records, critical_gap_ids=None, historical=Fals
         if (req.get("type") == "Requirement"
                 and req.get("subject_ref") == programme.get("id")
                 and req.get("gap_ref") not in set(gaps)):
-            qs = effective_obligation_state(records, req, retractions, historical)
+            qs = effective_obligation_state(records, req, retractions, historical,root=root)
             requirement_states[req["id"]] = qs
             if not qs["effective"].startswith("ADMITTED_"):
                 blockers.append(req.get("gap_ref", req["id"]))
@@ -1236,42 +1617,33 @@ def _qualified_bridge_successors(index, route, transitions, bundle, step, fronti
 
 
 def _ancestry_connected_witness_path(index, route, transitions, bundle,
-                                     segment_keys, ancestry_keys, withdrawn=frozenset()):
-    """Prove one ancestry-reachable path, not disconnected local witnesses.
+                                     segment_keys, ancestry_keys, withdrawn=frozenset(), *, return_path=False):
+    """Find one complete, qualified, ancestry-anchored witness path.
 
-    State space is (segment index, qualified study/system/witness key).
-    Identity preservation and valid directed bridges are the only advances.
-    Multi-founder ancestry is supported through a frontier of qualifying keys.
+    The shared reachability primitive handles alternative branches; this wrapper
+    alone owns biological adjacency, bridge provenance and route scope.
     """
     if not segment_keys or len(segment_keys) != len(transitions):
         return False
-    frontier = set(ancestry_keys) & segment_keys[0]
-    if not frontier:
+    mode=bundle.get('mode')
+    if mode not in {'SAME_SYSTEM','VALIDATED_BRIDGE'}:
         return False
-    mode = bundle.get("mode")
-    if mode not in {"SAME_SYSTEM", "VALIDATED_BRIDGE"}:
+    for left,right in zip(transitions,transitions[1:]):
+        if (left.get('target_state_ref') != right.get('source_state_ref')
+                or not _adjacent_handoff_context(index,left,right)):
+            return False
+    allowed=(set(bundle.get('common_witness_ids',[]))
+             if mode=='SAME_SYSTEM' else None)
+    if mode=='SAME_SYSTEM' and not allowed:
         return False
-    for step in range(len(transitions) - 1):
-        # A reused witness label does not repair a discontinuous biological
-        # route. Even identity handoffs must join the identical state/context.
-        left, right = transitions[step], transitions[step + 1]
-        if (left.get("target_state_ref") != right.get("source_state_ref")
-                or not _adjacent_handoff_context(index, left, right)):
-            return False
-        next_keys = segment_keys[step + 1]
-        successors = frontier & next_keys
-        if mode == "VALIDATED_BRIDGE":
-            successors |= _qualified_bridge_successors(
-                index, route, transitions, bundle, step, frontier,
-                next_keys, withdrawn)
-        frontier = successors
-        if not frontier:
-            return False
-    if mode == "SAME_SYSTEM":
-        declared = set(bundle.get("common_witness_ids", []))
-        if not declared or not declared <= {key[2] for key in frontier}:
-            return False
-    return bool(frontier)
+    path=has_ancestry_path(segment_keys,ancestry_keys,
+        allowed_labels=allowed,
+        successors=(lambda step,frontier,nxt:
+            _qualified_bridge_successors(index,route,transitions,bundle,step,
+                                         frontier,nxt,withdrawn)
+            if mode=='VALIDATED_BRIDGE' else set()))
+    return path if return_path else bool(path)
+
 
 def effective_route_state(records, route, *, historical=False):
     """A closed route needs live segment, ancestry and witness/bridge closure.
@@ -1323,9 +1695,10 @@ def effective_route_state(records, route, *, historical=False):
             ancestry_keys |= _witness_keys(e)
     if not segment_keys or not (ancestry_keys & segment_keys[0]):
         eligible=False
-    if not _ancestry_connected_witness_path(
-            index, route, transitions, bundle, segment_keys,
-            ancestry_keys, frozenset(retracted)):
+    path = _ancestry_connected_witness_path(
+        index, route, transitions, bundle, segment_keys,
+        ancestry_keys, frozenset(retracted),return_path=True)
+    if not path:
         eligible = False
     if bundle.get("mode") == "SAME_SYSTEM" and (
             bundle.get("bridge_links") or bundle.get("bridge_evidence_refs")):
@@ -1338,7 +1711,8 @@ def effective_route_state(records, route, *, historical=False):
     withdrawn=_retracted_support_refs(records,index,support_refs)
     return {"declared":declared,
             "effective":"ADMITTED_CLOSED" if eligible and not contradictions else "CONTESTED",
-            "contradiction_refs":contradictions,"retracted_support_refs":withdrawn}
+            "contradiction_refs":contradictions,"retracted_support_refs":withdrawn,
+            "witness_path": [list(k) for k in path] if eligible and not contradictions else []}
 
 def _effective_pan_cancer_transfer(records, index, verdict):
     """Recheck independent surviving support for every transfer adapter."""
@@ -1354,9 +1728,8 @@ def _effective_pan_cancer_transfer(records, index, verdict):
     if not adapters or not covered or covered != adapters:
         return False
     subject = index.get(verdict.get("subject_ref"), {})
-    kind = ("HISTORICAL_ROUTE" if subject.get("type") == "Route"
-            and subject.get("claim_kind") == "HISTORICAL" else
-            "ROUTE" if subject.get("type") == "Route" else subject.get("claim_kind"))
+    kind = (route_evidence_policy_key(subject) if subject.get("type") == "Route"
+            else subject.get("claim_kind"))
     options = {}
     for adapter in adapters:
         scope = _adapter_scientific_scope(verdict.get("scope"), adapter)
@@ -1563,8 +1936,17 @@ def _nested_reference_errors(record, index, contract):
     return violations
 
 
-def validate_records(records: list[dict], root: Path | None = None) -> list[str]:
-    """Return integrity violations; scientific incompleteness is not a violation."""
+def validate_records(records: list[dict], root: Path | None = None,
+                     *, proof_trust_root: Path | None = None) -> list[str]:
+    """Return integrity violations; scientific incompleteness is not a violation.
+
+    ``proof_trust_root`` is exclusively the externally governed checker-policy
+    root for an authenticated *issuance snapshot* replay. It does not import
+    today's scientific graph or change the snapshot's obligation inventory.
+    """
+    if root is not None and proof_trust_root is not None and root != proof_trust_root:
+        raise IntegrityError('Conflicting proof trust roots')
+    formal_root = root if root is not None else proof_trust_root
     errors = []
     ids = [r.get("id") for r in records]
     if len(ids) != len(set(ids)): errors.append("DUPLICATE_ID")
@@ -1620,6 +2002,11 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
             for e in validator.iter_errors(r): errors.append(f"SCHEMA:{r.get('id')}:{list(e.path)}:{e.message}")
         if errors: return sorted(set(errors))
     else: vocab = None
+    for record in records:
+        if _is_scientific_positive(record) and not _production_issuance_authenticated(record,root):
+            errors.append('UNAUTHORIZED_POSITIVE_ISSUANCE:'+str(record.get('id')))
+    if errors:
+        return sorted(set(errors))
     def error(code, record): errors.append(f"{code}:{record.get('id')}")
     def check_ref(record, key, value, allowed=None):
         if not isinstance(value, str) or value not in index: error("MISSING_REF:"+key, record)
@@ -1696,6 +2083,11 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("BROKEN_AUTHORIZATION_HISTORY", r)
             elif action in {"RETIRE_MODEL", "UNFREEZE_KERNEL"}:
                 error("MISSING_AUTHORIZATION_PREDECESSOR", r)
+            if action in {"ADMIT_MODEL", "FREEZE_KERNEL"} and (
+                    root is not None and (root/'config/project.json').is_file()):
+                basis = _event_admission_basis(records,r,root,kind=action)
+                if basis is None:
+                    error('HISTORICAL_BASIS_UNVERIFIABLE',r)
             if action == "ADMIT_MODEL":
                 if (root is not None and (root/"config/project.json").is_file()
                     and any(index.get(ref,{}).get("evidence_class") == "FORMAL"
@@ -1703,33 +2095,45 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                                 root,index,index.get(index.get(ref,{}).get("result_ref"),{}))
                             for ref in r.get("evidence_refs", []))):
                     error("UNTRUSTED_FORMAL_MODEL_ADMISSION", r)
-                if not _historical_model_license_admission(records, index, r):
+                if not _historical_model_license_admission(records, index, r, formal_root):
                     error("UNQUALIFIED_MODEL_ADMISSION", r)
             if action == "RETIRE_MODEL" and (
                     r.get("basis_digest") != subject.get("frozen_digest") or
                     r.get("basis_refs") != [subject.get("id")]):
                 error("RETIREMENT_IDENTITY_MISMATCH", r)
             if kernel_event:
+                basis = (_event_admission_basis(records,r,root,kind=action)
+                         if r.get('admission_basis') else None)
+                # Legacy *synthetic* fixtures can exercise historical
+                # compatibility; actual release promotion requires a pinned
+                # v2 issuance basis and never silently imports missing history.
+                replay = basis if basis is not None else records
+                if basis is None and r.get('admission_basis'):
+                    error('INVALID_HISTORICAL_ADMISSION_BASIS',r)
                 try:
                     if r.get("basis_digest") != kernel_freeze_basis_digest(
-                            records, r.get("basis_refs", [])):
+                            replay, r.get("basis_refs", [])):
                         error("KERNEL_BASIS_MISMATCH", r)
                 except IntegrityError:
                     error("INCOMPLETE_KERNEL_BASIS", r)
                 if action == "FREEZE_KERNEL":
-                    expected_gaps = configured_critical_gap_refs
+                    actual_index={item['id']:item for item in replay}
+                    expected_gaps = (set(r['admission_basis']['basis']['critical_gap_refs'])
+                                     if basis is not None else configured_critical_gap_refs)
                     included_gaps = {x for x in r.get("basis_refs", [])
-                                     if index.get(x, {}).get("type") == "ResearchGap"}
+                                     if actual_index.get(x, {}).get("type") == "ResearchGap"}
                     included_reqs = {x for x in r.get("basis_refs", [])
-                                     if index.get(x, {}).get("type") == "Requirement"}
-                    required = {q["id"] for q in records
-                                if q.get("type") == "Requirement"
-                                and q.get("gap_ref") in expected_gaps
-                                and q.get("subject_ref") == subject.get("id")}
+                                     if actual_index.get(x, {}).get("type") == "Requirement"}
+                    required = (set(r['admission_basis']['basis']['obligation_inventory_refs'])
+                                if basis is not None else
+                                {q["id"] for q in records
+                                  if q.get("type") == "Requirement"
+                                  and q.get("gap_ref") in expected_gaps
+                                  and q.get("subject_ref") == subject.get("id")})
                     if included_gaps != expected_gaps or included_reqs != required:
                         error("INCOMPLETE_KERNEL_FREEZE_BASIS", r)
                     historic = effective_freeze_eligibility(
-                        records, sorted(expected_gaps), historical=True)
+                        replay, sorted(expected_gaps), historical=True)
                     if not historic["eligible"]:
                         error("UNQUALIFIED_KERNEL_FREEZE", r)
         if typ == "SourceVerification" and r.get("status") == "VERIFIED":
@@ -1807,12 +2211,13 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
         if (typ in {"ResearchGap", "Requirement"}
                 and r.get("status") in {"RESOLVED", "SATISFIED", "BOUNDED"}
                 and r.get("obligation_domain") == "MATHEMATICAL"
-                and root is not None and (root/"config/project.json").is_file()):
+                and (proof_trust_root is not None or
+                     (root is not None and (root/"config/project.json").is_file()))):
             decision = index.get(r.get("decision_ref"), {})
             proofs = [index.get(index.get(e, {}).get("result_ref"), {})
                       for e in decision.get("evidence_refs", [])]
             if not proofs or not all(
-                    x.get("type") == "Result" and trusted_proof_receipt(root,index,x)
+                    x.get("type") == "Result" and trusted_proof_receipt(formal_root,index,x)
                     for x in proofs):
                 error("UNTRUSTED_MATHEMATICAL_DISPOSITION", r)
         if typ == "Result" and r.get("verification_mode") == "FORMAL_PROOF":
@@ -1822,12 +2227,12 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 error("UNHASHED_PROOF_ARTIFACT", r)
             if isinstance(receipt, dict) and receipt.get("artifact_sha256") != artifact.get("sha256"):
                 error("PROOF_RECEIPT_ARTIFACT_MISMATCH", r)
-            if root is not None and artifact.get("path"):
+            if formal_root is not None:
                 try:
-                    proof_path = safe_path(root, artifact["path"])
+                    proof_path = safe_path(formal_root, artifact["path"])
                     if not proof_path.is_file() or sha256(proof_path.read_bytes()) != artifact.get("sha256"):
                         error("PROOF_ARTIFACT_BYTE_DRIFT", r)
-                except (IntegrityError, OSError):
+                except (IntegrityError, OSError, KeyError, TypeError):
                     error("INVALID_PROOF_ARTIFACT_PATH", r)
             exe = index.get(r.get("execution_ref"), {})
             output = index.get(exe.get("output_artifact_ref"), {})
@@ -1835,21 +2240,21 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 or not output.get("sha256")
                 or output.get("sha256") != exe.get("output_sha256")):
                 error("UNBOUND_EXECUTION_OUTPUT", r)
-            if root is not None and output.get("path"):
+            if formal_root is not None:
                 try:
-                    output_path = safe_path(root, output["path"])
+                    output_path = safe_path(formal_root, output["path"])
                     if (not output_path.is_file()
                         or sha256(output_path.read_bytes()) != output.get("sha256")):
                         error("EXECUTION_OUTPUT_BYTE_DRIFT", r)
-                except (IntegrityError, OSError):
+                except (IntegrityError, OSError, KeyError, TypeError):
                     error("INVALID_EXECUTION_OUTPUT_PATH", r)
             software = index.get(exe.get("software_ref"), {})
-            if root is not None and software.get("path"):
+            if formal_root is not None:
                 try:
-                    verifier_path = safe_path(root, software["path"])
+                    verifier_path = safe_path(formal_root, software["path"])
                     if not verifier_path.is_file() or sha256(verifier_path.read_bytes()) != software.get("sha256"):
                         error("VERIFIER_SOFTWARE_BYTE_DRIFT", r)
-                except (IntegrityError, OSError):
+                except (IntegrityError, OSError, KeyError, TypeError):
                     error("INVALID_VERIFIER_SOFTWARE_PATH", r)
         if typ == "EvidenceAssessment" and r.get("status") == "ADJUDICATED":
             if r.get("effect") == "RETRACTS":
@@ -2008,8 +2413,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         error("ROUTE_EVIDENCE_CONTEXT_MISMATCH", r); valid = False
                     if e.get("id") not in witness_evidence:
                         error("ROUTE_EVIDENCE_OUTSIDE_WITNESS", r); valid = False
-                    route_kind = r.get("claim_kind", "CAUSAL")
-                    evidence_kind = "ROUTE" if route_kind == "CAUSAL" else "HISTORICAL_ROUTE"
+                    evidence_kind = route_evidence_policy_key(r)
                     if not _appropriate_biological_assessment(
                             index, a, tr, scope, evidence_kind):
                         error("NONBIOLOGICAL_ROUTE_SUPPORT", r); valid = False
@@ -2120,6 +2524,11 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 error("AUTHORITY_SUBJECT_MISMATCH", r)
             if r.get("decision") in SCIENTIFIC_POSITIVE and not (r.get("assessment_refs") or r.get("result_refs")):
                 error("UNSUPPORTED_PROMOTION", r)
+            subject_for_scope = index.get(r.get("subject_ref"), {})
+            if (r.get("decision") in SCIENTIFIC_POSITIVE
+                    and subject_for_scope.get("type") == "Claim"
+                    and not scoped_claim_entails(subject_for_scope.get("scope"), r.get("scope"))):
+                error("SCIENTIFIC_VERDICT_SCOPE_ESCALATION", r)
             if r.get("decision") == "SUPPORTED_SCOPED":
                 allowed_axes = {
                     "BIOLOGICAL_SUPPORT": None,
@@ -2147,9 +2556,8 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                         or subject.get("type") not in {"Claim", "Route"}):
                     error("UNQUALIFIED_VERDICT_SUBJECT", r)
                 required_kind = allowed_axes.get(r.get("axis"))
-                if (required_kind == "ROUTE" and subject.get("type") == "Route"
-                        and subject.get("claim_kind") == "HISTORICAL"):
-                    required_kind = "HISTORICAL_ROUTE"
+                if required_kind == "ROUTE" and subject.get("type") == "Route":
+                    required_kind = route_evidence_policy_key(subject)
                 if required_kind and subject.get("type") == "Claim" and subject.get("claim_kind") != required_kind:
                     error("VERDICT_CLAIM_KIND_MISMATCH", r)
                 if subject.get("type") == "Claim" and subject.get("claim_kind") == "CERTIFICATE":
@@ -2161,7 +2569,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                 for a in assessments:
                     gated_kind = required_kind or kind
                     qualified = (
-                        _admitted_origin_claim(records, index, subject)
+                        _admitted_origin_claim(records, index, subject, r.get("scope"))
                         and _appropriate_biological_assessment(
                             index,a,r.get("subject_ref"),r.get("scope"),"PERSISTENCE")
                         if gated_kind == "ORIGIN" else
@@ -2240,7 +2648,7 @@ def validate_records(records: list[dict], root: Path | None = None) -> list[str]
                     error("MATHEMATICAL_VERDICT_AXIS_MISMATCH", r)
                 if not r.get("model_instance_ref") or not r.get("result_refs"):
                     error("UNSUPPORTED_MATHEMATICAL_VERDICT", r)
-                qualifying_result = _qualified_formal_verdict(index, r, root)
+                qualifying_result = _qualified_formal_verdict(index, r, formal_root)
                 if qualifying_result is None:
                     error("UNVERIFIED_MATHEMATICAL_PROMOTION", r)
                     if root is not None and (root/"config/project.json").is_file():
@@ -2419,6 +2827,10 @@ def subject_digest(root: Path, files: list[str]) -> str:
     return sha256(canonical(entries).encode())
 
 def validate_repository(root: Path) -> list[str]:
+    # Fail on any unreviewed scientific-positive schema path before graph QA.
+    promotion_registry_issues = registry_errors(root)
+    if promotion_registry_issues:
+        return promotion_registry_issues
     records = read_graph(root)
     errors = validate_records(records, root)
     project = loads((root / "config/project.json").read_text())

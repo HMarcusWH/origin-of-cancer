@@ -1,0 +1,1926 @@
+{
+  "acceptance_coverage_status": {
+    "CI_GATE": 2,
+    "EXTERNAL_GATE": 4,
+    "TESTED": 109
+  },
+  "acceptance_scenarios": [
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_exact_signed_result_is_admissible_with_unrelated_non_support_result",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "ADMIT",
+      "id": "FORM-001",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_proof_trust_requires_external_digest_and_attested_outcomes",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-002",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_mixed_proof_results_cannot_launder_signature",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-003",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_mixed_proof_results_cannot_launder_signature",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-004",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_FORM_005_cross_model_result_must_not_borrow_a_proof",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-005",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_result_wrong_scope",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-006",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_protocol_wrong_target",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-007",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_mixed_proof_results_cannot_launder_signature",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-008",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_receipt_outcome_fail",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-009",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_execution_not_complete",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-010",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_test_not_passed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-011",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_proof_digest_changed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-012",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_formal_mutation_checker_digest_changed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-013",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_proof_trust_requires_external_digest_and_attested_outcomes",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "FORM-014",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_exact_signed_result_is_admissible_with_unrelated_non_support_result",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT_OR_ROLE_SEPARATION",
+      "id": "FORM-015",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "EXTERNAL_GATE",
+      "current_test_or_gate": "Requires externally authorized trust/root, repository admin or fresh review",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
+      "expected": "POLICY_DECISION",
+      "id": "FORM-016",
+      "prior_status": "EXTERNAL_GATE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_admission_v3.py::test_formal_label_without_counterproof_is_not_refutation",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CHALLENGED_NOT_FORMALLY_REFUTED",
+      "id": "FORM-017",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_all_ancestry_connected",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "ADMIT",
+      "id": "ROUT-001",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_rejects_disconnected_ancestry_despite_continuous_other_witness",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-002",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_mutation_second_study_changed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-003",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_mutation_second_system_changed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-004",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ROUT_005_three_segments_share_an_ancestry_witness",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "ADMIT",
+      "id": "ROUT-005",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_rejects_disconnected_ancestry_despite_continuous_other_witness",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-006",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_three_segment_bridge_valid",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "ADMIT",
+      "id": "ROUT-007",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_three_segment_bridge_missing_second_link",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-008",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_three_segment_bridge_invalid_second_link",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-009",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_validated_bridge_rejects_wrong_context",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-010",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_bridge_evidence_uses_adjacent_handoff_not_route_origin",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CURRENT_CONTESTED_HISTORY_VALID",
+      "id": "ROUT-011",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ROUT_012_ancestry_withdrawal_does_not_rewrite_closed_route",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CURRENT_CONTESTED_HISTORY_VALID",
+      "id": "ROUT-012",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_ancestry_alternative_can_recover_connected_path",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CURRENT_ADMITTED",
+      "id": "ROUT-013",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_surviving_transition_without_common_route_witness",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CURRENT_ROUTE_CONTESTED",
+      "id": "ROUT-014",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_nested_cooperative_founder_allowed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "ADMIT_IF_EVIDENCED",
+      "id": "ROUT-015",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_mutation_founder_assessments_removed",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-016",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_systemic_repairs.py::test_human_route_does_not_promote_animal_context",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-017",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_latest_codex.py::test_explicit_context_stage_transition_is_representable",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "ADMIT",
+      "id": "ROUT-018",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_validated_bridge_rejects_wrong_context",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-019",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_mutation_common_witness_declared_extra",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ROUT-020",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_current_negative_vetoes_freeze",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "ADMIT",
+      "id": "STAT-001",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_current_negative_vetoes_freeze",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CONTEST_BOTH_BLOCK_FREEZE",
+      "id": "STAT-002",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_negative_one_obligation_suffices_to_block",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CONTEST_REQUIREMENT_BLOCK_FREEZE",
+      "id": "STAT-003",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_negative_one_obligation_suffices_to_block",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CONTEST_GAP_BLOCK_FREEZE",
+      "id": "STAT-004",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_policy_negative_wrong_target",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NO_EFFECT",
+      "id": "STAT-005",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_policy_negative_wrong_scope",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NO_EFFECT",
+      "id": "STAT-006",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_STAT_007_negative_audit_wrong_dataset_version_is_not_material",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NO_EFFECT",
+      "id": "STAT-007",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_policy_negative_unadjudicated",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NO_EFFECT",
+      "id": "STAT-008",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_policy_negative_wrong_ceiling",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NO_EFFECT",
+      "id": "STAT-009",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_STAT_010_retracted_negative_audit_restores_uncontested_freeze_eligibility",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REASSESS_LIVE_SUPPORT",
+      "id": "STAT-010",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_statistical_current_negative_vetoes_freeze",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "HISTORY_VALID_CURRENT_BLOCKED",
+      "id": "STAT-011",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_overlapping_units_never_accepted",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "STAT-012",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_protocol_change_does_not_reset_data_independence",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "STAT-013",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_STAT_014_negative_data_use_audit_contests_model_and_verdict",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CONTEST_DEPENDENT",
+      "id": "STAT-014",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_valid_origin_historically_and_currently",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "ADMIT",
+      "id": "ORIG-001",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_later_retraction_contests_current_without_invalidating_history",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "HISTORY_VALID_CURRENT_CONTESTED",
+      "id": "ORIG-002",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ORIG_003_entry_evidence_withdrawn_history_remains_valid",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "HISTORY_VALID_CURRENT_CONTESTED",
+      "id": "ORIG-003",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ORIG_004_establishment_evidence_withdrawn_history_remains_valid",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "HISTORY_VALID_CURRENT_CONTESTED",
+      "id": "ORIG-004",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ORIG_005_valid_origin_reinstatement_restores_every_mandatory_group",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CURRENT_ADMITTED",
+      "id": "ORIG-005",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_missing_entry_cannot_promote_origin",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ORIG-006",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_missing_establishment_cannot_promote_origin",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ORIG-007",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_route_rejects_disconnected_ancestry_despite_continuous_other_witness",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "ORIG-008",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ORIG_009_invalid_origin_cannot_be_backfilled",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT_OR_NEW_VERSION",
+      "id": "ORIG-009",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_appended_adapter_preserves_history_but_narrows_current",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "HISTORY_VALID_CURRENT_SCOPE_LIMITED",
+      "id": "ORIG-010",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_ORIG_011_historical_model_license_survives_new_negative_method_audit",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "HISTORY_VALID_CURRENT_CONTESTED",
+      "id": "ORIG-011",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_later_retraction_contests_current_without_invalidating_history",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "HISTORY_CHECK_PASS",
+      "id": "ORIG-012",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_ungrounded_reinstatement_cycle_never_bootstraps",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "ACTIVE",
+      "id": "REIN-001",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_later_retraction_contests_current_without_invalidating_history",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "WITHDRAWN",
+      "id": "REIN-002",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_systemic_repairs.py::test_append_only_reinstatement_of_retraction",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "RESTORED",
+      "id": "REIN-003",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_reinstatement_notice_retraction_reactivates_original_withdrawal",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NOT_RESTORED",
+      "id": "REIN-004",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_ungrounded_reinstatement_cycle_never_bootstraps",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NOT_RESTORED",
+      "id": "REIN-005",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_reinstatement_fixed_point_is_record_and_id_order_invariant",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "RESTORE_GROUNDED_CLOSURE",
+      "id": "REIN-006",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_reinstatement_matches_independent_subset_oracle",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NOT_RESTORED",
+      "id": "REIN-007",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_reinstatement_fixed_point_is_record_and_id_order_invariant",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "RESTORED_IF_ANY_GROUNDED",
+      "id": "REIN-008",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_reinstatement_notice_retraction_reactivates_original_withdrawal",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NOT_RESTORED",
+      "id": "REIN-009",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_pr2_release_hardening.py::test_reinstatement_notice_retraction_reactivates_original_withdrawal",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "RECOMPUTE",
+      "id": "REIN-010",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_REIN_011_irrelevant_append_does_not_change_retraction_state",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NO_EFFECT",
+      "id": "REIN-011",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_reinstatement_fixed_point_is_record_and_id_order_invariant",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "INVARIANT",
+      "id": "REIN-012",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_reinstatement_matches_independent_subset_oracle",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "INVARIANT",
+      "id": "REIN-013",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_ungrounded_reinstatement_cycle_never_bootstraps",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NOT_RESTORED",
+      "id": "REIN-014",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_REIN_015_retraction_notice_cannot_be_mutated_after_adjudication",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "HISTORY_CHECK_FAIL",
+      "id": "REIN-015",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_w61_complete_and_prefix_end_to_end",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "VERIFY",
+      "id": "DOI_-001",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_w61_complete_and_prefix_end_to_end",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "DOI_-002",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_source_w61_full_identifier_and_url_percent_encoding",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "VERIFY",
+      "id": "DOI_-003",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_correct_pmid_companion",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "VERIFY",
+      "id": "DOI_-004",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_registered_identifier_w61",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "VERIFY",
+      "id": "DOI_-005",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_registered_identifier_w61",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "VERIFY",
+      "id": "DOI_-006",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_wrong_doi_metadata",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "DOI_-007",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_wrong_doi_url",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "DOI_-008",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_wrong_pmids",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "DOI_-009",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_registered_identifier_w1..w70",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "MATCH_GOLDEN",
+      "id": "DOI_-010",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_registered_identifier_w69",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "MATCH_ALL",
+      "id": "DOI_-011",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_correct_mixed_case",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "MATCH",
+      "id": "DOI_-012",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_source_w61_full_identifier_and_url_percent_encoding",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "MATCH",
+      "id": "DOI_-013",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_doi_variant_invalid_percent_url",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT_OR_UNRESOLVED",
+      "id": "DOI_-014",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_DOI_015_untyped_identifier_is_not_silently_verified",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "UNRESOLVED",
+      "id": "DOI_-015",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_build.py::test_source_locks_match",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "SOURCE_LOCK_PASS",
+      "id": "DOI_-016",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_WHOL_001_unrelated_verdict_remains_supported_after_scoped_retraction",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "LOCALIZED_PROPAGATION",
+      "id": "WHOL-001",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_WHOL_002_unrelated_valid_evidence_does_not_revise_route",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "NO_EFFECT",
+      "id": "WHOL-002",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_later_retraction_contests_current_without_invalidating_history",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "EXPECTED_DOWNGRADE",
+      "id": "WHOL-003",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_systemic_repairs.py::test_retracted_contradiction_ceases_contesting_current_route",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REASSESS",
+      "id": "WHOL-004",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_production_contracts.py::test_bridge_refs_wrong_type",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "SCHEMA_ERROR",
+      "id": "WHOL-005",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_integrity.py::test_duplicate_json_keys",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "INTEGRITY_ERROR",
+      "id": "WHOL-006",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_review_cannot_close_biological_route",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "WHOL-007",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_production_contracts.py::test_no_crash_schema_invalid_disposition",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "INTEGRITY_ERROR",
+      "id": "WHOL-008",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_integrity.py::test_shared_protocol_does_not_import_other_model",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "DIGEST_STABLE_UNRELATED_MODEL",
+      "id": "WHOL-009",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_origin.py::test_missing_entry_cannot_promote_origin",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "WHOL-010",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_routes_and_data.py::test_synthetic_cannot_close_biological_route",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "REJECT",
+      "id": "WHOL-011",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_critical_research_baseline_is_unchanged",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "INVARIANT",
+      "id": "WHOL-012",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_critical_research_baseline_is_unchanged",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "INVARIANT",
+      "id": "WHOL-013",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_acceptance_completion_v3.py::test_WHOL_014_preformalization_and_43_critical_gaps_are_not_promoted",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "INVARIANT",
+      "id": "WHOL-014",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_preemptive_repair.py::test_critical_research_baseline_is_unchanged",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "INVARIANT",
+      "id": "WHOL-015",
+      "prior_status": "TESTED"
+    },
+    {
+      "current_status": "TESTED",
+      "current_test_or_gate": "tests/test_build.py::test_deterministic_regeneration",
+      "disposition": "LOCAL_SYNTHETIC_TESTED_AWAITING_INDEPENDENT_REVIEW",
+      "expected": "CHECK_PASS",
+      "id": "WHOL-016",
+      "prior_status": "NEEDS_EXPLICIT_FIXTURE"
+    },
+    {
+      "current_status": "CI_GATE",
+      "current_test_or_gate": "GitHub Actions 3.11/3.12/3.13; tools/check_history.py",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
+      "expected": "CHECK_PASS",
+      "id": "WHOL-017",
+      "prior_status": "CI_GATE"
+    },
+    {
+      "current_status": "CI_GATE",
+      "current_test_or_gate": "GitHub Actions 3.11/3.12/3.13; tools/check_history.py",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
+      "expected": "CHECK_PASS",
+      "id": "WHOL-018",
+      "prior_status": "CI_GATE"
+    },
+    {
+      "current_status": "EXTERNAL_GATE",
+      "current_test_or_gate": "Requires externally authorized trust/root, repository admin or fresh review",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
+      "expected": "REQUIRE_OPERATOR_GATE",
+      "id": "WHOL-019",
+      "prior_status": "EXTERNAL_GATE"
+    },
+    {
+      "current_status": "EXTERNAL_GATE",
+      "current_test_or_gate": "Requires externally authorized trust/root, repository admin or fresh review",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
+      "expected": "REQUIRE_ADMIN_GATE",
+      "id": "WHOL-020",
+      "prior_status": "EXTERNAL_GATE"
+    },
+    {
+      "current_status": "EXTERNAL_GATE",
+      "current_test_or_gate": "Requires externally authorized trust/root, repository admin or fresh review",
+      "disposition": "EXTERNAL_OR_CI_GATE_PENDING",
+      "expected": "REQUIRE_REVIEW_GATE",
+      "id": "WHOL-021",
+      "prior_status": "EXTERNAL_GATE"
+    }
+  ],
+  "baseline_reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+  "external_gates": [
+    "main_branch_protection_and_required_checks",
+    "independent_current_commit_code_review",
+    "independent_current_commit_security_review",
+    "externally_approved_checker_policy_provenance"
+  ],
+  "historical_findings": [
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-01",
+      "primary_workstream": "SOURCE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Update the stale frozen-source hashes",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557091"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-02",
+      "primary_workstream": "EVIDENCE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Require adjudicated support before promoting verdicts",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557095"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-03",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Validate closed-route assessments rather than mere presence",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557096"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-04",
+      "primary_workstream": "DATA",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Check data overlap across protocol changes",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557098"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-05",
+      "primary_workstream": "HISTORY",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Preserve frozen protocols and adjudicated assessments",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557100"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-06",
+      "primary_workstream": "MODEL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Bind data uses into the frozen model digest",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557102"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-07",
+      "primary_workstream": "SCHEMA",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Enforce types for every schema reference field",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557105"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-08",
+      "primary_workstream": "MODEL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Validate assumptions bound to each admitted model",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557107"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-09",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Tie every critical gap to the programme freeze gate",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557109"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-10",
+      "primary_workstream": "SCHEMA",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Reject path names with no POSIX components",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557111"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR1-11",
+      "primary_workstream": "QUERY",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Include relation endpoints when expanding neighbors",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/1#discussion_r4109557116"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-01",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Enforce the authority's subject restrictions before freezing",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109943859"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-02",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Bind freeze evidence to the requirement it satisfies",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109943861"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-03",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Restrict SAME_SYSTEM support to common-witness evidence",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109943864"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-04",
+      "primary_workstream": "EVIDENCE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Exclude textual hints from biological promotion",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109943865"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-05",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Do not derive freeze criticality from mutable gap priority",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109943867"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-06",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Reject inactive transitions when closing a route",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109943868"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-07",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Match route-wide objects to the route context",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109978604"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-08",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Require an active authority for programme freeze",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109978606"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-09",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Validate the decision that closes each critical gap",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109978609"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-10",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Restrict closed-route support to biological evidence",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109978611"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-11",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Bind bounded freeze evidence to the declared bound scope",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109978613"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-12",
+      "primary_workstream": "MODEL",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Keep unrelated models out of each model digest",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109978616"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-13",
+      "primary_workstream": "MODEL",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Report malformed bound DataUses instead of crashing",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4109978620"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-14",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Reject decisions whose disposition opposes closure",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4339284327"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-15",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Connect bridged-route ancestry to the first segment witness",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4339284345"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-16",
+      "primary_workstream": "SCHEMA",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Validate references nested inside bridge links",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4339284358"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-17",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Enforce evidence claim ceilings before scientific freeze",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4339284369"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-18",
+      "primary_workstream": "MODEL",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Traverse the null model's mutable target in model identity",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4339284383"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-19",
+      "primary_workstream": "SCHEMA",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Return schema errors for malformed disposition evidence",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4339284392"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-20",
+      "primary_workstream": "MODEL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Include equation assumptions in model admission",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4339284406"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-21",
+      "primary_workstream": "ROUTE",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Ignore valid assessments belonging to other route scopes",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4339284413"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-22",
+      "primary_workstream": "VERDICT",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Reject supported verdicts on unchecked axes",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4340998800"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-23",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Validate supported transitions outside closed routes",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4340998810"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-24",
+      "primary_workstream": "HISTORY",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Freeze semantic dependencies of adjudicated records",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4340998818"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-25",
+      "primary_workstream": "FORMAL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Bind formal results to model-owned target protocols",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4340998825"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-26",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Validate every biological state's route context",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4340998834"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-27",
+      "primary_workstream": "MODEL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Reject inactive applicability records for admitted models",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4340998840"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-28",
+      "primary_workstream": "TRANSFER",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Require an affirmative adjudicated transfer decision",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4340998850"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-29",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Block closure on direct route-level contradictions",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4340998856"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-30",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Match resolved requirements to their critical gaps",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4340998866"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-31",
+      "primary_workstream": "SOURCE",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Match verified source identifiers exactly",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4340998872"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-32",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Apply context checks to standalone supported transitions",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4342973616"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-33",
+      "primary_workstream": "VERDICT",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Restrict biological verdicts to claim-compatible subjects",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4342973620"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-34",
+      "primary_workstream": "HISTORY",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Traverse every load-bearing historical reference",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4342973626"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-35",
+      "primary_workstream": "TRANSFER",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Use the axis-derived kind for pan-cancer route support",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4342973628"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-36",
+      "primary_workstream": "FORMAL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Contest retracted mathematical verdicts",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4342973636"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-37",
+      "primary_workstream": "HISTORY",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Preserve route verdict validity after new contrary evidence",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4342973639"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-38",
+      "primary_workstream": "FORMAL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Verify execution output bytes behind proof receipts",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4342973644"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-39",
+      "primary_workstream": "FORMAL",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Permit formal evidence to discharge mathematical obligations",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4342973647"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-40",
+      "primary_workstream": "DATA",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Stop retracted audits from establishing data independence",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4342973649"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-41",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Downgrade a freeze when its disposition evidence is retracted",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343154514"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-42",
+      "primary_workstream": "EVIDENCE",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Exclude retracted evidence from material contradictions",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343154521"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-43",
+      "primary_workstream": "FORMAL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Bind formal Test to Result execution",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343154525"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-44",
+      "primary_workstream": "TRANSFER",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Contest pan-cancer verdicts after transfer evidence retraction",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343154527"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-45",
+      "primary_workstream": "HISTORY",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Lock model-owned DataUses in retired model history",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343154535"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-46",
+      "primary_workstream": "ROUTE",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Ignore ancestry assessments from other route scopes",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343154539"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-47",
+      "primary_workstream": "TRANSFER",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Preserve species constraints in adapter transfer evidence",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343154545"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-48",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Include context-handoff evidence in retraction projection",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343529940"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-49",
+      "primary_workstream": "EVIDENCE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Require active source locators for qualified evidence",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343529945"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-50",
+      "primary_workstream": "FORMAL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Consider formal contradictions for mathematical verdicts",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343529951"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-51",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Reject promotion flags added by bounded scopes",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343529957"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-52",
+      "primary_workstream": "FORMAL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Bind proof outcomes into signed attestation",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343802495"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-53",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Let an authorized unfreeze override legacy flag",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343802503"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-54",
+      "primary_workstream": "TRANSFER",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Preserve historical transfers when adapters appended",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343802507"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-55",
+      "primary_workstream": "EVIDENCE",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Retain support when independent assessment survives",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343802517"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-56",
+      "primary_workstream": "EVENTS",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Revoke reinstatements whose notice evidence is retracted",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343802523"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-57",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Bind bridge evidence to adjacent handoff context",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343802527"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-58",
+      "primary_workstream": "DATA",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Contest data uses after contrary partition audit",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343802535"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-59",
+      "primary_workstream": "SOURCE",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Match canonical metadata to checked identifier",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4343802539"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-60",
+      "primary_workstream": "FORMAL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Require admitting Result itself to carry trusted signature",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4391811549"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-61",
+      "primary_workstream": "ROUTE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Anchor route continuity to ancestry-supported witness",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4391811566"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-62",
+      "primary_workstream": "HISTORY",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Separate historical ORIGIN admission from current route support",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4391811577"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-63",
+      "primary_workstream": "FREEZE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Recognize analytic contradictions to statistical obligations",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4391811587"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-64",
+      "primary_workstream": "EVENTS",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Resolve grounded reinstatement cycles before memoizing withdrawals",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4391811598"
+    },
+    {
+      "disposition": "REQUIRES_PER_FINDING_RECONCILIATION",
+      "id": "PR2-65",
+      "primary_workstream": "SOURCE",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": null,
+      "title": "Preserve punctuation in complete registered DOI suffixes",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4391811606"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_INDEPENDENT_REVIEW",
+      "id": "PR2-66",
+      "primary_workstream": "MODEL",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": "tests/test_admission_v3.py::FormalQualificationChecks.test_signed_fail_not_enough_for_model",
+      "title": "Qualify formal Results before granting model admission",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4392835872"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_INDEPENDENT_REVIEW",
+      "id": "PR2-67",
+      "primary_workstream": "FORMAL",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": "tests/test_admission_v3.py::FormalQualificationChecks.test_exact_verified_counterclaim_contests_math_state",
+      "title": "Verify formal counterevidence before contesting mathematical state",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4392835891"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_INDEPENDENT_REVIEW",
+      "id": "PR2-68",
+      "primary_workstream": "ROUTE",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": "tests/test_admission_v3.py::RoutePathOracle.test_extra_witness_does_not_veto",
+      "title": "Accept ancestry-connected path despite extra common witnesses",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4392835905"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_INDEPENDENT_REVIEW",
+      "id": "PR2-69",
+      "primary_workstream": "VERDICT",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": "tests/test_admission_v3.py::GroupPolicyChecks.test_all_mandatory_some_alternative",
+      "title": "Preserve verdict support when qualifying alternative survives",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4392835913"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_INDEPENDENT_REVIEW",
+      "id": "PR2-70",
+      "primary_workstream": "FREEZE",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": "tests/test_admission_v3.py::HistoryBasisChecks",
+      "title": "Validate historical freeze events against recorded basis",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4392835926"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_INDEPENDENT_REVIEW",
+      "id": "PR2-71",
+      "primary_workstream": "DATA",
+      "priority": "P2",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": "tests/test_admission_v3.py::test_mixed_negative_data_audit",
+      "title": "Accept mixed negative effects within pair-scoped audit",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4392835941"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_INDEPENDENT_REVIEW",
+      "id": "PR2-72",
+      "primary_workstream": "SCOPE",
+      "priority": "P1",
+      "reviewed_head": "6ac19448709b31e823ad6f19c0237322e064cfe2",
+      "test_hint": "tests/test_admission_v3.py::TypedScopeChecks.test_origin_verdict_scope_not_promoted",
+      "title": "Bind ORIGIN admission to Verdict scientific scope",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/2#discussion_r4392835948"
+    }
+  ],
+  "policy_decisions": "Software contracts staged; independent production issuer and scientific governance approval not represented as complete",
+  "source_pr": "https://github.com/HMarcusWH/origin-of-cancer/pull/2",
+  "staging_pr5_review_findings": [
+    {
+      "disposition": "CI_PASSED_ON_E63F759_AWAITING_INDEPENDENT_DISPOSITION",
+      "id": "PR5-01",
+      "priority": "P1",
+      "test_or_gate": "tests.test_pr5_review_repairs.AdmissionSnapshotBinding.test_freeze_issuer_id_and_target_are_distinct_but_consistent",
+      "title": "Reconcile authorization event issuer and target",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685040"
+    },
+    {
+      "disposition": "CI_PASSED_ON_E63F759_AWAITING_INDEPENDENT_DISPOSITION",
+      "id": "PR5-02",
+      "priority": "P1",
+      "test_or_gate": "tests.test_pr5_review_repairs.AdmissionSnapshotBinding.test_unsigned_mathematical_disposition_is_rejected_in_trust_root_replay",
+      "title": "Authenticate mathematical obligations under injected replay trust",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685048"
+    },
+    {
+      "disposition": "CI_PASSED_ON_E63F759_AWAITING_INDEPENDENT_DISPOSITION",
+      "id": "PR5-03",
+      "priority": "P1",
+      "test_or_gate": "tests.test_pr5_review_repairs.AdmissionSnapshotBinding.test_proof_replay_checks_artifact_output_and_checker_bytes",
+      "title": "Check proof, checker, and output artifact bytes during historical replay",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685061"
+    },
+    {
+      "disposition": "CI_PASSED_ON_E63F759_AWAITING_INDEPENDENT_DISPOSITION",
+      "id": "PR5-04",
+      "priority": "P2",
+      "test_or_gate": "tests.test_pr5_review_repairs.CurrentStateAndCertificate.test_supported_transition_is_admitted_in_both_views",
+      "title": "Promote legitimate transitions in reviewer certificate",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685066"
+    },
+    {
+      "disposition": "CI_PASSED_ON_E63F759_AWAITING_INDEPENDENT_DISPOSITION",
+      "id": "PR5-05",
+      "priority": "P2",
+      "test_or_gate": "GitHub Actions tools/build.py --check on staging SHA",
+      "title": "Rebuild generated files from committed LF-normalized bytes",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685079"
+    },
+    {
+      "disposition": "CI_PASSED_ON_E63F759_AWAITING_INDEPENDENT_DISPOSITION",
+      "id": "PR5-06",
+      "priority": "P1",
+      "test_or_gate": "tests.test_pr5_review_repairs.CurrentStateAndCertificate.test_route_verdict_needs_its_own_live_support",
+      "title": "Require route verdict to retain own live evidence support",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685086"
+    },
+    {
+      "disposition": "CI_PASSED_ON_E63F759_AWAITING_INDEPENDENT_DISPOSITION",
+      "id": "PR5-07",
+      "priority": "P2",
+      "test_or_gate": "tests.test_pr5_review_repairs.CurrentStateAndCertificate.test_bridge_certificate_excludes_withdrawn_alternative",
+      "title": "Exclude retracted bridge evidence from accepted certificates",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685098"
+    },
+    {
+      "disposition": "CI_PASSED_ON_E63F759_AWAITING_INDEPENDENT_DISPOSITION",
+      "id": "PR5-08",
+      "priority": "P2",
+      "test_or_gate": "tests.test_pr5_review_repairs.CurrentStateAndCertificate.test_context_species_organism_lineage_can_all_be_recorded",
+      "title": "Represent organism and lineage in scientific context schema",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685106"
+    },
+    {
+      "disposition": "CI_PASSED_ON_A18F39E_AWAITING_INDEPENDENT_DISPOSITION",
+      "id": "PR5-09",
+      "priority": "P2",
+      "test_or_gate": "tests.test_pr5_review_repairs.FollowupProjectionRegressions.test_withdrawn_only_bridge_projects_contested_without_crashing",
+      "title": "Guard missing witness paths before qualifying bridge links",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395316653"
+    },
+    {
+      "disposition": "CI_PASSED_ON_A18F39E_AWAITING_INDEPENDENT_DISPOSITION",
+      "id": "PR5-10",
+      "priority": "P2",
+      "test_or_gate": "tests.test_pr5_review_repairs.FollowupProjectionRegressions.test_append_only_source_receipt_qualifies_without_legacy_backref;tests.test_pr5_review_repairs.FollowupProjectionRegressions.test_source_receipt_retraction_does_not_contaminate_active_alternative",
+      "title": "Resolve verification receipt parents through source_ref",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395316662"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-11",
+      "priority": "P2",
+      "repair_contract": "oocgraph.core.route_evidence_policy_key is shared by resolver, validator, transfer review and certificate projection; both causal and historical positive/negative scientific routes qualify consistently",
+      "reviewed_head": "a18f39e24d067dfafb7e19f63662bcb4e87267c9",
+      "test_or_gate": "tests.test_route_kind_policy_consistency.RouteKindPolicyConsistency",
+      "title": "Map Route claim kinds to their evidence policy keys",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395470942"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-12",
+      "priority": "P2",
+      "reviewed_head": "72c78c45c95ac5e8334452b5160f5b5e4b92cf35",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::SurvivingFormalResult",
+      "title": "Select a formal Result with surviving support before contesting",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395611699"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-13",
+      "priority": "P2",
+      "reviewed_head": "72c78c45c95ac5e8334452b5160f5b5e4b92cf35",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::EvidenceKeyedCertificateTraceability",
+      "title": "Retain qualified assessments for evidence-keyed certificate groups",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395611703"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-14",
+      "priority": "P1",
+      "reviewed_head": "72c78c45c95ac5e8334452b5160f5b5e4b92cf35",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::IssuanceTimeEffectiveAdmission",
+      "title": "Require effective admission within issuance-time replay",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395611705"
+    },
+    {
+      "id": "PR5-15",
+      "title": "Allow the required issuance metadata in every positive-sink schema",
+      "priority": "P1",
+      "reviewed_head": "304be5095a7798a16ad2ca350680d9b96cd892ef",
+      "disposition": "LOCAL_REPAIR_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::October28P1Regressions.test_stamped_positive_schemas_accept_required_metadata",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395972968"
+    },
+    {
+      "id": "PR5-16",
+      "title": "Bind external issuance approval to the issued record's contents",
+      "priority": "P1",
+      "reviewed_head": "304be5095a7798a16ad2ca350680d9b96cd892ef",
+      "disposition": "LOCAL_REPAIR_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::October28P1Regressions.test_external_digest_binds_issued_status_decision_and_scope",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395972975"
+    },
+    {
+      "id": "PR5-17",
+      "title": "Authenticate the logical relationship used by counterproofs",
+      "priority": "P1",
+      "reviewed_head": "304be5095a7798a16ad2ca350680d9b96cd892ef",
+      "disposition": "LOCAL_REPAIR_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::October28P1Regressions.test_unsigned_counterproof_relation_cannot_contest_formal_claim",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395972986"
+    },
+    {
+      "id": "PR5-18",
+      "title": "Validate historical biological source paths during issuance replay",
+      "priority": "P1",
+      "reviewed_head": "304be5095a7798a16ad2ca350680d9b96cd892ef",
+      "disposition": "LOCAL_REPAIR_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::October28P1Regressions.test_original_git_tree_controls_historical_biological_sources",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395972994"
+    }
+  ],
+  "status": "PR5_OCT28_FOUR_P1_REPAIRS_STAGED_AWAITING_CI_AND_REVIEW"
+}

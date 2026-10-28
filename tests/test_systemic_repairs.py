@@ -118,7 +118,10 @@ class SystemicRepairs(ProductionValidation):
                           evidence_ref=evidence["id"],effect="FALSIFIES")
         rs.extend([evidence,assessment])
         self.assertEqual(self.errors(rs),[])
-        self.assertEqual(resolve(rs)["partitions"][0]["state"],"CONTESTED")
+        # A free-text FORMAL FALSIFIES label is only an unverified challenge.
+        # A cryptographically checked result and exact counterclaim relation
+        # are required before it can contest mathematical verification.
+        self.assertEqual(resolve(rs)["partitions"][0]["state"],"MATHEMATICALLY_VERIFIED_SCOPED")
 
     def test_narrow_obligation_cannot_promote_pan_cancer(self):
         from tests.test_production_contracts import freeze_records
