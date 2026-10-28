@@ -126,8 +126,7 @@ def resolve(records: Iterable[dict], *, root: Path | None = None) -> dict:
             elif kind == "ORIGIN":
                 live = _origin_current_support(records,index,subject,v)
             elif status == "SUPPORTED_SCOPED" and subject.get('type') == 'Route':
-                route_kind = ('HISTORICAL_ROUTE' if subject.get('claim_kind') == 'HISTORICAL'
-                              else 'ROUTE')
+                route_kind = route_evidence_policy_key(subject)
                 live = bool(
                     effective_route_state(records, subject)['effective'] == 'ADMITTED_CLOSED'
                     and live_support(index, records, v.get('assessment_refs', []),
@@ -278,6 +277,17 @@ EVIDENCE_OBLIGATION_POLICY = {
                    {"TEMPORAL","ANCESTRY","CAUSAL"}),
     "CONSTITUTIVE": ({"BIOLOGICAL_CAUSAL_SCOPED"},{"PERTURBATION","MIXED"},{"CAUSAL"})
 }
+def route_evidence_policy_key(route):
+    """Map schema-level Route kinds to the *same* adjudication policy everywhere.
+
+    Route.claim_kind is CAUSAL or HISTORICAL; the optional field defaults to
+    CAUSAL for backward-compatible historical records.  Never reinterpret an
+    unknown Route kind as a legitimate route-evidence permission.
+    """
+    kind = route.get("claim_kind", "CAUSAL")
+    return {"CAUSAL": "ROUTE", "HISTORICAL": "HISTORICAL_ROUTE"}.get(kind)
+
+
 CLOSURE_DECISIONS = {
     ("ResearchGap", "RESOLVED"): ("RESEARCH_GAP_DISPOSITION", "RESOLVE"),
     ("ResearchGap", "BOUNDED"): ("RESEARCH_GAP_DISPOSITION", "BOUND"),
@@ -1574,9 +1584,8 @@ def _effective_pan_cancer_transfer(records, index, verdict):
     if not adapters or not covered or covered != adapters:
         return False
     subject = index.get(verdict.get("subject_ref"), {})
-    kind = ("HISTORICAL_ROUTE" if subject.get("type") == "Route"
-            and subject.get("claim_kind") == "HISTORICAL" else
-            "ROUTE" if subject.get("type") == "Route" else subject.get("claim_kind"))
+    kind = (route_evidence_policy_key(subject) if subject.get("type") == "Route"
+            else subject.get("claim_kind"))
     options = {}
     for adapter in adapters:
         scope = _adapter_scientific_scope(verdict.get("scope"), adapter)
@@ -2260,8 +2269,7 @@ def validate_records(records: list[dict], root: Path | None = None,
                         error("ROUTE_EVIDENCE_CONTEXT_MISMATCH", r); valid = False
                     if e.get("id") not in witness_evidence:
                         error("ROUTE_EVIDENCE_OUTSIDE_WITNESS", r); valid = False
-                    route_kind = r.get("claim_kind", "CAUSAL")
-                    evidence_kind = "ROUTE" if route_kind == "CAUSAL" else "HISTORICAL_ROUTE"
+                    evidence_kind = route_evidence_policy_key(r)
                     if not _appropriate_biological_assessment(
                             index, a, tr, scope, evidence_kind):
                         error("NONBIOLOGICAL_ROUTE_SUPPORT", r); valid = False
@@ -2404,9 +2412,8 @@ def validate_records(records: list[dict], root: Path | None = None,
                         or subject.get("type") not in {"Claim", "Route"}):
                     error("UNQUALIFIED_VERDICT_SUBJECT", r)
                 required_kind = allowed_axes.get(r.get("axis"))
-                if (required_kind == "ROUTE" and subject.get("type") == "Route"
-                        and subject.get("claim_kind") == "HISTORICAL"):
-                    required_kind = "HISTORICAL_ROUTE"
+                if required_kind == "ROUTE" and subject.get("type") == "Route":
+                    required_kind = route_evidence_policy_key(subject)
                 if required_kind and subject.get("type") == "Claim" and subject.get("claim_kind") != required_kind:
                     error("VERDICT_CLAIM_KIND_MISMATCH", r)
                 if subject.get("type") == "Claim" and subject.get("claim_kind") == "CERTIFICATE":

@@ -1833,7 +1833,7 @@
       "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4394685106"
     },
     {
-      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "disposition": "CI_PASSED_ON_A18F39E_AWAITING_INDEPENDENT_DISPOSITION",
       "id": "PR5-09",
       "priority": "P2",
       "test_or_gate": "tests.test_pr5_review_repairs.FollowupProjectionRegressions.test_withdrawn_only_bridge_projects_contested_without_crashing",
@@ -1841,13 +1841,23 @@
       "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395316653"
     },
     {
-      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "disposition": "CI_PASSED_ON_A18F39E_AWAITING_INDEPENDENT_DISPOSITION",
       "id": "PR5-10",
       "priority": "P2",
       "test_or_gate": "tests.test_pr5_review_repairs.FollowupProjectionRegressions.test_append_only_source_receipt_qualifies_without_legacy_backref;tests.test_pr5_review_repairs.FollowupProjectionRegressions.test_source_receipt_retraction_does_not_contaminate_active_alternative",
       "title": "Resolve verification receipt parents through source_ref",
       "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395316662"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-11",
+      "priority": "P2",
+      "repair_contract": "oocgraph.core.route_evidence_policy_key is shared by resolver, validator, transfer review and certificate projection; both causal and historical positive/negative scientific routes qualify consistently",
+      "reviewed_head": "a18f39e24d067dfafb7e19f63662bcb4e87267c9",
+      "test_or_gate": "tests.test_route_kind_policy_consistency.RouteKindPolicyConsistency",
+      "title": "Map Route claim kinds to their evidence policy keys",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395470942"
     }
   ],
-  "status": "PR5_TWO_NEW_PROJECTION_REGRESSIONS_STAGED_AWAITING_CI_AND_REVIEW"
+  "status": "PR5_ROUTE_KIND_POLICY_MAPPING_STAGED_AWAITING_CI_AND_REVIEW"
 }

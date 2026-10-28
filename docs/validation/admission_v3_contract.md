@@ -57,3 +57,19 @@ immutable source record or merely the source-wide `VERIFIED` status. A
 withdrawn receipt is contested even when a different independent receipt
 continues to verify that source. This is bibliographic metadata verification,
 not independent paper extraction or biological evidence.
+
+## PR #5 route-kind consistency — latest review follow-up
+
+The schema-level `Route.claim_kind` values `CAUSAL` and `HISTORICAL`
+correspond to the biological evidence-obligation keys `ROUTE` and
+`HISTORICAL_ROUTE`, respectively.  The field is optional for legacy routes;
+an absent kind retains the causal default.  Unknown kinds cannot authorize
+scientific evidence.  `core.route_evidence_policy_key` is used by the
+scientific resolver, closure validation, transfer qualification, and reviewer
+certificate generation.
+
+Synthetic tests cover schema-valid closure verdicts for both route kinds,
+explicit assessment-role mismatch (rejection), support withdrawal
+(contestation), and independently surviving support (continued admission).
+These tests certify software consistency only, not causal or historical
+oncology evidence.

@@ -44,7 +44,10 @@ def support_certificate(record, index, records, *, withdrawn, root=None,
 
     if typ == 'Verdict':
         subject=index.get(record.get('subject_ref'),{})
-        kind=subject.get('claim_kind')
+        # Route declares CAUSAL/HISTORICAL but evidence policy expects
+        # ROUTE/HISTORICAL_ROUTE. Use the same mapper as validate and resolve.
+        kind=(core.route_evidence_policy_key(subject)
+              if subject.get('type')=='Route' else subject.get('claim_kind'))
         formal=record.get('decision')=='MATHEMATICALLY_VERIFIED_SCOPED'
         selected=core._qualified_formal_verdict(index,record,root) if formal else None
         group('SIGNED_FORMAL_RESULT' if formal else 'VERDICT_SUPPORT',
