@@ -8,9 +8,14 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-from oocgraph.admission.history import snapshot
+import hashlib
+import json
+import subprocess
+from jsonschema import Draft202012Validator
+from oocgraph.admission.history import snapshot, issued_record_digest
 
 from oocgraph import core
+from oocgraph.admission.formal import qualify_verified_counterevidence
 from oocgraph.admission.projection import project_current
 from tests.test_integrity import evidence_base, verdict, node
 from tests.test_production_contracts import fully_typed, mathematical_fixture, freeze_records, route_records
@@ -98,7 +103,7 @@ class IssuanceTimeEffectiveAdmission(unittest.TestCase):
         v['admission_basis']=snapshot(
             basis,[r['id'] for r in basis],subject_ref=v['id'],
             asserted_scope=v['scope'],input_graph_tree_sha='1'*40,
-            issuer_epoch='synthetic-epoch')
+            issuer_epoch='synthetic-epoch',issued_record=v)
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp)
             conf=root/'config';conf.mkdir()
@@ -114,7 +119,8 @@ class IssuanceTimeEffectiveAdmission(unittest.TestCase):
                     [r['id'] for r in basis if r.get('type')!='EvidenceAssessment' or
                      r.get('effect')!='RETRACTS'],
                     subject_ref=v['id'],asserted_scope=v['scope'],
-                    input_graph_tree_sha='1'*40,issuer_epoch='synthetic-epoch')
+                    input_graph_tree_sha='1'*40,issuer_epoch='synthetic-epoch',
+                    issued_record=v)
                 self.assertFalse(core._production_issuance_authenticated(v,root))
 
     def test_unrecognized_positive_path_fails_closed(self):
@@ -300,3 +306,111 @@ class IssuanceCrossPathMirrors(unittest.TestCase):
 
 if __name__=='__main__':
     unittest.main()
+
+class October28P1Regressions(unittest.TestCase):
+    """Fail closed on invalid issuances and counterproofs; engineering fixtures."""
+
+    def test_stamped_positive_schemas_accept_required_metadata(self):
+        schema=json.loads((Path(__file__).resolve().parents[1]/
+                           'schema/graph-record.schema.json').read_text())
+        types=('Verdict','Route','Transition','DataUse','SourceVerification',
+               'ResearchGap','Requirement','ModelInstance','AuthorizationEvent',
+               'LiteratureSource','Programme')
+        issuer={'id':'ooc:fixture:stamped','type':'Verdict','decision':'SUPPORTED_SCOPED'}
+        for typ in types:
+            with self.subTest(typ=typ):
+                stamp=snapshot([],[],subject_ref=issuer['id'],
+                    asserted_scope={'adapter':'synthetic'},input_graph_tree_sha='a'*40,
+                    issuer_epoch='synthetic',issued_record=issuer)
+                definition=schema['$defs'][typ]['properties']['admission_basis']
+                self.assertTrue(Draft202012Validator(definition).is_valid(stamp))
+                for key in ('issuer_epoch','input_graph_tree_sha','issued_record_sha256'):
+                    invalid=copy.deepcopy(stamp);del invalid['basis'][key]
+                    self.assertFalse(Draft202012Validator(definition).is_valid(invalid))
+
+    def test_external_digest_binds_issued_status_decision_and_scope(self):
+        rows=freeze_records();gap=next(r for r in rows if r['type']=='ResearchGap')
+        candidate=copy.deepcopy(gap);candidate['id']='ooc:gap:issued'
+        basis=[r for r in rows if r is not gap]
+        candidate['admission_basis']=snapshot(basis,[r['id'] for r in basis],
+            subject_ref=candidate['id'],asserted_scope=candidate['obligation_scope'],
+            input_graph_tree_sha='a'*40,issuer_epoch='synthetic',
+            issued_record=candidate)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'config').mkdir()
+            (root/'config/project.json').write_text('{"critical_gap_ids":["RG-001"]}')
+            digest=candidate['admission_basis']['digest']
+            with patch.dict('os.environ',{'OOC_AUTHORIZED_ADMISSION_BASIS_SHA256':digest}), \
+                 patch.object(core,'_historical_positive_replay',return_value=True):
+                self.assertTrue(core._production_issuance_authenticated(candidate,root))
+                for change in ({'status':'BOUNDED','bound_scope':{'adapter':'synthetic'}},
+                               {'decision_ref':'ooc:decision:unapproved'},
+                               {'obligation_scope':{'adapter':'unapproved'}}):
+                    altered=copy.deepcopy(candidate);altered.update(change)
+                    self.assertFalse(core._production_issuance_authenticated(altered,root))
+        unchanged=copy.deepcopy(candidate)
+        unchanged['admission_basis']={'arbitrary':'different'}
+        self.assertEqual(issued_record_digest(unchanged),issued_record_digest(candidate))
+
+    def test_unsigned_counterproof_relation_cannot_contest_formal_claim(self):
+        rows=mathematical_fixture();result=next(r for r in rows if r['type']=='Result')
+        claim=next(r for r in rows if r['type']=='Claim')
+        ev=copy.deepcopy(next(r for r in rows if r['type']=='EvidenceObject'))
+        ev['id']='ooc:fixture:counterevidence'
+        ev['counterclaim_relation']={'target_ref':claim['id'],
+             'counterclaim_ref':claim['id'],'relation':'EXACT_NEGATION'}
+        assessor=copy.deepcopy(next(r for r in rows if r['type']=='EvidenceAssessment'))
+        assessor.update(id='ooc:fixture:counterassessment',evidence_ref=ev['id'],
+                        effect='FALSIFIES')
+        rows.extend([ev,assessor]);index={r['id']:r for r in rows}
+        qualifies=lambda:qualify_verified_counterevidence(
+            index,assessor,result['scope'],target_ref=claim['id'],
+            qualified_assessment=lambda a:core._qualified_assessment(
+                index,a,claim['id'],result['scope'],effect='FALSIFIES',
+                allowed_classes={'FORMAL'},allowed_ceilings={'MATHEMATICAL_EXACT'}),
+            verify_result=core._verified_result,
+            verify_signature=lambda ix,r:core._formal_signature_active(ix,r))
+        self.assertFalse(qualifies())
+        digest=hashlib.sha256(claim['statement'].encode()).hexdigest()
+        receipt=result['verification_receipt']
+        receipt['attestation_version']='OOC_FORMAL_PROOF_ATTESTATION_V3'
+        receipt['counterproof_binding']={'target_id':claim['id'],
+            'counterclaim_id':claim['id'],'relation':'EXACT_NEGATION',
+            'target_statement_sha256':digest,'counterclaim_statement_sha256':digest}
+        self.assertTrue(qualifies())  # synthetic checker identity, not production trust
+        ev['counterclaim_relation']['relation']='VERIFIED_COUNTEREXAMPLE'
+        self.assertFalse(qualifies())
+        ev['counterclaim_relation']['relation']='EXACT_NEGATION'
+        claim['statement']='A changed claim'
+        self.assertFalse(qualifies())
+
+    def test_original_git_tree_controls_historical_biological_sources(self):
+        root=Path(__file__).resolve().parents[1]
+        tree=subprocess.check_output(
+            ['git','-C',str(root),'rev-parse','HEAD^{tree}'],text=True).strip()
+        records,ver=fixture_capability()
+        prior={r['id']:copy.deepcopy(r) for r in records if r is not ver}
+        self.assertTrue(core._historical_positive_replay(
+            ver,prior,proof_trust_root=root,issuance_tree_sha=tree))
+        current=copy.deepcopy(prior)
+        locator=next(r for r in prior.values() if r['type']=='SourceLocator')
+        locator['path']='../../cannot-be-proven-by-todays-README.md'
+        self.assertFalse(core._historical_positive_replay(
+            ver,prior,proof_trust_root=root,issuance_tree_sha=tree))
+        self.assertTrue(core._historical_positive_replay(
+            ver,current,proof_trust_root=root,issuance_tree_sha=tree))
+        locator['path']='untracked-historical-source.txt'
+        self.assertFalse(core._historical_positive_replay(
+            ver,prior,proof_trust_root=root,issuance_tree_sha=tree))
+        self.assertFalse(core._historical_positive_replay(
+            ver,current,proof_trust_root=root,issuance_tree_sha='f'*40))
+
+    def test_original_source_byte_hash_must_match(self):
+        root=Path(__file__).resolve().parents[1]
+        tree=subprocess.check_output(
+            ['git','-C',str(root),'rev-parse','HEAD^{tree}'],text=True).strip()
+        source={'type':'SourceArtifact','path':'README.md',
+            'sha256':hashlib.sha256((root/'README.md').read_bytes()).hexdigest()}
+        self.assertTrue(core._historical_repository_paths_valid([source],root,tree))
+        source['sha256']='0'*64
+        self.assertFalse(core._historical_repository_paths_valid([source],root,tree))
