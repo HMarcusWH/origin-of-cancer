@@ -99,3 +99,26 @@ EvidenceAssessment IDs** behind these accepted evidence-keyed groups, not
 report empty traceability fields for admitted claims or collect unadjudicated
 assessments. These changes are engineering admission controls only, not proof
 of cancer mechanisms or mathematical truths.
+
+## October 28 P1 follow-up — four trust-boundary repairs
+
+An externally authorized production issuance must identify its exact original
+Git input tree and issuer epoch and cryptographically commit to the complete
+issued decision, excluding only the recursive admission-basis envelope. The
+positive-sink schema contracts share the same mandatory manifest fields.
+A previously approved evidence snapshot alone cannot authorize an altered
+disposition, scope, decision reference or other substantive record content.
+
+Mathematical counterevidence may no longer obtain a contradiction merely by
+appending unsigned counterclaim relationship metadata to an EvidenceObject.
+The exact target, checker-verified counterclaim and negation/counterexample
+relationship, including statement hashes, require a checker-signed V3 proof
+attestation. V2 mathematical Results remain valid as positive proofs but
+cannot be repurposed as V3 authenticated counterproofs.
+
+Historical biological provenance paths are checked against the original Git
+tree declared by the externally approved issuance manifest; unsafe, missing,
+symlinked or hash-mismatched original source paths cannot be repaired using
+today's records. All checks remain engineering controls. They do not
+constitute cancer evidence, kernel freeze or clinical authorization.
+

@@ -1884,7 +1884,43 @@
       "test_hint": "tests/test_pr5_issuance_formal_certificates.py::IssuanceTimeEffectiveAdmission",
       "title": "Require effective admission within issuance-time replay",
       "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395611705"
+    },
+    {
+      "id": "PR5-15",
+      "title": "Allow the required issuance metadata in every positive-sink schema",
+      "priority": "P1",
+      "reviewed_head": "304be5095a7798a16ad2ca350680d9b96cd892ef",
+      "disposition": "LOCAL_REPAIR_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::October28P1Regressions.test_stamped_positive_schemas_accept_required_metadata",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395972968"
+    },
+    {
+      "id": "PR5-16",
+      "title": "Bind external issuance approval to the issued record's contents",
+      "priority": "P1",
+      "reviewed_head": "304be5095a7798a16ad2ca350680d9b96cd892ef",
+      "disposition": "LOCAL_REPAIR_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::October28P1Regressions.test_external_digest_binds_issued_status_decision_and_scope",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395972975"
+    },
+    {
+      "id": "PR5-17",
+      "title": "Authenticate the logical relationship used by counterproofs",
+      "priority": "P1",
+      "reviewed_head": "304be5095a7798a16ad2ca350680d9b96cd892ef",
+      "disposition": "LOCAL_REPAIR_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::October28P1Regressions.test_unsigned_counterproof_relation_cannot_contest_formal_claim",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395972986"
+    },
+    {
+      "id": "PR5-18",
+      "title": "Validate historical biological source paths during issuance replay",
+      "priority": "P1",
+      "reviewed_head": "304be5095a7798a16ad2ca350680d9b96cd892ef",
+      "disposition": "LOCAL_REPAIR_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::October28P1Regressions.test_original_git_tree_controls_historical_biological_sources",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395972994"
     }
   ],
-  "status": "PR5_OCT28_THREE_REPAIRS_STAGED_AWAITING_CI_AND_REVIEW"
+  "status": "PR5_OCT28_FOUR_P1_REPAIRS_STAGED_AWAITING_CI_AND_REVIEW"
 }
