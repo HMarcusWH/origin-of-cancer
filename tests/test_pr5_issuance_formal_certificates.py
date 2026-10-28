@@ -304,6 +304,98 @@ class IssuanceCrossPathMirrors(unittest.TestCase):
         self.assertTrue(core._historical_positive_replay(receipt,original))
 
 
+
+    def test_real_stamped_nonfixture_positive_issuance(self):
+        """A complete production-root admission must actually be reachable."""
+        import shutil
+        rows,ver=fixture_capability()
+        rows=json.loads(json.dumps(rows).replace('ooc:fixture:','ooc:issued-test:'))
+        ver=next(r for r in rows if r['type']=='Verdict')
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root/'config').mkdir();(root/'schema').mkdir()
+            actual=Path(__file__).resolve().parents[1]
+            for name in ('graph-record.schema.json','nested_reference_contract.json','vocab.json'):
+                shutil.copy(actual/'schema'/name,root/'schema'/name)
+            (root/'config/project.json').write_text('{"critical_gap_ids":[]}')
+            (root/'README.md').write_text('Synthetic source, not biological validation\n')
+            subprocess.run(['git','init','-q',str(root)],check=True)
+            subprocess.run(['git','-C',str(root),'add','-A'],check=True)
+            tree=subprocess.check_output(['git','-C',str(root),'write-tree'],
+                                         text=True).strip()
+            prior=[r for r in rows if r is not ver]
+            ver['admission_basis']=snapshot(prior,[r['id'] for r in prior],
+                subject_ref=ver['id'],asserted_scope=ver['scope'],
+                input_graph_tree_sha=tree,issuer_epoch='synthetic-epoch',
+                issued_record=ver)
+            digest=ver['admission_basis']['digest']
+            with patch.dict('os.environ',{'OOC_AUTHORIZED_ADMISSION_BASIS_SHA256':digest}):
+                self.assertTrue(core._production_issuance_authenticated(ver,root))
+                self.assertEqual(core.validate_records(rows,root),[])
+                ver['decision']='REFUTED_SCOPED'
+                self.assertFalse(core._production_issuance_authenticated(ver,root))
+
+    def test_typed_issuance_scopes_for_no_scope_field(self):
+        for typ,expected in (
+            ('DataUse','DATA_FIREWALL'),
+            ('SourceVerification','BIBLIOGRAPHIC_VERIFICATION'),
+            ('LiteratureSource','BIBLIOGRAPHIC_VERIFICATION'),
+            ('Programme','PROGRAMME_GOVERNANCE'),
+        ):
+            record={'id':'ooc:issued-test:record','type':typ,'status':'ADMITTED'}
+            with self.subTest(typ=typ):
+                self.assertEqual(core._issuance_scope(record),{'domain':expected})
+                self.assertEqual(core._issuance_scope({**record,'scope':{'adapter':'other'}}),
+                                 {'adapter':'other'})
+
+    def test_crypto_v3_counterproof_binding_cannot_be_relabelled(self):
+        from base64 import b64encode
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+        from cryptography.hazmat.primitives.serialization import Encoding,PublicFormat
+        rows=mathematical_fixture()
+        index={r['id']:r for r in rows}
+        result=next(r for r in rows if r['type']=='Result')
+        target=fully_typed([node('Claim','counterproof-target',
+            scope=result['scope'],claim_kind='CERTIFICATE',
+            statement='Synthetic target statement',
+            modality='ASSERTION',empirical_admission='NOT_ESTABLISHED')])[0]
+        index[target['id']]=target
+        claim=index[result['subject_ref']]
+        receipt=result['verification_receipt']
+        receipt['attestation_version']='OOC_FORMAL_PROOF_ATTESTATION_V3'
+        receipt['counterproof_binding']={
+            'target_id':target['id'],
+            'counterclaim_id':claim['id'],
+            'relation':'EXACT_NEGATION',
+            'target_statement_sha256':hashlib.sha256(target['statement'].encode()).hexdigest(),
+            'counterclaim_statement_sha256':hashlib.sha256(claim['statement'].encode()).hexdigest(),
+        }
+        software=index[index[result['execution_ref']]['software_ref']]
+        software['runtime_role']='FORMAL_PROOF_CHECKER'
+        software['provenance_class']='CURATED_SEMANTIC'
+        signer=Ed25519PrivateKey.generate()
+        receipt['attestation_signer_id']='fixture-counter-checker'
+        registry={'trusted_checkers':[{
+            'id':'fixture-counter-checker','status':'ACTIVE',
+            'verifier_sha256':software['sha256'],
+            'verifier_version':receipt['verifier_version'],
+            'public_key_base64':b64encode(signer.public_key().public_bytes(
+                Encoding.Raw,PublicFormat.Raw)).decode(),
+        }]}
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'config').mkdir()
+            policy=root/'config/trusted_proof_checkers.json'
+            policy.write_text(json.dumps(registry))
+            pin=hashlib.sha256(policy.read_bytes()).hexdigest()
+            receipt['attestation_signature_b64']=b64encode(signer.sign(
+                core.canonical(core.proof_attestation_payload(index,result)).encode())).decode()
+            with patch.dict('os.environ',{'OOC_TRUST_POLICY_SHA256':pin}):
+                self.assertTrue(core.trusted_proof_receipt(root,index,result))
+                receipt['counterproof_binding']['relation']='VERIFIED_COUNTEREXAMPLE'
+                self.assertFalse(core.trusted_proof_receipt(root,index,result))
+                receipt['counterproof_binding']['relation']='EXACT_NEGATION'
+                self.assertTrue(core.trusted_proof_receipt(root,index,result))
+
 if __name__=='__main__':
     unittest.main()
 
