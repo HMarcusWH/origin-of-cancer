@@ -115,7 +115,7 @@ def project_current(records, *, root=None, critical_gap_ids=None):
         else:
             decision = 'NOT_ADMITTED'; reason = ('NO_ACTIVE_SCIENTIFIC_PROMOTION',)
         path = route.get(rec['id'],{}).get('witness_path',[]) if rec['type']=='Route' else []
-        formal = (core._qualified_formal_verdict(idx,rec,root)
+        formal = (core._qualified_formal_verdict(idx,rec,root,withdrawn=withdrawn)
                   if rec['type']=='Verdict' and current=='MATHEMATICALLY_VERIFIED_SCOPED' else None)
         negatives = (obligations.get(rec['id'],{}).get('contradiction_refs',[])
                      or model.get(rec['id'],{}).get('contradiction_refs',[])

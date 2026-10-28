@@ -115,14 +115,11 @@ def resolve(records: Iterable[dict], *, root: Path | None = None) -> dict:
             withdrawn = approved_retractions(records, index)
             kind = subject.get("claim_kind")
             if status == "MATHEMATICALLY_VERIFIED_SCOPED":
-                certified = _qualified_formal_verdict(index, v, root)
-                live = bool(certified and live_support(
-                    index, records, v.get('assessment_refs', []),
-                    lambda a: (index.get(a.get('evidence_ref'),{}).get('result_ref') == certified
-                        and _qualified_assessment(index,a,v.get('subject_ref'),v.get('scope'),
-                            effect='SUPPORTS',allowed_classes={'FORMAL'},
-                            allowed_ceilings={'MATHEMATICAL_EXACT'})),
-                    withdrawn))
+                # All authority, proof, and surviving evidence must belong to
+                # one Result.  Never select a withdrawn first alternative and
+                # accidentally veto another independently qualifying Result.
+                certified = _qualified_formal_verdict(index, v, root, withdrawn=withdrawn)
+                live = certified is not None
             elif kind == "ORIGIN":
                 live = _origin_current_support(records,index,subject,v)
             elif status == "SUPPORTED_SCOPED" and subject.get('type') == 'Route':
@@ -533,24 +530,27 @@ def _verified_result(index, result, subject_ref, scope):
     )
 
 
-def _qualified_formal_verdict(index, verdict, root=None):
-    """Atomic admission: one exact Result must satisfy every formal gate.
+def _qualified_formal_verdict(index, verdict, root=None, *, withdrawn=None):
+    """Return a single Result with exact proof trust and qualified support.
 
-    Other Results in the same Verdict may be controls or contrary observations;
-    they cannot lend a signature to an unrelated, unsigned Result. The
-    external checker-policy pin is mandatory on production repository roots.
+    During *historical structural* validation, ``withdrawn=None`` preserves
+    the original admissibility test; current evaluations pass the actual
+    withdrawal set.  Sorting makes result-ref order immaterial, and the
+    assessment must belong to the same signed, passing Result.
     """
     strict = root is not None and (root / "config/project.json").is_file()
-    for result_ref in verdict.get("result_refs", []):
+    for result_ref in sorted(set(verdict.get("result_refs", []))):
         result = index.get(result_ref, {})
         if not (result.get("model_instance_ref") == verdict.get("model_instance_ref")
                 and _verified_result(index, result, verdict.get("subject_ref"), verdict.get("scope"))):
             continue
         if strict and not trusted_proof_receipt(root, index, result):
             continue
-        for assessment_ref in verdict.get("assessment_refs", []):
+        for assessment_ref in sorted(set(verdict.get("assessment_refs", []))):
             assessment = index.get(assessment_ref, {})
             evidence = index.get(assessment.get("evidence_ref"), {})
+            if (withdrawn is not None and assessment.get("evidence_ref") in withdrawn):
+                continue
             if (evidence.get("result_ref") == result_ref
                     and _qualified_assessment(
                         index, assessment, verdict.get("subject_ref"), verdict.get("scope"),
@@ -1184,9 +1184,63 @@ def _historical_positive_replay(record, basis_records, *, proof_trust_root=None)
         # ordinary synthetic fixture harness may qualify synthetic proofs.
         issues = validate_records(replay, root=None,
                                   proof_trust_root=proof_trust_root)
-    except (ValueError, TypeError, KeyError, IntegrityError):
+        if issues:
+            return False
+        # Semantic validation deliberately preserves a historically issued
+        # declaration after later retractions.  At *issuance*, however, the
+        # record must itself be effectively admitted in this closed snapshot;
+        # otherwise a withdrawn support could be retroactively reinstated to
+        # manufacture authority it never had when issued.
+        index = {row['id']: row for row in replay}
+        kind = record.get('type')
+        ident = record.get('id')
+        if kind == 'Verdict':
+            state = resolve(replay, root=proof_trust_root)
+            return any(ident in part['active_verdict_refs']
+                       and part['state'] == record.get('decision')
+                       for part in state['partitions'])
+        if kind == 'Transition':
+            return effective_transition_state(replay, record)['effective'] == 'ADMITTED_SUPPORTED_SCOPED'
+        if kind == 'Route':
+            return effective_route_state(replay, record)['effective'] == 'ADMITTED_CLOSED'
+        if kind == 'DataUse':
+            return effective_data_use_state(replay, record)['effective'] == 'ADMITTED'
+        if kind == 'ModelInstance':
+            state = effective_model_state(replay, record, root=proof_trust_root)
+            return (state['effective'] == 'ADMITTED'
+                    and state.get('authorization_ref') is not None)
+        if kind in {'Requirement', 'ResearchGap'}:
+            return effective_obligation_state(
+                replay, record, root=proof_trust_root)['effective'] == (
+                    'ADMITTED_' + record.get('status', ''))
+        if kind in {'SourceVerification', 'LiteratureSource'}:
+            source = (index.get(record.get('source_ref'), {})
+                      if kind == 'SourceVerification' else record)
+            if source.get('type') != 'LiteratureSource':
+                return False
+            current = effective_source_verification_state(replay, source)
+            return (ident in current['active_verification_refs']
+                    if kind == 'SourceVerification'
+                    else current['effective'] == 'VERIFIED')
+        if kind == 'AuthorizationEvent':
+            subject = index.get(record.get('subject_ref'), {})
+            if record.get('action') == 'ADMIT_MODEL':
+                if subject.get('type') != 'ModelInstance':
+                    return False
+                state = effective_model_state(replay, subject, root=proof_trust_root)
+                return state['effective'] == 'ADMITTED' and state['authorization_ref'] == ident
+            if record.get('action') == 'FREEZE_KERNEL':
+                if subject.get('type') != 'Programme':
+                    return False
+                state = effective_freeze_eligibility(replay, root=proof_trust_root)
+                return state['effective_kernel_frozen'] and state['freeze_authorized_by_event']
+            return False
+        if kind == 'Programme':
+            return effective_freeze_eligibility(
+                replay, root=proof_trust_root)['effective_kernel_frozen']
+        return False  # All unknown positive paths fail closed.
+    except (ValueError, TypeError, KeyError, IntegrityError, RecursionError, IndexError):
         return False
-    return not issues
 
 
 def _production_issuance_authenticated(record, root):

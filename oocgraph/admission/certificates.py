@@ -21,13 +21,20 @@ def support_certificate(record, index, records, *, withdrawn, root=None,
     groups=[]
     accepted=set()
 
-    def group(name, candidate_refs, predicate, quantifier='ANY'):
+    def group(name, candidate_refs, predicate, quantifier='ANY', *, evidence_assessments=None):
         refs=[r for r in candidate_refs if isinstance(r,str)]
         result=qualify_groups([(name,quantifier,refs,len(refs))],
                               lambda _,ref:predicate(ref))[0]
         groups.append(result)
-        accepted.update(ref for ref in result.accepted
-                        if index.get(ref,{}).get('type')=='EvidenceAssessment')
+        for ref in result.accepted:
+            if index.get(ref,{}).get('type')=='EvidenceAssessment':
+                accepted.add(ref)
+            # Some policies nominate EvidenceObject IDs, not assessment IDs.
+            # Only include the exact adjudicated assessments that qualified
+            # each accepted evidence candidate, never every associated claim.
+            if evidence_assessments is not None:
+                accepted.update(aid for aid in evidence_assessments(ref)
+                                if index.get(aid,{}).get('type')=='EvidenceAssessment')
 
     def live_assessment(ref, *, target, role=None, kind=None, formal=False):
         a=index.get(ref,{})
@@ -49,7 +56,8 @@ def support_certificate(record, index, records, *, withdrawn, root=None,
         kind=(core.route_evidence_policy_key(subject)
               if subject.get('type')=='Route' else subject.get('claim_kind'))
         formal=record.get('decision')=='MATHEMATICALLY_VERIFIED_SCOPED'
-        selected=core._qualified_formal_verdict(index,record,root) if formal else None
+        selected=(core._qualified_formal_verdict(index,record,root,withdrawn=withdrawn)
+                  if formal else None)
         group('SIGNED_FORMAL_RESULT' if formal else 'VERDICT_SUPPORT',
               record.get('result_refs',[]) if formal else record.get('assessment_refs',[]),
               (lambda ref:ref==selected) if formal else
@@ -142,11 +150,17 @@ def support_certificate(record, index, records, *, withdrawn, root=None,
         decision=index.get(record.get('decision_ref'),{})
         bound=record.get('bound_scope') if record.get('status')=='BOUNDED' else decision.get('disposition_scope')
         effects=({'CONSTRAINS','DOES_NOT_ESTABLISH'} if record.get('status')=='BOUNDED' else {'SUPPORTS'})
-        group('ADJUDICATED_DISPOSITION',decision.get('evidence_refs',[]),lambda ref:any(
-            a.get('type')=='EvidenceAssessment' and a.get('evidence_ref')==ref
-            and ref not in withdrawn and core._admissible_disposition_evidence(
-                index,a,record.get('id'),bound,record.get('obligation_domain'),effect)
-            for a in records for effect in effects))
+        def disposition_assessments(ref):
+            if ref in withdrawn:
+                return ()
+            return tuple(sorted(a['id'] for a in records
+                if a.get('type')=='EvidenceAssessment' and a.get('evidence_ref')==ref
+                and any(core._admissible_disposition_evidence(
+                    index,a,record.get('id'),bound,record.get('obligation_domain'),effect)
+                    for effect in effects)))
+        group('ADJUDICATED_DISPOSITION',decision.get('evidence_refs',[]),
+              lambda ref:bool(disposition_assessments(ref)),
+              evidence_assessments=disposition_assessments)
 
     elif typ=='ModelInstance' and current_status=='ADMITTED':
         try:
@@ -154,13 +168,17 @@ def support_certificate(record, index, records, *, withdrawn, root=None,
         except core.IntegrityError:
             event=None
         if event and event.get('action')=='ADMIT_MODEL':
-            group('MODEL_LICENSE',event.get('evidence_refs',[]),
-                lambda ref:ref not in withdrawn and any(
-                    (a:=rec).get('type')=='EvidenceAssessment'
-                    and a.get('evidence_ref')==ref
+            def model_license_assessments(ref):
+                if ref in withdrawn:
+                    return ()
+                return tuple(sorted(a['id'] for a in records
+                    if a.get('type')=='EvidenceAssessment' and a.get('evidence_ref')==ref
                     and core._qualified_assessment(index,a,record.get('id'),record.get('scope'),
                         allowed_classes={'ANALYTIC','FORMAL'},
                         allowed_ceilings={'METHODOLOGICAL','MATHEMATICAL_EXACT'},
-                        assessment_role='MODEL') for rec in records),quantifier='ALL')
+                        assessment_role='MODEL')))
+            group('MODEL_LICENSE',event.get('evidence_refs',[]),
+                  lambda ref:bool(model_license_assessments(ref)),quantifier='ALL',
+                  evidence_assessments=model_license_assessments)
 
     return tuple(sorted(accepted)), tuple(groups)

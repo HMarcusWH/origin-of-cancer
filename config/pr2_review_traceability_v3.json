@@ -1857,7 +1857,34 @@
       "test_or_gate": "tests.test_route_kind_policy_consistency.RouteKindPolicyConsistency",
       "title": "Map Route claim kinds to their evidence policy keys",
       "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395470942"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-12",
+      "priority": "P2",
+      "reviewed_head": "72c78c45c95ac5e8334452b5160f5b5e4b92cf35",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::SurvivingFormalResult",
+      "title": "Select a formal Result with surviving support before contesting",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395611699"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-13",
+      "priority": "P2",
+      "reviewed_head": "72c78c45c95ac5e8334452b5160f5b5e4b92cf35",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::EvidenceKeyedCertificateTraceability",
+      "title": "Retain qualified assessments for evidence-keyed certificate groups",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395611703"
+    },
+    {
+      "disposition": "LOCAL_REGRESSION_AWAITING_CI_AND_INDEPENDENT_REVIEW",
+      "id": "PR5-14",
+      "priority": "P1",
+      "reviewed_head": "72c78c45c95ac5e8334452b5160f5b5e4b92cf35",
+      "test_hint": "tests/test_pr5_issuance_formal_certificates.py::IssuanceTimeEffectiveAdmission",
+      "title": "Require effective admission within issuance-time replay",
+      "url": "https://github.com/HMarcusWH/origin-of-cancer/pull/5#discussion_r4395611705"
     }
   ],
-  "status": "PR5_ROUTE_KIND_POLICY_MAPPING_STAGED_AWAITING_CI_AND_REVIEW"
+  "status": "PR5_OCT28_THREE_REPAIRS_STAGED_AWAITING_CI_AND_REVIEW"
 }

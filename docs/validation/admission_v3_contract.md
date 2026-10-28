@@ -73,3 +73,29 @@ explicit assessment-role mismatch (rejection), support withdrawal
 (contestation), and independently surviving support (continued admission).
 These tests certify software consistency only, not causal or historical
 oncology evidence.
+
+## PR #5 October 28 follow-up — issuance-time effective truth and alternative proof chains
+
+A content-addressed and structurally valid historical snapshot is necessary
+but insufficient for granting a scientific-positive issuance: the new record
+**must also qualify as effectively admitted in the original snapshot**.
+Preexisting authorized withdrawals, material contradictions and incomplete
+mandatory evidence cannot be backfilled by later reinstatements. Later valid
+withdrawals still change only CURRENT entitlement, not originally valid
+historical admission. The replay fails closed on unrecognized positive sinks.
+
+A mathematical Verdict may contain several independently qualified formal
+Results. CURRENT selection requires a passing, authorized, same-claim and
+same-model Result with at least one active, scoped, adjudicated assessment
+whose evidence points to that exact Result. Selection is deterministic and
+order-independent; a withdrawn first Result is not a veto of a surviving
+independent proof. Resolver state, reviewer `formal_result_ref`, and accepted
+assessment/evidence references use this same live selector. Historical
+structural proof checks remain separate from CURRENT withdrawal projection.
+
+Requirements, ResearchGaps and ModelInstance licensing nominate EvidenceObject
+IDs. Reviewer certificates must retain the **specific eligible
+EvidenceAssessment IDs** behind these accepted evidence-keyed groups, not
+report empty traceability fields for admitted claims or collect unadjudicated
+assessments. These changes are engineering admission controls only, not proof
+of cancer mechanisms or mathematical truths.
