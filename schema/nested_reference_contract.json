@@ -1,0 +1,26 @@
+{
+  "WitnessBundle.bridge_links[].items.properties.from_transition_ref": [
+    "Transition"
+  ],
+  "WitnessBundle.bridge_links[].items.properties.to_transition_ref": [
+    "Transition"
+  ],
+  "WitnessBundle.bridge_links[].items.properties.evidence_ref": [
+    "EvidenceObject"
+  ],
+  "WitnessBundle.bridge_links[].items.properties.assessment_ref": [
+    "EvidenceAssessment"
+  ],
+  "WitnessBundle.properties.bridge_links[].items.properties.from_transition_ref": [
+    "Transition"
+  ],
+  "WitnessBundle.properties.bridge_links[].items.properties.to_transition_ref": [
+    "Transition"
+  ],
+  "WitnessBundle.properties.bridge_links[].items.properties.evidence_ref": [
+    "EvidenceObject"
+  ],
+  "WitnessBundle.properties.bridge_links[].items.properties.assessment_ref": [
+    "EvidenceAssessment"
+  ]
+}

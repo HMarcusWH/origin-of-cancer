@@ -64,6 +64,13 @@
         },
         "type": {
           "const": "Adapter"
+        },
+        "completion_requirement_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
         }
       },
       "required": [
@@ -230,8 +237,12 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "enum": [
+            "ACTIVE_RULE",
+            "DRAFT",
+            "REVOKED",
+            "RETIRED"
+          ]
         },
         "subject_refs": {
           "items": {
@@ -544,7 +555,8 @@
             "PERSISTENCE",
             "CONSTITUTIVE",
             "OBSERVATION",
-            "CERTIFICATE"
+            "CERTIFICATE",
+            "ORIGIN"
           ]
         },
         "doc_path": {
@@ -631,6 +643,34 @@
         },
         "type": {
           "const": "Claim"
+        },
+        "origin_route_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "malignant_state_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "persistence_criterion_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entry_assessment_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "establishment_assessment_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
         }
       },
       "required": [
@@ -845,6 +885,14 @@
           },
           "type": "array",
           "uniqueItems": true
+        },
+        "selection_family_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "candidate_set_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -957,8 +1005,20 @@
           "type": "string"
         },
         "decision": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "RESOLVE",
+            "SATISFY",
+            "BOUND",
+            "SUPERSEDE",
+            "REJECT",
+            "KEEP_OPEN",
+            "COMPLETE",
+            "VERIFY",
+            "ALLOW_TRANSFER",
+            "DENY_TRANSFER",
+            "ACKNOWLEDGE"
+          ]
         },
         "doc_path": {
           "type": "string"
@@ -1034,6 +1094,30 @@
         },
         "type": {
           "const": "Decision"
+        },
+        "disposition_scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "decision_kind": {
+          "type": "string",
+          "enum": [
+            "RESEARCH_GAP_DISPOSITION",
+            "REQUIREMENT_DISPOSITION",
+            "THEORY_CARD_COMPLETION",
+            "ADAPTER_DOSSIER_COMPLETION",
+            "SOURCE_VERIFICATION",
+            "TRANSFER",
+            "POLICY"
+          ]
+        },
+        "transfer_adapter_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
         }
       },
       "required": [
@@ -1048,7 +1132,8 @@
         "scope",
         "status",
         "subject_ref",
-        "type"
+        "type",
+        "decision_kind"
       ],
       "type": "object"
     },
@@ -1223,7 +1308,9 @@
             "CONSTRAINS",
             "DOES_NOT_ESTABLISH",
             "CALIBRATES",
-            "FALSIFIES"
+            "FALSIFIES",
+            "RETRACTS",
+            "REINSTATES"
           ]
         },
         "evidence_ref": {
@@ -1293,6 +1380,26 @@
         },
         "type": {
           "const": "EvidenceAssessment"
+        },
+        "assessment_role": {
+          "type": "string",
+          "enum": [
+            "OBSERVATION",
+            "ANCESTRY",
+            "TEMPORAL",
+            "PERSISTENCE",
+            "CAUSAL",
+            "MODEL",
+            "INDEPENDENCE",
+            "BOUNDED_DISPOSITION",
+            "DOCUMENT_COMPLETION",
+            "RETRACTION",
+            "REASSESSMENT"
+          ]
+        },
+        "authority_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -1315,8 +1422,17 @@
       "additionalProperties": false,
       "properties": {
         "claim_ceiling": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "BIOLOGICAL_OBSERVATION",
+            "BIOLOGICAL_CAUSAL_SCOPED",
+            "MATHEMATICAL_EXACT",
+            "MATHEMATICAL_NUMERICAL",
+            "METHODOLOGICAL",
+            "DATA_PARTITION_AUDIT",
+            "VERIFICATION_ONLY",
+            "ENGINEERING_ONLY"
+          ]
         },
         "context_ref": {
           "minLength": 1,
@@ -1398,12 +1514,12 @@
           ]
         },
         "study_id": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "system_id": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "type": {
           "const": "EvidenceObject"
@@ -1418,6 +1534,72 @@
           },
           "type": "array",
           "uniqueItems": true
+        },
+        "claim_ceiling_detail": {
+          "type": "string"
+        },
+        "result_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_instance_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "design_class": {
+          "type": "string",
+          "enum": [
+            "OBSERVATIONAL",
+            "LONGITUDINAL",
+            "LINEAGE",
+            "PERTURBATION",
+            "MIXED",
+            "FORMAL_DERIVATION",
+            "NUMERICAL_BENCHMARK",
+            "DATA_AUDIT"
+          ]
+        },
+        "witness_bridge_pairs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from_study_id",
+              "from_system_id",
+              "from_witness_id",
+              "to_study_id",
+              "to_system_id",
+              "to_witness_id"
+            ],
+            "properties": {
+              "from_study_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from_system_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from_witness_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_study_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_system_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_witness_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
         }
       },
       "required": [
@@ -1520,11 +1702,20 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "REGISTERED",
+            "COMPLETED",
+            "FAILED",
+            "SUPERSEDED"
+          ]
         },
         "type": {
           "const": "Execution"
+        },
+        "output_artifact_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -1698,6 +1889,13 @@
         },
         "type": {
           "const": "FounderEnsemble"
+        },
+        "ancestry_assessment_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
         }
       },
       "required": [
@@ -2467,11 +2665,20 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "ACTIVE",
+            "SUPERSEDED",
+            "RETIRED"
+          ]
         },
         "type": {
           "const": "MethodApplicability"
+        },
+        "scope": {
+          "type": "object",
+          "minProperties": 1
         }
       },
       "required": [
@@ -2490,7 +2697,8 @@
         "provenance_class",
         "schema_version",
         "status",
-        "type"
+        "type",
+        "scope"
       ],
       "type": "object"
     },
@@ -2781,6 +2989,19 @@
         },
         "type": {
           "const": "ModelInstance"
+        },
+        "identity_algorithm": {
+          "type": "string",
+          "enum": [
+            "ooc-model-digest-v2"
+          ]
+        },
+        "protocol_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
         }
       },
       "required": [
@@ -3736,8 +3957,12 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "ACTIVE",
+            "RETIRED"
+          ]
         },
         "target_refs": {
           "items": {
@@ -4056,6 +4281,39 @@
         },
         "type": {
           "const": "Requirement"
+        },
+        "obligation_scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "obligation_domain": {
+          "type": "string",
+          "enum": [
+            "BIOLOGICAL",
+            "MATHEMATICAL",
+            "MEASUREMENT",
+            "STATISTICAL",
+            "METHODOLOGICAL"
+          ]
+        },
+        "obligation_claim_kind": {
+          "type": "string",
+          "enum": [
+            "CAPABILITY",
+            "OBSERVATION",
+            "ANCESTRY",
+            "PERSISTENCE",
+            "ROUTE",
+            "CONSTITUTIVE",
+            "CERTIFICATE",
+            "MODEL_VALIDITY",
+            "DATA_INDEPENDENCE",
+            "STUDY_DESIGN"
+          ]
+        },
+        "obligation_claim_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -4155,6 +4413,39 @@
         },
         "type": {
           "const": "ResearchGap"
+        },
+        "obligation_scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "obligation_domain": {
+          "type": "string",
+          "enum": [
+            "BIOLOGICAL",
+            "MATHEMATICAL",
+            "MEASUREMENT",
+            "STATISTICAL",
+            "METHODOLOGICAL"
+          ]
+        },
+        "obligation_claim_kind": {
+          "type": "string",
+          "enum": [
+            "CAPABILITY",
+            "OBSERVATION",
+            "ANCESTRY",
+            "PERSISTENCE",
+            "ROUTE",
+            "CONSTITUTIVE",
+            "CERTIFICATE",
+            "MODEL_VALIDITY",
+            "DATA_INDEPENDENCE",
+            "STUDY_DESIGN"
+          ]
+        },
+        "obligation_claim_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -4175,15 +4466,32 @@
       "additionalProperties": false,
       "properties": {
         "claim_ceiling": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "BIOLOGICAL_OBSERVATION",
+            "BIOLOGICAL_CAUSAL_SCOPED",
+            "MATHEMATICAL_EXACT",
+            "MATHEMATICAL_NUMERICAL",
+            "METHODOLOGICAL",
+            "DATA_PARTITION_AUDIT",
+            "VERIFICATION_ONLY",
+            "ENGINEERING_ONLY"
+          ]
         },
         "doc_path": {
           "type": "string"
         },
         "evidence_class": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "FORMAL",
+            "NUMERICAL",
+            "ANALYTIC",
+            "SYNTHETIC",
+            "ENGINEERING",
+            "PRIMARY_HUMAN_LONGITUDINAL",
+            "PRIMARY_ANIMAL"
+          ]
         },
         "execution_ref": {
           "minLength": 1,
@@ -4239,8 +4547,13 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "RECORDED",
+            "VALIDATED",
+            "FAILED",
+            "SUPERSEDED"
+          ]
         },
         "test_ref": {
           "minLength": 1,
@@ -4248,6 +4561,85 @@
         },
         "type": {
           "const": "Result"
+        },
+        "scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "subject_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_instance_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verification_mode": {
+          "type": "string",
+          "enum": [
+            "FORMAL_PROOF",
+            "NUMERICAL_BOUND",
+            "STATISTICAL_HOLDOUT",
+            "ENGINEERING_TEST"
+          ]
+        },
+        "verification_artifact_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verification_receipt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "statement_sha256",
+            "artifact_sha256",
+            "verifier_sha256",
+            "verifier_version",
+            "outcome",
+            "execution_output_sha256"
+          ],
+          "properties": {
+            "statement_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "artifact_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "verifier_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "verifier_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "PASS",
+                "FAIL",
+                "INCOMPLETE"
+              ]
+            },
+            "execution_output_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "attestation_version": {
+              "type": "string",
+              "const": "OOC_FORMAL_PROOF_ATTESTATION_V2"
+            },
+            "attestation_signer_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "attestation_signature_b64": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         }
       },
       "required": [
@@ -4359,6 +4751,13 @@
         "witness_bundle_ref": {
           "minLength": 1,
           "type": "string"
+        },
+        "claim_kind": {
+          "type": "string",
+          "enum": [
+            "HISTORICAL",
+            "CAUSAL"
+          ]
         }
       },
       "required": [
@@ -4556,6 +4955,10 @@
         },
         "type": {
           "const": "SourceArtifact"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
         }
       },
       "required": [
@@ -4707,8 +5110,12 @@
           "type": "string"
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "RECORDED",
+            "VERIFIED",
+            "RETRACTED"
+          ]
         },
         "type": {
           "const": "SourceVerification"
@@ -4875,8 +5282,13 @@
           "uniqueItems": true
         },
         "status": {
-          "minLength": 1,
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "REGISTERED",
+            "PASSED",
+            "FAILED",
+            "SUPERSEDED"
+          ]
         },
         "subject_ref": {
           "minLength": 1,
@@ -4978,6 +5390,13 @@
         },
         "type": {
           "const": "Theory"
+        },
+        "completion_requirement_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
         }
       },
       "required": [
@@ -5083,6 +5502,22 @@
         },
         "type": {
           "const": "Transition"
+        },
+        "scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "source_context_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_context_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "context_transition_assessment_ref": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -5402,6 +5837,80 @@
         },
         "type": {
           "const": "WitnessBundle"
+        },
+        "bridge_links": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from_transition_ref",
+              "to_transition_ref",
+              "evidence_ref",
+              "assessment_ref",
+              "from_witness_id",
+              "to_witness_id",
+              "from_study_id",
+              "from_system_id",
+              "to_study_id",
+              "to_system_id"
+            ],
+            "properties": {
+              "from_transition_ref": {
+                "type": "string",
+                "minLength": 1,
+                "x-ooc-target-types": [
+                  "Transition"
+                ]
+              },
+              "to_transition_ref": {
+                "type": "string",
+                "minLength": 1,
+                "x-ooc-target-types": [
+                  "Transition"
+                ]
+              },
+              "evidence_ref": {
+                "type": "string",
+                "minLength": 1,
+                "x-ooc-target-types": [
+                  "EvidenceObject"
+                ]
+              },
+              "assessment_ref": {
+                "type": "string",
+                "minLength": 1,
+                "x-ooc-target-types": [
+                  "EvidenceAssessment"
+                ]
+              },
+              "from_witness_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_witness_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from_study_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from_system_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_study_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to_system_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
         }
       },
       "required": [
@@ -5489,6 +5998,117 @@
         "provenance_class",
         "schema_version",
         "status",
+        "type"
+      ],
+      "type": "object"
+    },
+    "AuthorizationEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "ADMIT_MODEL",
+            "RETIRE_MODEL",
+            "FREEZE_KERNEL",
+            "UNFREEZE_KERNEL"
+          ]
+        },
+        "authority_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "basis_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "doc_path": {
+          "type": "string"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^ooc:[a-z][a-z0-9-]*:.+"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "string"
+        },
+        "previous_event_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance_class": {
+          "enum": [
+            "CURATED_BASELINE",
+            "CURATED_SEMANTIC",
+            "FILE_EXACT",
+            "REGISTRY_EXACT",
+            "BIBLIOGRAPHIC_EXACT",
+            "LOCATOR_EXACT",
+            "DATA_EXACT",
+            "MODEL_DERIVED",
+            "TEXTUAL_HINT",
+            "SYNTHETIC",
+            "ENGINEERING"
+          ]
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "scope": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "source_locator_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "RECORDED"
+          ]
+        },
+        "subject_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "const": "AuthorizationEvent"
+        }
+      },
+      "required": [
+        "action",
+        "authority_ref",
+        "basis_digest",
+        "basis_refs",
+        "evidence_refs",
+        "id",
+        "label",
+        "provenance_class",
+        "schema_version",
+        "scope",
+        "status",
+        "subject_ref",
         "type"
       ],
       "type": "object"
