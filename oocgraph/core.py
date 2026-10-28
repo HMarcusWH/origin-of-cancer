@@ -9,6 +9,7 @@ import os
 import json
 import math
 import re
+import subprocess
 from collections import defaultdict
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
@@ -16,7 +17,7 @@ from .admission.scope import scoped_claim_entails
 from .admission.evidence import qualify_groups, groups_satisfied, live_support
 from .admission.formal import qualify_formal_result, qualify_verified_counterevidence
 from .admission.route import has_ancestry_path
-from .admission.history import historical_obligations, obligation_inventory, snapshot as admission_snapshot
+from .admission.history import historical_obligations, obligation_inventory, issued_record_digest, snapshot as admission_snapshot
 from .admission.registry import registry_errors
 
 class IntegrityError(ValueError):
@@ -413,7 +414,9 @@ def proof_attestation_payload(index, result):
     signed_result["verification_receipt"] = {
         k:v for k,v in receipt.items() if k != "attestation_signature_b64"}
     return {
-        "domain": "OOC_FORMAL_PROOF_ATTESTATION_V2",
+        "domain": ("OOC_FORMAL_PROOF_ATTESTATION_V3" if
+                   receipt.get("attestation_version") == "OOC_FORMAL_PROOF_ATTESTATION_V3"
+                   else "OOC_FORMAL_PROOF_ATTESTATION_V2"),
         "result": signed_result, "test": test, "execution": execution,
         "protocol": protocol, "model_id": model.get("id"),
         "model_digest": model.get("frozen_digest"),
@@ -444,8 +447,14 @@ def trusted_proof_receipt(root, index, result):
             return False
         registry = loads(raw.decode("utf-8"))
         receipt = result.get("verification_receipt", {})
+        version = receipt.get("attestation_version")
         if (result.get("type") != "Result"
-                or receipt.get("attestation_version") != "OOC_FORMAL_PROOF_ATTESTATION_V2"):
+                or version not in {"OOC_FORMAL_PROOF_ATTESTATION_V2",
+                                   "OOC_FORMAL_PROOF_ATTESTATION_V3"}
+                or (version == "OOC_FORMAL_PROOF_ATTESTATION_V3")
+                   != isinstance(receipt.get("counterproof_binding"), dict)
+                or (version == "OOC_FORMAL_PROOF_ATTESTATION_V2"
+                    and "counterproof_binding" in receipt)):
             return False
         execution = index.get(result.get("execution_ref"), {})
         checker = index.get(execution.get("software_ref"), {})
@@ -1138,7 +1147,9 @@ def _event_admission_basis(records, event, root, *, kind):
     manifest=event['admission_basis']['basis']
     if (manifest.get('subject_ref') != event.get('id')
             or canonical(manifest.get('asserted_scope')) != canonical(event.get('scope'))
-            or manifest.get('input_graph_tree_sha') is None):
+            or manifest.get('input_graph_tree_sha') is None
+            or (production and manifest.get('issued_record_sha256')
+                != issued_record_digest(event))):
         return None
     if not set(event.get('basis_refs',[])).issubset(basis_records):
         return None
@@ -1149,10 +1160,63 @@ def _event_admission_basis(records, event, root, *, kind):
             return None
         if set(manifest.get('critical_gap_refs',[])) - set(basis_records):
             return None
+    if production and not _historical_repository_paths_valid(
+            [*basis_records.values(), event], root, manifest.get('input_graph_tree_sha')):
+        return None
     return list(basis_records.values())
 
 
-def _historical_positive_replay(record, basis_records, *, proof_trust_root=None):
+def _historical_repository_paths_valid(rows, root, tree_sha):
+    """Verify source anchors against original Git tree objects, not today's graph.
+
+    Production historical replay fails closed if its pinned tree is not present
+    or if an original path is unsafe, untracked, a symlink, or hash-mismatched.
+    """
+    if not isinstance(tree_sha, str) or not re.fullmatch(r'[0-9a-f]{40}', tree_sha):
+        return False
+    try:
+        listing = subprocess.run(
+            ['git', '-C', str(root), 'ls-tree', '-r', '-z', tree_sha],
+            capture_output=True, timeout=15, check=False)
+        if listing.returncode:
+            return False
+        historical_blobs = {}
+        for entry in listing.stdout.split(b'\x00'):
+            if not entry:
+                continue
+            header, raw_path = entry.split(b'\t', 1)
+            mode, kind, blob = header.decode('ascii').split()
+            if kind == 'blob' and mode in {'100644', '100755'}:
+                historical_blobs[raw_path.decode('utf-8')] = blob
+        checked = {}
+        for record in rows:
+            for field in ('path', 'doc_path'):
+                if field not in record:
+                    continue
+                path = record[field]
+                safe_path(root, path)
+                blob = historical_blobs.get(path)
+                if not blob:
+                    return False
+                expected = record.get('sha256') if field == 'path' else None
+                if expected is not None:
+                    if blob not in checked:
+                        content = subprocess.run(
+                            ['git', '-C', str(root), 'cat-file', 'blob', blob],
+                            capture_output=True, timeout=15, check=False)
+                        if content.returncode:
+                            return False
+                        checked[blob] = sha256(content.stdout)
+                    if checked[blob] != expected:
+                        return False
+        return True
+    except (OSError, ValueError, TypeError, UnicodeError, subprocess.TimeoutExpired,
+            IntegrityError):
+        return False
+
+
+def _historical_positive_replay(record, basis_records, *, proof_trust_root=None,
+                                issuance_tree_sha=None):
     """Replay a positive claim against issuance-time rows, never today's graph.
 
     A valid hash of an incomplete snapshot is insufficient: the claimed
@@ -1177,6 +1241,11 @@ def _historical_positive_replay(record, basis_records, *, proof_trust_root=None)
                or row.get('type') not in validators
                or not validators[row['type']].is_valid(row)
                for row in replay):
+            return False
+        if (proof_trust_root is not None
+                and (proof_trust_root / 'config/project.json').is_file()
+                and not _historical_repository_paths_valid(
+                    replay, proof_trust_root, issuance_tree_sha)):
             return False
         # Keep scientific records restricted to their issuance snapshot, but
         # verify formal checkers against the independently pinned production
@@ -1266,8 +1335,11 @@ def _production_issuance_authenticated(record, root):
            or record.get('disposition_scope'))
     return (manifest.get('subject_ref') == record.get('id')
             and canonical(manifest.get('asserted_scope')) == canonical(scope)
+            and manifest.get('issued_record_sha256') == issued_record_digest(record)
             and record.get('id') not in basis
-            and _historical_positive_replay(record,basis,proof_trust_root=root))
+            and _historical_positive_replay(
+                record, basis, proof_trust_root=root,
+                issuance_tree_sha=manifest.get('input_graph_tree_sha')))
 
 
 def _is_scientific_positive(record):

@@ -1,4 +1,5 @@
 """Atomic cryptographic/formal admission: one Result must carry *all* predicates."""
+import hashlib
 from .types import QualificationResult
 
 
@@ -45,10 +46,31 @@ def qualify_verified_counterevidence(index, assessment, scope, *, target_ref,
             or not verify_result(index, result, result.get('subject_ref'), scope)
             or not verify_signature(index, result)):
         return False
-    # The relation between the verified proposition and the target must itself
-    # be formally typed/identified; a free-text FALSIFIES effect is insufficient.
+    # A label on EvidenceObject is unsigned. Only checker-attested V3
+    # counterproofs can contradict an exact mathematical proposition.
+    receipt = result.get('verification_receipt', {})
+    binding = receipt.get('counterproof_binding', {})
     relation = evidence.get('counterclaim_relation', {})
-    return (isinstance(relation, dict)
-            and relation.get('target_ref') == target_ref
-            and relation.get('counterclaim_ref') == result.get('subject_ref')
-            and relation.get('relation') in {'EXACT_NEGATION', 'VERIFIED_COUNTEREXAMPLE'})
+    target = index.get(target_ref, {})
+    if target.get('type') in {'Requirement', 'ResearchGap'}:
+        target = index.get(target.get('obligation_claim_ref'), {})
+    counterclaim = index.get(result.get('subject_ref'), {})
+    if (receipt.get('attestation_version') != 'OOC_FORMAL_PROOF_ATTESTATION_V3'
+            or not isinstance(binding, dict) or not isinstance(relation, dict)
+            or target.get('type') != 'Claim'
+            or counterclaim.get('type') != 'Claim'
+            or not isinstance(target.get('statement'), str)
+            or not isinstance(counterclaim.get('statement'), str)):
+        return False
+    digest = lambda statement: hashlib.sha256(statement.encode('utf-8')).hexdigest()
+    return bool(
+        binding.get('target_id') == target_ref
+        and binding.get('counterclaim_id') == result.get('subject_ref')
+        and binding.get('relation') in {'EXACT_NEGATION', 'VERIFIED_COUNTEREXAMPLE'}
+        and binding.get('relation') == relation.get('relation')
+        and relation.get('target_ref') == target_ref
+        and relation.get('counterclaim_ref') == result.get('subject_ref')
+        and binding.get('target_statement_sha256') == digest(target['statement'])
+        and binding.get('counterclaim_statement_sha256') == digest(counterclaim['statement'])
+        and receipt.get('statement_sha256') == digest(counterclaim['statement'])
+    )
